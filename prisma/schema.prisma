@@ -85,5 +85,5 @@ model videoyoutube {
   idusuario String  @db.VarChar(100)
   usuario   usuario @relation(fields: [idusuario], references: [correo], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([urlvideo, idusuario])
+  @@id([urlvideo, idusuario]
 }

@@ -1,10 +1,13 @@
 import express from 'express';
 import { SalaController } from './controllers/salaController';
 
+
 const router = express.Router();
 
-router.get('/ver_video/:urlvideo/:correo', async (req, res) => {
-    const { urlvideo, correo } = req.params;
+router.get('/ver_video/prueba/usuario1', async (req, res) => {
+    //const { urlvideo, correo } = req.params;
+    const urlvideo = "test_video_url";
+    const correo = "usuario1";
     try {
       const salaUrl = await SalaController.verVideo(urlvideo, correo);
       res.redirect(salaUrl);
@@ -14,6 +17,6 @@ router.get('/ver_video/:urlvideo/:correo', async (req, res) => {
     }
   });
 
-router.get('/sala/:idUsuarioMatch', SalaController.sincronizarUsuarios);
+router.get('/sala/:idUsuarioMatch',);
 
 export default router;
