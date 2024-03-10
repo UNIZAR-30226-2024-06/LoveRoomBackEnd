@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -22,9 +23,12 @@
     "twilio": "^4.23.0"
   },
   "devDependencies": {
+    "@prisma/client": "^5.10.2",
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.24",
     "@types/pg": "^8.11.2",
+    "prisma": "^5.10.2",
+    "socket.io": "^4.7.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
