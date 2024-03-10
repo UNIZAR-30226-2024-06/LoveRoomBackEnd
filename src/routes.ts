@@ -4,6 +4,10 @@ import { SalaController } from './controllers/salaController';
 
 const router = express.Router();
 
+router.get('/', (req, res) => {
+  res.send('Home page');
+});
+
 router.get('/ver_video/prueba/usuario1', async (req, res) => {
     //const { urlvideo, correo } = req.params;
     const urlvideo = "test_video_url";

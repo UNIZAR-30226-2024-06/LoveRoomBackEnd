@@ -17,15 +17,8 @@ SalaController.initializeSocketManager(io);
 
 app.use('/', routes);
 
-// Configuración de CSP para permitir la carga desde http://localhost:3000
-app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self' http://localhost:3000");
-  next();
-});
-
-
 app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
 
 process.on('SIGINT', async () => {
