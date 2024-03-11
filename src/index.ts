@@ -9,7 +9,7 @@ import { createServer } from "http";
 const app: Express = express();
 const httpServer = createServer(app);  
 const prisma = new PrismaClient();
-const port =  3000;
+const port =  5000;
 const io = new Server(httpServer);  // Pasa el servidor HTTP a la instancia de Server de Socket.IO
  
 
