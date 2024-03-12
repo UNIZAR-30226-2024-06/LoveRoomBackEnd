@@ -18,8 +18,12 @@
   },
   "homepage": "https://github.com/UNIZAR-30226-2024-06/LoveRoomBackEnd#readme",
   "dependencies": {
+    "@prisma/client": "^5.10.2",
     "express": "^4.18.3",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
+    "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4",
     "twilio": "^4.23.0"
   },
   "devDependencies": {

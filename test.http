@@ -1,24 +1,22 @@
 
-// POST http://localhost:3000/registrar HTTP/1.1
-// Content-Type: application/json
-
-// {
-   
-//     "correo": "benedi@gmail.com",
-//     "nombre": "Juan",
-//     "descripcion": "Estudiante de la U",
-//     "contrasena": "1234",
-//     "edad": 20,
-//     "sexo": "Hombre",
-//     "preferencias": "Mujer",
-//     "tipousuario": "Premium"
-
-// }
-
-POST http://localhost:3000/login HTTP/1.1
+POST http://localhost:3000/registrar HTTP/1.1
 Content-Type: application/json
 
 {
     "correo": "benedi@gmail.com",
-    "contrasena": "124"
+    "nombre": "Juan",
+    "descripcion": "Estudiante de la U",
+    "contrasena": "1234",
+    "edad": 20,
+    "sexo": "Hombre",
+    "preferencias": "Mujer",
+    "tipousuario": "Premium"
 }
+
+// POST http://localhost:3000/login HTTP/1.1
+// Content-Type: application/json
+//
+// {
+//     "correo": "benedi@gmail.com",
+//     "contrasena": "124"
+// }

@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from "express";
 import { PrismaClient } from '@prisma/client';
 import routes from './routes';
 
+const jwt = require('jsonwebtoken');
 const app: Express = express();
 let prisma = new PrismaClient();
 const port =  3000;
@@ -18,4 +19,4 @@ process.on('SIGINT', async () => {
 });
 
 
-export { app, prisma };
+export { app, prisma, jwt };
