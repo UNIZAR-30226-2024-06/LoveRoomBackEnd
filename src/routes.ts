@@ -9,11 +9,24 @@ router.get('/', (req, res) => {
   res.send('Home page');
 });
 
-// Ruta de prueba para conexion del frontend con el backend
+// Ruta de prueba GET para conexion del frontend con el backend
 router.get('/api/test', (req, res) => {
   // Devolvemos un .json con un mensaje de prueba
-  console.log('Test route');
+  console.log('Test route get');
   res.json({ message: 'Test route' });
+});
+
+// Ruta de prueba POST para conexion del frontend con el backend
+router.post('/api/test', (req, res) => {
+  console.log('Test route post');
+  const { usuario, correo } = req.body;
+  const id = req.body.id;
+  // el status 201 indica que se ha creado un recurso, no es necesario pero es buena practica
+  res.status(201).json({
+    mensaje: 'Usuario creado',
+    usuario,
+    correo,
+    id});
 });
 
 // Ruta para obtener la lista de usuarios viendo un video
