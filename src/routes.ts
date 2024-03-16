@@ -10,14 +10,14 @@ router.get('/', (req, res) => {
 });
 
 // Ruta de prueba GET para conexion del frontend con el backend
-router.get('/api/test', (req, res) => {
+router.get('/test', (req, res) => {
   // Devolvemos un .json con un mensaje de prueba
   console.log('Test route get');
   res.json({ message: 'Test route' });
 });
 
 // Ruta de prueba POST para conexion del frontend con el backend
-router.post('/api/test', (req, res) => {
+router.post('/test', (req, res) => {
   console.log('Test route post');
   const { usuario, correo } = req.body;
   const id = req.body.id;
