@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model hacenmatch {
+  idusuario                              String  @db.VarChar(100)
+  idusuario2                             String  @db.VarChar(100)
+  usuario_hacenmatch_idusuario2Tousuario usuario @relation("hacenmatch_idusuario2Tousuario", fields: [idusuario2], references: [correo], onDelete: NoAction, onUpdate: NoAction)
+  usuario_hacenmatch_idusuarioTousuario  usuario @relation("hacenmatch_idusuarioTousuario", fields: [idusuario], references: [correo], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([idusuario, idusuario2])
+}
+
+model mensaje {
+  id           Int        @id @default(autoincrement())
+  sala         Int
+  usuario      String     @db.VarChar(100)
+  texto        String     @db.VarChar(300)
+  fechahora    DateTime?  @db.Date
+  idmultimedia Int
+  multimedia   multimedia @relation(fields: [idmultimedia], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  participa    participa  @relation(fields: [sala, usuario], references: [sala, usuario], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model multimedia {
+  id             Int       @id @default(autoincrement())
+  fecha          DateTime  @db.Date
+  nombre         String    @db.VarChar(100)
+  ruta           String    @db.VarChar(100)
+  tipomultimedia String    @db.VarChar(100)
+  mensaje        mensaje[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model participa {
+  sala                               Int
+  usuario                            String    @db.VarChar(100)
+  estado                             String    @db.VarChar(100)
+  mensaje                            mensaje[]
+  sala_participa_salaTosala          sala      @relation("participa_salaTosala", fields: [sala], references: [idsala], onDelete: NoAction, onUpdate: NoAction)
+  usuario_participa_usuarioTousuario usuario   @relation("participa_usuarioTousuario", fields: [usuario], references: [correo], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([sala, usuario])
+}
+
+model sala {
+  idsala                         Int         @id @default(autoincrement())
+  urlvideo                       String      @db.VarChar(100)
+  participa_participa_salaTosala participa[] @relation("participa_salaTosala")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model usuario {
+  correo                                    String         @id @db.VarChar(30)
+  nombre                                    String         @db.VarChar(100)
+  descripcion                               String         @db.VarChar(500)
+  contrasena                                String         @db.VarChar(100)
+  edad                                      Int
+  sexo                                      String         @db.VarChar(6)
+  preferencias                              String         @db.VarChar(100)
+  tipousuario                               String         @db.VarChar(100)
+  hacenmatch_hacenmatch_idusuario2Tousuario hacenmatch[]   @relation("hacenmatch_idusuario2Tousuario")
+  hacenmatch_hacenmatch_idusuarioTousuario  hacenmatch[]   @relation("hacenmatch_idusuarioTousuario")
+  participa_participa_usuarioTousuario      participa[]    @relation("participa_usuarioTousuario")
+  videoyoutube                              videoyoutube[]
+}
+
+model videoyoutube {
+  urlvideo  String  @db.VarChar(100)
+  idusuario String  @db.VarChar(100)
+  usuario   usuario @relation(fields: [idusuario], references: [correo], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([urlvideo, idusuario])
+}
