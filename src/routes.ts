@@ -9,6 +9,17 @@ router.get('/', (req, res) => {
   res.send('Home page');
 });
 
+//Ruta de prueba que devuelve todos los usuarios
+router.get('/usuarios', async (req, res) => {
+  try {
+    const users = await prisma.usuario.findMany();
+    res.json(users);
+  } catch (error) {
+    console.error('Error retrieving users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Ruta de prueba GET para conexion del frontend con el backend
 router.get('/test', (req, res) => {
   // Devolvemos un .json con un mensaje de prueba

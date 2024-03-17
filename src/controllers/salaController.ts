@@ -1,6 +1,7 @@
 import SocketManager from '../controllers/socketManager';
 import {Server} from 'socket.io';
 import { prisma } from '../index';
+import { parse } from 'path';
 
 
 class SalaController {
@@ -14,14 +15,14 @@ class SalaController {
     }
   }
   
-  public static async verVideo(idVideo: string, correoUsuario: string): Promise<string> {
+  public static async verVideo(idVideo: string, idUsuario: string): Promise<string> {
     try {
-      const usuariosViendoVideo = await prisma.videoyoutube.findMany({
+      const usuariosViendoVideo = await prisma.videoviewer.findMany({
         where: { urlvideo: idVideo },
       });
 
       if (usuariosViendoVideo.length > 0) {
-        const nuevaSala  = await prisma.sala.create({
+        const nuevaSala = await prisma.sala.create({
           data: {
             urlvideo: idVideo,
           },
@@ -30,28 +31,28 @@ class SalaController {
         
         await prisma.participa.create({
           data: {
-            sala: nuevaSala.idsala,
-            usuario: correoUsuario,
+            idsala: nuevaSala.id,
+            idusuario: parseInt(idUsuario),
             estado: 'Activo',
           },
         });
 
         await prisma.participa.create({
           data: {
-            sala: nuevaSala.idsala,
-            usuario: usuariosViendoVideo[0].idusuario,
+            idsala: nuevaSala.id,
+            idusuario: usuariosViendoVideo[0].idusuario,
             estado: 'Activo',
           },
         
         })
 
-        this.socketManager.emitMatchBigRoom(correoUsuario, nuevaSala.idsala,nuevaSala.urlvideo);
-        return `/sala/${nuevaSala.idsala}`;
+        this.socketManager.emitMatchBigRoom(idUsuario, nuevaSala.id, nuevaSala.urlvideo);
+        return `/sala/${nuevaSala.id}`;
       } else {
-        const salaUnitaria = await prisma.videoyoutube.create({
+        const salaUnitaria = await prisma.videoviewer.create({
           data: {
             urlvideo: idVideo,
-            idusuario: correoUsuario,
+            idusuario: parseInt(idUsuario),
           },
         });
 
@@ -63,17 +64,17 @@ class SalaController {
     }
   }
 
-  public static async borrarSalaUnitaria(urlvideo: string, correoUsuario: string): Promise<void> {
+  public static async borrarSalaUnitaria(urlvideo: string, idUsuario: string): Promise<void> {
     try {
-      await prisma.videoyoutube.delete({
+      await prisma.videoviewer.delete({
       where: {
         urlvideo_idusuario: {
         urlvideo: urlvideo,
-        idusuario: correoUsuario
+        idusuario: parseInt(idUsuario),
         }
       },
       });
-      console.log("Sala unitaria borrada de usuario #{correoUsuario}");
+      console.log("Sala unitaria borrada de usuario #{idUsuario}");
     } catch (error) {
       console.error('Error al borrar sala unitaria:', error);
       throw new Error('Error al borrar sala unitaria');
