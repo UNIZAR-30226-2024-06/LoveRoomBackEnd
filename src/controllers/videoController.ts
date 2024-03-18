@@ -22,8 +22,6 @@ const VideoController = {
         },
       });
 
-      console.log(userData);
-
       // Buscamos los videos que estan viendo las personas de interes de ese usuario
       const videosInteres = await prisma.videoviewer.groupBy({
         by: ["idvideo"],
