@@ -7,74 +7,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model hacenmatch {
-  idusuario                              String  @db.VarChar(100)
-  idusuario2                             String  @db.VarChar(100)
-  usuario_hacenmatch_idusuario2Tousuario usuario @relation("hacenmatch_idusuario2Tousuario", fields: [idusuario2], references: [correo], onDelete: NoAction, onUpdate: NoAction)
-  usuario_hacenmatch_idusuarioTousuario  usuario @relation("hacenmatch_idusuarioTousuario", fields: [idusuario], references: [correo], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([idusuario, idusuario2])
-}
-
 model mensaje {
-  id           Int        @id @default(autoincrement())
-  sala         Int
-  usuario      String     @db.VarChar(100)
-  texto        String     @db.VarChar(300)
-  fechahora    DateTime?  @db.Date
-  idmultimedia Int
-  multimedia   multimedia @relation(fields: [idmultimedia], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  participa    participa  @relation(fields: [usuario, sala], references: [usuario, sala], onDelete: NoAction, onUpdate: NoAction)
+  id             Int         @id @default(autoincrement())
+  idsala         Int
+  idusuario      Int
+  texto          String      @db.VarChar(500)
+  fechahora      DateTime    @db.Timestamp(6)
+  rutamultimedia String?     @db.VarChar(150)
+  participa      participa   @relation(fields: [idsala, idusuario], references: [idsala, idusuario], onDelete: Cascade, onUpdate: NoAction)
+  multimedia     multimedia? @relation(fields: [rutamultimedia], references: [ruta], onDelete: Cascade, onUpdate: NoAction)
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model multimedia {
-  id             Int       @id @default(autoincrement())
-  fecha          DateTime  @db.Date
-  nombre         String    @db.VarChar(100)
-  ruta           String    @db.VarChar(100)
-  tipomultimedia String    @db.VarChar(100)
+  ruta           String        @id @db.VarChar(150)
+  tipomultimedia String        @db.VarChar(1)
+  fotousuario    fotousuario[]
   mensaje        mensaje[]
+  usuario        usuario[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model participa {
-  sala                               Int
-  usuario                            String    @db.VarChar(100)
-  estado                             String    @db.VarChar(100)
-  mensaje                            mensaje[]
-  sala_participa_salaTosala          sala      @relation("participa_salaTosala", fields: [sala], references: [idsala], onDelete: NoAction, onUpdate: NoAction)
-  usuario_participa_usuarioTousuario usuario   @relation("participa_usuarioTousuario", fields: [usuario], references: [correo], onDelete: NoAction, onUpdate: NoAction)
+  idsala    Int
+  idusuario Int
+  estado    String    @db.VarChar(25)
+  mensaje   mensaje[]
+  sala      sala      @relation(fields: [idsala], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  usuario   usuario   @relation(fields: [idusuario], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@id([sala, usuario])
+  @@id([idsala, idusuario])
 }
 
 model sala {
-  idsala                         Int         @id @default(autoincrement())
-  urlvideo                       String      @db.VarChar(100)
-  participa_participa_salaTosala participa[] @relation("participa_salaTosala")
+  id        Int         @id @default(autoincrement())
+  idvideo   String      @db.VarChar(50)
+  participa participa[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model usuario {
-  correo                                    String         @id @db.VarChar(30)
-  nombre                                    String         @db.VarChar(100)
-  descripcion                               String         @db.VarChar(500)
-  contrasena                                String         @db.VarChar(100)
-  edad                                      Int
-  sexo                                      String         @db.VarChar(6)
-  preferencias                              String         @db.VarChar(100)
-  tipousuario                               String         @db.VarChar(100)
-  hacenmatch_hacenmatch_idusuario2Tousuario hacenmatch[]   @relation("hacenmatch_idusuario2Tousuario")
-  hacenmatch_hacenmatch_idusuarioTousuario  hacenmatch[]   @relation("hacenmatch_idusuarioTousuario")
-  participa_participa_usuarioTousuario      participa[]    @relation("participa_usuarioTousuario")
-  videoyoutube                              videoyoutube[]
+  id                              Int           @id @default(autoincrement())
+  correo                          String        @unique @db.VarChar(254)
+  contrasena                      String        @db.VarChar(100)
+  nombre                          String        @db.VarChar(50)
+  sexo                            String        @db.VarChar(1)
+  edad                            Int
+  idlocalidad                     Int
+  buscaedadmin                    Int
+  buscaedadmax                    Int
+  buscasexo                       String        @db.VarChar(1)
+  fotoperfil                      String        @db.VarChar(150)
+  descripcion                     String        @db.VarChar(500)
+  tipousuario                     String        @db.VarChar(20)
+  baneado                         Boolean
+  fotousuario                     fotousuario[]
+  match_match_idusuario1Tousuario match[]       @relation("match_idusuario1Tousuario")
+  match_match_idusuario2Tousuario match[]       @relation("match_idusuario2Tousuario")
+  participa                       participa[]
+  multimedia                      multimedia    @relation(fields: [fotoperfil], references: [ruta], onDelete: Cascade, onUpdate: NoAction)
+  localidad                       localidad     @relation(fields: [idlocalidad], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  videoviewer                     videoviewer[]
 }
 
-model videoyoutube {
-  urlvideo  String  @db.VarChar(100)
-  idusuario String  @db.VarChar(100)
-  usuario   usuario @relation(fields: [idusuario], references: [correo], onDelete: NoAction, onUpdate: NoAction)
+model fotousuario {
+  rutafoto   String     @db.VarChar(150)
+  idusuario  Int
+  usuario    usuario    @relation(fields: [idusuario], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  multimedia multimedia @relation(fields: [rutafoto], references: [ruta], onDelete: Cascade, onUpdate: NoAction)
 
-  @@id([urlvideo, idusuario])
+  @@id([rutafoto, idusuario])
+}
+
+model localidad {
+  id      Int       @id @default(autoincrement())
+  nombre  String    @db.VarChar(75)
+  usuario usuario[]
+}
+
+model match {
+  idusuario1                        Int
+  idusuario2                        Int
+  usuario_match_idusuario1Tousuario usuario @relation("match_idusuario1Tousuario", fields: [idusuario1], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  usuario_match_idusuario2Tousuario usuario @relation("match_idusuario2Tousuario", fields: [idusuario2], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([idusuario1, idusuario2])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
+
+model videoviewer {
+  idvideo   String  @db.VarChar(50)
+  idusuario Int
+  usuario   usuario @relation(fields: [idusuario], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([idvideo, idusuario])
 }
