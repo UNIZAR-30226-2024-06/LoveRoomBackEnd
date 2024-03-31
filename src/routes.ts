@@ -69,7 +69,7 @@ router.post("/test", (req, res) => {
 
 router.get('/videos/interes/:idUsuario', VideoController.videosInteres);
 
-router.get("/ver_video/prueba/usuario1", async (req, res) => {
+router.get('/ver_video', async (req, res) => {
   //const { urlvideo, correo } = req.params;
   const urlvideo = "test_video_url";
   const correo = "usuario1";

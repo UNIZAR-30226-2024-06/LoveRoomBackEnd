@@ -1,22 +1,19 @@
 import express, { Express, Request, Response } from "express";
-import { Server } from "socket.io";
+import path from 'path';
 import { PrismaClient } from '@prisma/client';
-import  { SalaController } from './controllers/salaController';
 import routes from './routes';
+import SocketManager from './services/socketManager';
 import { createServer } from "http";  
 
 const app: Express = express();
-const httpServer = createServer(app);  
 const prisma = new PrismaClient();
 const port =  5000;
-const io = new Server(httpServer);  // Pasa el servidor HTTP a la instancia de Server de Socket.IO
  
-
-SalaController.initializeSocketManager(io);
 
 // Para parsear el body de las peticiones a JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware para los headers
 app.use((req: Request, res: Response, next) => {
@@ -39,14 +36,17 @@ app.use((req: Request, res: Response, next) => {
   next();
 });
 
-app.use('/', routes);
-
 app.use((req, res) => {
   // Not found error
   res.status(404).json({ message: '404 Not Found' });
 });
 
-app.listen(port, () => {
+app.use('/', routes);
+
+const httpServer = createServer(app);
+SocketManager.getInstance().initSocketServer(httpServer);
+
+httpServer.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
 

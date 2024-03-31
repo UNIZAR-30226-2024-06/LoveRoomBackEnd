@@ -1,55 +1,83 @@
-import Client, { Socket as SocketIOClient } from 'socket.io-client';
-import { Server } from 'socket.io';
-import { createServer } from 'http';
-import { AddressInfo } from 'net';
-import { Socket } from 'socket.io';
+import http from 'http';
+import ioClient from 'socket.io-client';
+import  SocketManager  from '../services/socketManager'; // Importamos la clase en lugar de la instancia
 
-describe('NetworkController', () => {
-    let ioServer: Server;
-    let httpServer: ReturnType<typeof createServer>;
-    let clientSocket1: SocketIOClient;
-    let clientSocket2: SocketIOClient;
-    // Initialize your NetworkController here
-    const networkController = new socketManager();
+jest.mock('../services/socketManager'); // Creamos un mock para SocketManager
 
-    ioServer.on('connection', (socket: Socket) => {
-        networkController.initialize(socket);
-    });
-    beforeAll((done) => {
-        httpServer = createServer();
-        ioServer = new Server(httpServer);
+describe('SocketManager', () => {
+  let server: http.Server;
+  let serverPort: number;
+  let serverUrl: string;
+  let socketManager: SocketManager;
 
-        httpServer.listen(() => {
-            const port = (httpServer.address() as AddressInfo).port;
-            clientSocket1 = Client(`http://localhost:${port}`);
-            clientSocket2 = Client(`http://localhost:${port}`);
+  beforeAll((done) => {
+    // Inicializando el servidor HTTP
+    server = http.createServer();
+    socketManager = SocketManager.getInstance(); // Creamos una instancia de SocketManager
 
-            ioServer.on('connection', (socket) => {
-                // Initialize your NetworkController here with the socket
-            });
-
-            clientSocket1.on('connect', done);
-            clientSocket2.on('connect', done);
-        });
+    // Mockeamos el método initSocketServer para evitar la conexión real
+    (socketManager.initSocketServer as jest.Mock).mockImplementation((httpServer) => {
+      // Implementación de initSocketServer mockeada
+      console.log('Mocked initSocketServer called');
     });
 
-    afterAll(() => {
-        ioServer.close();
-        clientSocket1.close();
-        clientSocket2.close();
+    server.listen(0, () => {
+      const address = server.address();
+      if (typeof address === 'object' && address !== null) {
+        serverPort = address.port;
+        serverUrl = `http://localhost:${serverPort}`;
+      }
+      done();
     });
+  });
 
-    test('two users should match and join a sala', (done) => {
-        clientSocket1.emit('match', { /* your match data here */ });
-        clientSocket2.emit('match', { /* your match data here */ });
-
-        clientSocket1.on('joinSala', (data) => {
-            // Add your assertions here for user 1
-        });
-
-        clientSocket2.on('joinSala', (data) => {
-            // Add your assertions here for user 2
-            done();
-        });
+  afterAll((done) => {
+    // Cerrando el servidor
+    server.close(() => {
+      done();
     });
+  });
+
+  test('Conexión del cliente', (done) => {
+    const clientSocket = ioClient(serverUrl);
+
+    clientSocket.on('connect', () => {
+      // Verificando que la conexión del cliente se haya establecido correctamente
+      expect(clientSocket.connected).toBeTruthy();
+
+      // Desconectando el cliente
+      clientSocket.disconnect();
+
+      // Indicando que la prueba ha finalizado
+      done();
+    });
+  });
+
+  test('Manejo de evento match', (done) => {
+    // Creando un cliente socket.io
+    const clientSocket = ioClient(serverUrl);
+
+    clientSocket.on('connect', () => {
+      const senderId = 'senderId';
+      const receiverId = 'receiverId';
+
+      // Escuchando el evento 'match' en el cliente
+      clientSocket.on('match', (data) => {
+        // Verificando que el evento 'match' se haya recibido correctamente
+        expect(data.senderId).toBe(senderId);
+        expect(data.receiverId).toBe(receiverId);
+
+        // Desconectando el cliente
+        clientSocket.disconnect();
+
+        // Indicando que la prueba ha finalizado
+        done();
+      });
+
+      // Emitiendo el evento 'match' desde el cliente
+      clientSocket.emit('match', { senderId, receiverId });
+    });
+  });
+
 });
+
