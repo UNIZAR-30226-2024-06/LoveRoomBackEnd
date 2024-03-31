@@ -1,4 +1,4 @@
+# Ignore node_modules and its contents
+node_modules/
+# Keep environment variables out of version control
 .env
-node_modules
-ProySp.session.sql
-prueba_env

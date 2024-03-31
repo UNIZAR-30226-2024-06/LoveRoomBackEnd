@@ -1,44 +1,87 @@
-import express from 'express';
-import { UsuarioController } from './controllers/usuarioController';
-import { autenticacionController } from './controllers/autentiacionController';
-import { prisma } from '.';
+import express from "express";
+import { SalaController } from "./controllers/salaController";
+import VideoController from './controllers/videoController';
+import { prisma } from "./index";
 
 const router = express.Router();
 
-router.use(express.json());
+router.get("/", (req, res) => {
+  res.send("Home page");
+});
 
-
-router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.registerUser);
-
-router.post('/user/login', UsuarioController.loginUser, autenticacionController.crearToken);
-
-router.get('/users', autenticacionController.comprobarAutenticacion, async (req, res) => {
-  try{
+//------------------------------------------------Rutas de prueba------------------------------------------------
+//Ruta de prueba que devuelve todos los usuarios
+router.get("/usuarios", async (req, res) => {
+  try {
     const users = await prisma.usuario.findMany();
     res.json(users);
-  }
-  catch(error){
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los usuarios' });
+  } catch (error) {
+    console.error("Error retrieving users:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Obtener un usuario
-router.get('/user/:correo', autenticacionController.comprobarAutenticacion, UsuarioController.getUser);
+// Ruta de prueba GET para conexion del frontend con el backend
+router.get("/test", (req, res) => {
+  // Devolvemos un .json con un mensaje de prueba
+  console.log("Test route get");
+  res.json({ message: "Test route" });
+});
 
-// Actualizaciones parciales de los datos
-router.put('/update/:id', autenticacionController.comprobarAutenticacion, UsuarioController.updateUser);
-router.patch('/update/email', autenticacionController.comprobarAutenticacion, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
-//router.patch('/update/password', autenticacionController.comprobarAutenticacion, UsuarioController.updatePassword);
-router.patch('/update/name', autenticacionController.comprobarAutenticacion, UsuarioController.updateName);
-router.patch('/update/age', autenticacionController.comprobarAutenticacion, UsuarioController.updateAge);
-router.patch('/update/sex', autenticacionController.comprobarAutenticacion, UsuarioController.updateSex);
-router.patch('/update/description', autenticacionController.comprobarAutenticacion, UsuarioController.updateDescription);
-router.patch('/update/photo', autenticacionController.comprobarAutenticacion, UsuarioController.updatePhoto);
-router.patch('/update/location', autenticacionController.comprobarAutenticacion, UsuarioController.updateLocation);
-router.patch('/update/preferences', autenticacionController.comprobarAutenticacion, UsuarioController.updatePreferences);
-router.patch('/user/ban', autenticacionController.comprobarAutenticacion, UsuarioController.banUser);
+// Ruta de prueba POST para conexion del frontend con el backend
+router.post("/test", (req, res) => {
+  console.log("Test route post");
+  const { usuario, correo } = req.body;
+  const id = req.body.id;
+  // el status 201 indica que se ha creado un recurso, no es necesario pero es buena practica
+  res.status(201).json({
+    mensaje: "Usuario creado",
+    usuario,
+    correo,
+    id,
+  });
+});
 
-router.delete('/user/delete', autenticacionController.comprobarAutenticacion, UsuarioController.deleteUser);
+// Ruta para obtener la lista de usuarios viendo un video
+// router.get('/video/:url/users', async (req, res) => {
+//   try {
+//     const { url } = req.params;
+
+//     // Consulta a la base de datos para obtener la lista de usuarios viendo el video
+//     const users = await prisma.videoyoutube.findMany({
+//       where: {
+//         urlvideo: url
+//       },
+//       select: {
+//         idusuario: true // Solo se selecciona el id del usuario
+//       }
+//     });
+
+//     // Se envía la lista de usuarios en formato JSON
+//     res.json(users);
+//   } catch (error) {
+//     console.error('Error retrieving users:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+//------------------------------------------------Rutas de videos------------------------------------------------
+
+router.get('/videos/interes/:idUsuario', VideoController.videosInteres);
+
+router.get("/ver_video/prueba/usuario1", async (req, res) => {
+  //const { urlvideo, correo } = req.params;
+  const urlvideo = "test_video_url";
+  const correo = "usuario1";
+  try {
+    const salaUrl = await SalaController.verVideo(urlvideo, correo);
+    res.redirect(salaUrl);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al manejar salas" });
+  }
+});
+
+router.get("/sala/:idUsuarioMatch");
 
 export default router;
