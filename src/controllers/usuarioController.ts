@@ -39,7 +39,7 @@ class UsuarioController {
       const nuevoUSuario = await prisma.usuario.create({
         data: {
           correo: info.correo,
-          nombre: 'nulo',
+          nombre: info.nombre,
           contrasena: info.contrasena,
           tipousuario: 'normal',
           sexo: 'O',
@@ -109,6 +109,24 @@ class UsuarioController {
       res.json("Usuario actualizado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el usuario' });
+    }
+  }
+  
+  public static async updateEmail(req: Request, res: Response): Promise<any> {
+    const info = req.body;
+    const id = autenticacionController.getPayload(req).id;
+    try {
+      const usuario = await prisma.usuario.update({
+        where: {
+          id: id,
+        },
+        data: {
+          correo: info.correo,
+        },
+      });
+      res.json("Correo actualizado correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al actualizar el correo' });
     }
   }
 
@@ -258,11 +276,11 @@ class UsuarioController {
   }
 
   public static async getUser(req: Request, res: Response): Promise<void> {
-    const id = autenticacionController.getPayload(req).id;
+    const email = req.params.correo;
     try {
       const usuario = await prisma.usuario.findUnique({
         where: {
-          id: id,
+          correo: email,
         },
         select: {
           id: true,
@@ -284,6 +302,8 @@ class UsuarioController {
       res.status(500).json({ error: 'Error al obtener el usuario' });
     }
   }
+
+  
   public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body;
     try {
