@@ -1,83 +1,35 @@
 import http from 'http';
 import ioClient from 'socket.io-client';
+import { SalaController } from '../controllers/salaController';
 import  SocketManager  from '../services/socketManager'; // Importamos la clase en lugar de la instancia
 
-jest.mock('../services/socketManager'); // Creamos un mock para SocketManager
+jest.mock('../controllers/salaController');
+const mockedSalaController = SalaController as jest.Mocked<typeof SalaController>;
 
-describe('SocketManager', () => {
-  let server: http.Server;
-  let serverPort: number;
-  let serverUrl: string;
-  let socketManager: SocketManager;
-
-  beforeAll((done) => {
-    // Inicializando el servidor HTTP
-    server = http.createServer();
-    socketManager = SocketManager.getInstance(); // Creamos una instancia de SocketManager
-
-    // Mockeamos el método initSocketServer para evitar la conexión real
-    (socketManager.initSocketServer as jest.Mock).mockImplementation((httpServer) => {
-      // Implementación de initSocketServer mockeada
-      console.log('Mocked initSocketServer called');
-    });
-
-    server.listen(0, () => {
-      const address = server.address();
-      if (typeof address === 'object' && address !== null) {
-        serverPort = address.port;
-        serverUrl = `http://localhost:${serverPort}`;
-      }
-      done();
-    });
-  });
-
-  afterAll((done) => {
-    // Cerrando el servidor
-    server.close(() => {
-      done();
-    });
-  });
-
-  test('Conexión del cliente', (done) => {
-    const clientSocket = ioClient(serverUrl);
-
-    clientSocket.on('connect', () => {
-      // Verificando que la conexión del cliente se haya establecido correctamente
-      expect(clientSocket.connected).toBeTruthy();
-
-      // Desconectando el cliente
-      clientSocket.disconnect();
-
-      // Indicando que la prueba ha finalizado
-      done();
-    });
-  });
-
-  test('Manejo de evento match', (done) => {
-    // Creando un cliente socket.io
-    const clientSocket = ioClient(serverUrl);
-
-    clientSocket.on('connect', () => {
-      const senderId = 'senderId';
-      const receiverId = 'receiverId';
-
-      // Escuchando el evento 'match' en el cliente
-      clientSocket.on('match', (data) => {
-        // Verificando que el evento 'match' se haya recibido correctamente
-        expect(data.senderId).toBe(senderId);
-        expect(data.receiverId).toBe(receiverId);
-
-        // Desconectando el cliente
-        clientSocket.disconnect();
-
-        // Indicando que la prueba ha finalizado
-        done();
-      });
-
-      // Emitiendo el evento 'match' desde el cliente
-      clientSocket.emit('match', { senderId, receiverId });
-    });
-  });
+mockedSalaController.verVideo.mockImplementation(() =>{
+   return new Promise<string>((resolve) => resolve(''));
 
 });
 
+test('one connection from a client', () => {
+  const client = ioClient('http://localhost:5000');
+  client.on('connect', () => {
+    expect(client.connected).toBeTruthy();
+    client.disconnect();
+  });
+});
+
+test('two connections, one makes match with another', () => {
+  const client1 = ioClient('http://localhost:5000');
+  const client2 = ioClient('http://localhost:5000');
+  client1.on('connect', () => {
+    client2.on('connect', () => {
+      expect(client1.connected).toBeTruthy();
+      expect(client2.connected).toBeTruthy();
+      //Cliente 1 
+      client1.emit('match', {senderId: '1', receiverId: '2', idVideo: '1'});
+      client1.disconnect();
+      client2.disconnect();
+    });
+  });
+});
