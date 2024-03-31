@@ -1,5 +1,13 @@
 import { prisma } from "../index";
 
+
+
+//Dado un id de usuario devuelve una lista con las salas en las que participa
+export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
+    return await prisma.participa.findMany({
+        where: { idusuario: parseInt(idUsuario) },
+    });
+}
 //Dados dos ids de usuario crea una sala, devuelviendo su id 
 export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo: string): Promise<any> => {
     const nuevaSala = await prisma.sala.create({

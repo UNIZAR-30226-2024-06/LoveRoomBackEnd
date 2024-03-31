@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import { deleteSalaUnitaria } from '../db/salas';
+import { createMatch } from '../db/match';
 
 export default class SocketManager {
     private static instance: SocketManager;
@@ -38,6 +39,7 @@ export default class SocketManager {
     
             socket.on('match', ({senderId, receiverId, idVideo}: {senderId: string, receiverId: string, idVideo: string}) => {
                 console.log('Match recibido', senderId, receiverId);
+                createMatch(receiverId,senderId);
                 deleteSalaUnitaria(receiverId,idVideo);
             });
     

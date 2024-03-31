@@ -1,4 +1,5 @@
 import {createSalaUnitaria, createSala,deleteSalaUnitaria} from '../db/salas';
+import { createMatch } from '../db/match';
 import { getUsuariosViendoVideo } from '../db/video';
 import SocketManager from '../services/socketManager';
 
@@ -18,6 +19,9 @@ class SalaController {
         console.log("Usuarios viendo video:", usuariosViendoVideo);
         //Creamos una sala con los dos usuarios
         const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
+        
+        //Creamos un match entre los dos usuarios
+        await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
         
         //Emitimos el match
         console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());

@@ -1,15 +1,10 @@
 import http from 'http';
 import ioClient from 'socket.io-client';
 import { SalaController } from '../controllers/salaController';
+import { getUsuariosViendoVideo } from '../db/video';
 import  SocketManager  from '../services/socketManager'; // Importamos la clase en lugar de la instancia
 
-jest.mock('../controllers/salaController');
-const mockedSalaController = SalaController as jest.Mocked<typeof SalaController>;
 
-mockedSalaController.verVideo.mockImplementation(() =>{
-   return new Promise<string>((resolve) => resolve(''));
-
-});
 
 test('one connection from a client', () => {
   const client = ioClient('http://localhost:5000');
@@ -26,7 +21,10 @@ test('two connections, one makes match with another', () => {
     client2.on('connect', () => {
       expect(client1.connected).toBeTruthy();
       expect(client2.connected).toBeTruthy();
-      //Cliente 1 
+      //Cliente 1 quiere ver el video 1
+      SalaController.verVideo('1', '1');
+      expect(getUsuariosViendoVideo('1')).resolves.toEqual([{idusuario: '1'}]);
+      
       client1.emit('match', {senderId: '1', receiverId: '2', idVideo: '1'});
       client1.disconnect();
       client2.disconnect();
