@@ -111,7 +111,7 @@ class UsuarioController {
       res.status(500).json({ error: 'Error al actualizar el usuario' });
     }
   }
-  
+
   public static async updateEmail(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -297,6 +297,10 @@ class UsuarioController {
           idlocalidad: true,
         }
       });
+      if (usuario == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
       res.json(usuario);
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener el usuario' });
