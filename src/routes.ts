@@ -1,6 +1,7 @@
 import express from "express";
-import { SalaController } from "./controllers/salaController";
+import SalaController  from "./controllers/salaController";
 import VideoController from './controllers/videoController';
+import MensajeController from './controllers/mensajeController';
 import { prisma } from "./index";
 
 const router = express.Router();
@@ -69,19 +70,23 @@ router.post("/test", (req, res) => {
 
 router.get('/videos/interes/:idUsuario', VideoController.videosInteres);
 
-router.get('/ver_video', async (req, res) => {
-  //const { urlvideo, correo } = req.params;
-  const urlvideo = "test_video_url";
-  const correo = "usuario1";
-  try {
-    const salaUrl = await SalaController.verVideo(urlvideo, correo);
-    res.redirect(salaUrl);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al manejar salas" });
-  }
-});
 
-router.get("/sala/:idUsuarioMatch");
+//------------------------------------------------Rutas de salas------------------------------------------------
+
+router.get('/salas/:idUsuario', SalaController.getAllSalasUsuario);
+
+router.get('/participantes/:idSala', SalaController.getParticipantesSala);
+
+router.get('/ver_video/:idVideo/:idUsuario', SalaController.verVideo);
+
+router.get('/sala/:idSala/get_estado/:idUsuario', SalaController.getSalaSincronizada);
+
+router.put('/sala/:idSala/set_estado/:idUsuario', SalaController.setEstadoSala);
+
+//------------------------------------------------Rutas de mensajes------------------------------------------------
+
+router.post('/:idSala/mensaje', MensajeController.createMensaje);
+
+router.get('/:idSala/chat', MensajeController.getMensajesSala);
 
 export default router;

@@ -13,7 +13,7 @@ const port =  5000;
 // Para parsear el body de las peticiones a JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Middleware para los headers
 app.use((req: Request, res: Response, next) => {

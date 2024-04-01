@@ -1,6 +1,42 @@
 import { prisma } from "../index";
 
 
+//Dado un id de una sala y un usuario modifica su estado a no_sincronizada o sincronizada
+export const setEstadoSala = async (idUsuario: string, idSala: string, estado: string): Promise<any> => {
+    await prisma.participa.update({
+         where: {
+             idsala_idusuario: {
+                 idusuario: parseInt(idUsuario),
+                 idsala: parseInt(idSala),
+             }
+         },
+        data: {
+          estado:estado,
+        },
+    });
+}
+
+//Dado un id de sala devuelve una lista con los participantes de dicha sala
+export const getParticipantesSala = async (idSala: string): Promise<any> => {
+    const participantes = await prisma.participa.findMany({
+        where: { idsala: parseInt(idSala) },
+    });
+    if(participantes.length == 2){
+        return participantes;
+    }
+}
+
+//Dado un id de usuario y una sala devuelve el estado de dicha sala
+export const getEstadoSala = async (idUsuario: string, idSala: string): Promise<any> => {
+    const participante = await prisma.participa.findFirst({
+        where: { idusuario: parseInt(idUsuario), idsala: parseInt(idSala) },
+    });
+    if(participante){
+        return participante.estado;
+    }else {
+        return null;
+    }
+}
 
 //Dado un id de usuario devuelve una lista con las salas en las que participa
 export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
@@ -21,7 +57,7 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
         data: {
           idsala: nuevaSala.id,
           idusuario: parseInt(idUsuario1),
-          estado: "Activo",
+          estado: "sincronizada",
         },
     });
 
@@ -29,11 +65,11 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
         data: {
           idsala: nuevaSala.id,
           idusuario: parseInt(idUsuario2),
-          estado: "Activo",
+          estado: "sincronizada",
         },
     });
 
-    return nuevaSala.id;
+    return nuevaSala;
 }
 
 //Dado el id de una sala la borra y todas sus relaciones

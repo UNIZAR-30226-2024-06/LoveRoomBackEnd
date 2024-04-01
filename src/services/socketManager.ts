@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 import { deleteSalaUnitaria } from '../db/salas';
 import { createMatch } from '../db/match';
+import { socketEvents } from '../constants/socketEvents';
 
 export default class SocketManager {
     private static instance: SocketManager;
@@ -37,13 +38,13 @@ export default class SocketManager {
                 this.users[userId] = socket.id;
             }
     
-            socket.on('match', ({senderId, receiverId, idVideo}: {senderId: string, receiverId: string, idVideo: string}) => {
+            socket.on(socketEvents.MATCH, ({senderId, receiverId, idVideo}: {senderId: string, receiverId: string, idVideo: string}) => {
                 console.log('Match recibido', senderId, receiverId);
                 createMatch(receiverId,senderId);
                 deleteSalaUnitaria(receiverId,idVideo);
             });
     
-            socket.on('submitTime', (senderId: string,receiverId: string,idSala: string,time: number) => {
+            socket.on(socketEvents.TIME, (senderId: string,receiverId: string,idSala: string,time: number) => {
                 console.log('Time submitted', time);
                 //Comprobamos el tiempo que ha enviado el cliente, si es mayor que el que tenemos guardado,
                 //este se convierte en el nuevo tiempo global
@@ -55,12 +56,12 @@ export default class SocketManager {
                 }
             });
     
-            socket.on('pause-event', (receiverId: string) => {
+            socket.on(socketEvents.PAUSE, (receiverId: string) => {
                 console.log('Pause event');
                 socket.to(this.users[receiverId]).emit('pause-video');
             });
     
-            socket.on('play-event', (receiverId: string) => {
+            socket.on(socketEvents.PLAY, (receiverId: string) => {
                 console.log('Play event');
                 socket.to(this.users[receiverId]).emit('play-video');
             });
@@ -77,7 +78,7 @@ export default class SocketManager {
     public emitMatch(senderId: string, receiverId: string,idVideo: string){
         console.log('Match sent',senderId ,receiverId);
         if(this.io){
-            this.io.to(this.users[receiverId]).emit('match', {
+            this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, {
                 senderId,
                 receiverId,
                 idVideo
