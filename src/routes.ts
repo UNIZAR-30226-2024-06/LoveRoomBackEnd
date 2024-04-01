@@ -2,6 +2,8 @@ import express from "express";
 import { SalaController } from "./controllers/salaController";
 import VideoController from './controllers/videoController';
 import { prisma } from "./index";
+import { UsuarioController } from "./controllers/usuarioController";
+import { autenticacionController } from "./controllers/autenticacionController";
 
 const router = express.Router();
 
@@ -83,5 +85,50 @@ router.get("/ver_video/prueba/usuario1", async (req, res) => {
 });
 
 router.get("/sala/:idUsuarioMatch");
+
+
+
+//------------------------------------------------Rutas de usuarios------------------------------------------------
+
+// Crea un nuevo usuario
+router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.registerUser);
+
+// Inicia sesion con un nuevo usuario
+router.post('/user/login', UsuarioController.loginUser, autenticacionController.crearToken);
+
+router.get('/users', autenticacionController.comprobarAutenticacion, async (req, res) => {
+  try{
+    const users = await prisma.usuario.findMany();
+    res.json(users);
+  }
+  catch(error){
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los usuarios' });
+  }
+});
+
+// Obtener un usuario
+router.get('/user/:correo', autenticacionController.comprobarAutenticacion, UsuarioController.getUser);
+
+// Actualizacion de un usario entero
+router.put('/user/update', UsuarioController.checkStatusUser, autenticacionController.comprobarAutenticacion, UsuarioController.updateUser);
+
+// Eliminacion de un usuario
+router.delete('/user/delete', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.deleteUser);
+
+// Actualizaciones parciales de los datos
+router.patch('/user/update/email', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.checkStatusUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
+router.patch('/update/password', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePassword);
+router.patch('/user/update/name', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateName);
+router.patch('/user/update/age', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateAge);
+router.patch('/user/update/sex', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateSex);
+router.patch('/user/update/description', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateDescription);
+router.patch('/user/update/photo', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePhoto);
+router.patch('/user/update/location', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateLocation);
+router.patch('/user/update/preferences', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePreferences);
+
+// Banear a un usuario
+router.patch('/user/ban', autenticacionController.comprobarAutenticacion, UsuarioController.banUser);
+
 
 export default router;

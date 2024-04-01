@@ -57,4 +57,4 @@ process.on('SIGINT', async () => {
 });
 
 
-export { app, prisma};
+export { app, prisma, jwt};

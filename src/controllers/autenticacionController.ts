@@ -1,7 +1,6 @@
 import { prisma } from '../index';
 import { Request, Response, NextFunction } from 'express';
 import { jwt } from '../index';
-import { getPriority } from 'os';
 
 const secret = process.env.SECRET
 
@@ -34,17 +33,6 @@ class autenticacionController {
         console.log(token);
         res.status(200).send({token: token})
 
-    }
-
-    static async renovarToken(req: Request, res: Response) : Promise<void> {
-        const authorizationHeader = req.headers.authorization;
-        const token = authorizationHeader?.split(' ')[1];
-        const payload = await jwt.verify(token, secret);
-        const nuevoToken = jwt.sign({
-            id: payload.id,
-            exp: Date.now() + 60 * 60 * 1000    // 1 hora
-        }, secret)
-        res.status(200).send({token: nuevoToken});
     }
 
     static getPayload(req: Request) : any {

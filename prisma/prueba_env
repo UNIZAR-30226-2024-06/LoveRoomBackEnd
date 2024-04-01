@@ -1,2 +1,0 @@
-DATABASE_URL="postgresql://benedi:1111@localhost:5432/benedi?schema=public"
-SECRET="fgdfgfdgjsodijfsdofjs43957389gdfjsjJDFSJ845JDFGJ9945pollo1G"

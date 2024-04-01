@@ -1,36 +1,9 @@
 import { prisma } from '../index';
 import { Request, Response, NextFunction } from 'express';
-import { autenticacionController } from './autentiacionController';
+import { autenticacionController } from './autenticacionController';
+import { ConversationContextImpl } from 'twilio/lib/rest/conversations/v1/conversation';
 
 class UsuarioController {
-
-  /*
-  public static async registerUsuario(req: Request, res: Response): Promise<void> {
-    const info = req.body;
-    try {
-      console.log(info);
-      /*
-      const nuevoUSuario = await prisma.usuario.create({
-        data: {
-          correo: info.correo,
-          nombre: info.nombre,
-          descripcion: info.descripcion,
-          contrasena: info.contrasena,
-          edad: info.edad,
-          sexo: info.sexo,
-          preferencias: info.preferencias,
-          tipousuario: info.tipousuario,
-        },
-      });
-      
-      res.status(201).json("Usuario creado correctamente")
-    } 
-    catch (error) {
-      res.status(500).send({ error: 'Error al crear el usuario' });
-    }
-    
-  }
-  */
 
   public static async registerUser(req: Request, res: Response): Promise<void> {
     const info = req.body;
@@ -88,12 +61,14 @@ class UsuarioController {
   public static async updateUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
+    console.log(id);
     try {
       const usuario = await prisma.usuario.update({
         where: {
           id: id,
         },
         data: {
+          correo: info.correo,
           nombre: info.nombre,
           contrasena: info.contrasena,
           edad: info.edad,
@@ -258,6 +233,24 @@ class UsuarioController {
     }
   }
 
+  public static async updatePassword(req: Request, res: Response): Promise<any> {
+    const info = req.body;
+    const id = autenticacionController.getPayload(req).id;
+    try {
+      const usuario = await prisma.usuario.update({
+        where: {
+          id: id,
+        },
+        data: {
+          contrasena: info.contrasena,
+        },
+      });
+      res.json("Contraseña actualizada correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al actualizar la contraseña' });
+    }
+  }
+
   public static async banUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
     try {
@@ -340,7 +333,7 @@ class UsuarioController {
     }
   }
 
-  public static async checkBan(req: Request, res: Response, next: NextFunction): Promise<any> {
+  public static async checkStatusUser(req: Request, res: Response, next: NextFunction): Promise<any> {
     const info = req.body;
     try {
       const usuario = await prisma.usuario.findUnique({
@@ -348,8 +341,12 @@ class UsuarioController {
           correo: info.correo,
         },
       });
-      if (usuario != null && usuario.baneado) {
-        res.json({ error: 'El usuario está baneado' });
+      if (usuario == null) {
+        res.status(404).json({ error: 'El usuario ha sido eliminado' });
+        return;
+      }
+      else if (usuario != null && usuario.baneado) {
+        res.status(204).json({ error: 'El usuario está baneado' });
         return;
       }
       next();
