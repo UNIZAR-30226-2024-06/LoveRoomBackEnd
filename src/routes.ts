@@ -91,7 +91,7 @@ router.get("/sala/:idUsuarioMatch");
 //------------------------------------------------Rutas de usuarios------------------------------------------------
 
 // Crea un nuevo usuario
-router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.registerUser);
+router.post('/user/create', /*UsuarioController.mailAlreadyUse,*/ UsuarioController.registerUser);
 
 // Inicia sesion con un nuevo usuario
 router.post('/user/login', UsuarioController.loginUser, autenticacionController.crearToken);
@@ -111,14 +111,14 @@ router.get('/users', autenticacionController.comprobarAutenticacion, async (req,
 router.get('/user/:correo', autenticacionController.comprobarAutenticacion, UsuarioController.getUser);
 
 // Actualizacion de un usario entero
-router.put('/user/update', UsuarioController.checkStatusUser, autenticacionController.comprobarAutenticacion, UsuarioController.updateUser);
+router.put('/user/update/all', UsuarioController.checkStatusUser, autenticacionController.comprobarAutenticacion, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
 
 // Eliminacion de un usuario
 router.delete('/user/delete', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.deleteUser);
 
 // Actualizaciones parciales de los datos
-router.patch('/user/update/email', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.checkStatusUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
-router.patch('/update/password', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePassword);
+router.patch('/user/update/email', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
+router.patch('/user/update/password', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePassword);
 router.patch('/user/update/name', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateName);
 router.patch('/user/update/age', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateAge);
 router.patch('/user/update/sex', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateSex);
@@ -129,6 +129,9 @@ router.patch('/user/update/preferences', autenticacionController.comprobarAutent
 
 // Banear a un usuario
 router.patch('/user/ban', autenticacionController.comprobarAutenticacion, UsuarioController.banUser);
+
+// Comprobar token
+router.get('/user/check/token', autenticacionController.checkToken);
 
 
 export default router;

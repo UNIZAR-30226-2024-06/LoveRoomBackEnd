@@ -2,6 +2,7 @@ import { prisma } from '../index';
 import { Request, Response, NextFunction } from 'express';
 import { autenticacionController } from './autenticacionController';
 import { ConversationContextImpl } from 'twilio/lib/rest/conversations/v1/conversation';
+import userBD from '../db/usuarios';
 
 class UsuarioController {
 
@@ -9,23 +10,7 @@ class UsuarioController {
     const info = req.body;
     try {
       console.log(info);
-      const nuevoUSuario = await prisma.usuario.create({
-        data: {
-          correo: info.correo,
-          nombre: info.nombre,
-          contrasena: info.contrasena,
-          tipousuario: 'normal',
-          sexo: 'O',
-          edad: 18,
-          buscaedadmin: 18,
-          buscaedadmax: 75,
-          buscasexo: 'T',
-          descripcion: 'nulo',
-          baneado: false,
-          fotoperfil: 'null.jpg',
-          idlocalidad: 0,
-        },
-      });
+      const newUser = await userBD.createUser(info.correo, info.nombre, info.contrasena);
       res.status(201).json("Usuario creado correctamente")
     } 
     catch (error) {
@@ -37,15 +22,10 @@ class UsuarioController {
     const info = req.body; 
     try {
       console.log(info);
-      const usuario = await prisma.usuario.findUnique({
-        where: {
-          correo: info.correo,
-        },
-      });
-
-      if (usuario != null && usuario.contrasena === info.contrasena) {
+      const user = await userBD.getUserByEmail(info.correo);
+      if (user != null && user.contrasena === info.contrasena) {
         console.log('Autenticado correctamente');
-        req.body.id = await UsuarioController.searchId(info.correo);
+        req.body.id = user.id;
         console.log(req.body.id);
         next();
       }
@@ -63,24 +43,7 @@ class UsuarioController {
     const id = autenticacionController.getPayload(req).id;
     console.log(id);
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          correo: info.correo,
-          nombre: info.nombre,
-          contrasena: info.contrasena,
-          edad: info.edad,
-          sexo: info.sexo,
-          buscaedadmin: info.buscaedadmin,
-          buscaedadmax: info.buscaedadmax,
-          buscasexo: info.buscasexo,
-          descripcion: info.descripcion,
-          fotoperfil: info.fotoperfil,
-          idlocalidad: info.idlocalidad,
-        },
-      });
+      const user = await userBD.updateUser(id, JSON.stringify(info));
       res.json("Usuario actualizado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el usuario' });
@@ -91,14 +54,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          correo: info.correo,
-        },
-      });
+      const user = await userBD.updateEmail(id, info.correo);
       res.json("Correo actualizado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el correo' });
@@ -109,14 +65,8 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          nombre: info.nombre,
-        },
-      });
+      console.log(id, info.nombre);
+      const user = await userBD.updateName(id, info.nombre);
       res.json("Nombre actualizado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el nombre' });
@@ -127,14 +77,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          edad: info.edad,
-        },
-      });
+      const user = await userBD.updateAge(id, info.edad);
       res.json("Edad actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la edad' });
@@ -145,14 +88,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          sexo: info.sexo,
-        },
-      });
+      const user = await userBD.updateSex(id, info.sexo);
       res.json("Sexo actualizado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el sexo' });
@@ -163,14 +99,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          descripcion: info.descripcion,
-        },
-      });
+      const user = await userBD.updateDescription(id, info.descripcion);
       res.json("Descripción actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la descripción' });
@@ -181,14 +110,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          fotoperfil: info.fotoperfil,
-        },
-      });
+      const user = await userBD.updatePhoto(id, info.fotoperfil);
       res.json("Foto de perfil actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la foto de perfil' });
@@ -199,14 +121,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          idlocalidad: info.idlocalidad,
-        },
-      });
+      const user = await userBD.updateLocation(id, info.idlocalidad);
       res.json("Localización actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la localización' });
@@ -217,16 +132,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          buscaedadmin: info.buscaedadmin,
-          buscaedadmax: info.buscaedadmax,
-          buscasexo: info.buscasexo,
-        },
-      });
+      const user = await userBD.updatePreferences(id, JSON.stringify(info));
       res.json("Preferencias actualizadas correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar las preferencias' });
@@ -237,14 +143,7 @@ class UsuarioController {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          id: id,
-        },
-        data: {
-          contrasena: info.contrasena,
-        },
-      });
+      const user = await userBD.updatePassword(id, info.contrasena);
       res.json("Contraseña actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la contraseña' });
@@ -254,14 +153,7 @@ class UsuarioController {
   public static async banUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
     try {
-      const usuario = await prisma.usuario.update({
-        where: {
-          correo: info.correo,
-        },
-        data: {
-          baneado: true,
-        },
-      });
+      const user = await userBD.banUser(info.id);
       res.json("Usuario baneado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al banear el usuario' });
@@ -271,30 +163,12 @@ class UsuarioController {
   public static async getUser(req: Request, res: Response): Promise<void> {
     const email = req.params.correo;
     try {
-      const usuario = await prisma.usuario.findUnique({
-        where: {
-          correo: email,
-        },
-        select: {
-          id: true,
-          correo: true,
-          nombre: true,
-          //contrasena: true,
-          edad: true,
-          sexo: true,
-          buscaedadmin: true,
-          buscaedadmax: true,
-          buscasexo: true,
-          descripcion: true,
-          fotoperfil: true,
-          idlocalidad: true,
-        }
-      });
-      if (usuario == null) {
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
       }
-      res.json(usuario);
+      res.json(user);
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener el usuario' });
     }
@@ -304,12 +178,8 @@ class UsuarioController {
   public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body;
     try {
-      const usuario = await prisma.usuario.findUnique({
-        where: {
-          correo: info.correo,
-        },
-      });
-      if (usuario != null) {
+      const user = await userBD.getUserByEmail(info.correo);
+      if (user != null) {
         res.status(409).json({ error: 'Ya existe un usuario con ese correo' });
         return;
       }
@@ -322,11 +192,7 @@ class UsuarioController {
   public static async deleteUser(req: Request, res: Response): Promise<void> {
     const id = autenticacionController.getPayload(req).id;
     try {
-      const usuario = await prisma.usuario.delete({
-        where: {
-          id: id,
-        },
-      });
+      const user = await userBD.deleteUser(id);
       res.json("Usuario eliminado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al eliminar el usuario' });
@@ -336,38 +202,19 @@ class UsuarioController {
   public static async checkStatusUser(req: Request, res: Response, next: NextFunction): Promise<any> {
     const info = req.body;
     try {
-      const usuario = await prisma.usuario.findUnique({
-        where: {
-          correo: info.correo,
-        },
-      });
-      if (usuario == null) {
+      const id = autenticacionController.getPayload(req).id;
+      const user = await userBD.getUserById(id);
+      if (user == null) {
         res.status(404).json({ error: 'El usuario ha sido eliminado' });
         return;
       }
-      else if (usuario != null && usuario.baneado) {
+      else if (user != null && user.baneado) {
         res.status(204).json({ error: 'El usuario está baneado' });
         return;
       }
       next();
     } catch (error) {
-      res.json({ error: 'Error al conectar con la base de datos' });
-    }
-  }
-
-  private static async searchId(correo: string): Promise<number> {
-    try {
-      const usuario = await prisma.usuario.findUnique({
-        where: {
-          correo: correo,
-        },
-      });
-      if (usuario != null) {
-        return usuario.id;
-      }
-      return 0;
-    } catch (error) {
-      return 0;
+      res.status(500).json({ error: 'Error al conectar con la base de datos' });
     }
   }
 }
