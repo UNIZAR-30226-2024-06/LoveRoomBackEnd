@@ -8,12 +8,14 @@ class UsuarioController {
    * Registra un usuario en la base de datos.
    * El usuario se registra con un correo, nombre y contraseña.
    */
-  public static async registerUser(req: Request, res: Response): Promise<void> {
+  public static async registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body;
     try {
       console.log(info);
       const newUser = await userBD.createUser(info.correo, info.nombre, info.contrasena);
-      res.status(201).send({ respuesta: "Usuario creado correctamente", newUser })
+      //res.status(201).json( "Usuario creado correctamente" )
+      req.body.id = newUser.id;
+      next();
     } 
     catch (error) {
       res.status(500).send({ error: 'Error al crear el usuario' });

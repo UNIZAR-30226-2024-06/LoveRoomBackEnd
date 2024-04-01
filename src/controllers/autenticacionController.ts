@@ -61,7 +61,8 @@ class autenticacionController {
             exp: Date.now() + 60 * 60 * 1000 * 24 * 3   // 3 dia
         }, secret)
         console.log(token);
-        res.status(200).send({token: token});
+        const user = await getUserById(req.body.id);
+        res.status(200).send({token: token, usuario: user});
     }
 
     /**

@@ -91,12 +91,12 @@ router.get("/sala/:idUsuarioMatch");
 //------------------------------------------------Rutas de usuarios------------------------------------------------
 
 // Crea un nuevo usuario
-router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.registerUser);
+router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.registerUser, autenticacionController.crearToken);
 
 // Inicia sesion con un nuevo usuario
 router.post('/user/login', UsuarioController.loginUser, autenticacionController.crearToken);
 
-router.get('/users', autenticacionController.checkAuthUser, async (req, res) => {
+router.get('/users', async (req, res) => {
   try{
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -130,7 +130,7 @@ router.patch('/user/update/preferences', autenticacionController.checkAuthUser, 
 
 // Actualizar el tipo de usuario a admin, solo puede ser realizado por un admin
 router.patch('/user/update/type/admin', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateAdmin);
-// Actualizar el tipo de usuario a premium o nomrla:normal, premium
+// Actualizar el tipo de usuario a premium o normal: normal, premium
 router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, UsuarioController.updatePremiun);
 
 // Banear a un usuario, solo puede ser realizado por un admin
