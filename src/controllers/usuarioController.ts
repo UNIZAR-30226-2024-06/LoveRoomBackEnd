@@ -201,6 +201,36 @@ class UsuarioController {
   }
 
   /**
+   * Actualiza el tipo de un usuario a premiun.
+   * El usuario se identifica con el token.
+   */
+  public  static async updatePremiun(req: Request, res: Response): Promise<any> {
+    const id = autenticacionController.getPayload(req).id;   
+    console.log(req.params.type);
+    try {
+      const user = await userBD.updateType(id, req.params.type);  //normal, premium, administrador
+      res.json("Tipo actualizado correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al actualizar el tipo a premiun' });
+    }
+  }
+
+  /**
+   * Actualiza el tipo de un usuario a administrador.
+   * Solo un administrador puede actualizar el tipo de un usuario a administrador.
+   * El usuario a actualizar se identifica con el id y se pasa en el body.
+   */
+  public static async updateAdmin(req: Request, res: Response): Promise<any> {
+    const id = req.body.id;
+    try {
+      const user = await userBD.updateType(id, "administrador");  //normal, premium, administrador
+      res.json("Tipo actualizado correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al actualizar el tipo a administrador' });
+    }
+  }
+
+  /**
    * Banea a un usuario
    * El usuario a baenar se identifica con el id y se pasa en el body
    * Solo un administrador puede banear a un usuario

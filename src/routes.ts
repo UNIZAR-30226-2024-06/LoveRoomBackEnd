@@ -127,7 +127,13 @@ router.patch('/user/update/photo', autenticacionController.checkAuthUser, Usuari
 router.patch('/user/update/location', autenticacionController.checkAuthUser, UsuarioController.updateLocation);
 router.patch('/user/update/preferences', autenticacionController.checkAuthUser, UsuarioController.updatePreferences);
 
-// Banear a un usuario
+
+// Actualizar el tipo de usuario a admin, solo puede ser realizado por un admin
+router.patch('/user/update/type/admin', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateAdmin);
+// Actualizar el tipo de usuario a premium o nomrla:normal, premium
+router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, UsuarioController.updatePremiun);
+
+// Banear a un usuario, solo puede ser realizado por un admin
 router.patch('/user/ban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.banUser);
 router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.unbanUser);
 

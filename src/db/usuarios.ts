@@ -157,7 +157,17 @@ export const updatePreferences = async (id: number, preferences: string) => {
     });
     return user;
 }
-
+export const updateType = async (id: number, type: string) => {
+    const user = await prisma.usuario.update({
+        where: {
+          id: id,
+        },
+        data: {
+          tipousuario: type,
+        },
+    });
+    return user;
+}
 export const banUser = async (id: number) => {
     console.log(id);
     const user = await prisma.usuario.update({
@@ -283,4 +293,5 @@ export default{
     deleteUser,
     updatePreferences,
     updateUser,
+    updateType,
 }
