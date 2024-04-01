@@ -91,12 +91,12 @@ router.get("/sala/:idUsuarioMatch");
 //------------------------------------------------Rutas de usuarios------------------------------------------------
 
 // Crea un nuevo usuario
-router.post('/user/create', /*UsuarioController.mailAlreadyUse,*/ UsuarioController.registerUser);
+router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.registerUser);
 
 // Inicia sesion con un nuevo usuario
 router.post('/user/login', UsuarioController.loginUser, autenticacionController.crearToken);
 
-router.get('/users', autenticacionController.comprobarAutenticacion, async (req, res) => {
+router.get('/users', autenticacionController.checkAuthUser, async (req, res) => {
   try{
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -108,27 +108,28 @@ router.get('/users', autenticacionController.comprobarAutenticacion, async (req,
 });
 
 // Obtener un usuario
-router.get('/user/:correo', autenticacionController.comprobarAutenticacion, UsuarioController.getUser);
+router.get('/user/:correo', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
 // Actualizacion de un usario entero
-router.put('/user/update/all', UsuarioController.checkStatusUser, autenticacionController.comprobarAutenticacion, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
+router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
 
 // Eliminacion de un usuario
-router.delete('/user/delete', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.deleteUser);
+router.delete('/user/delete', autenticacionController.checkAuthUser, UsuarioController.deleteUser);
 
 // Actualizaciones parciales de los datos
-router.patch('/user/update/email', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
-router.patch('/user/update/password', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePassword);
-router.patch('/user/update/name', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateName);
-router.patch('/user/update/age', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateAge);
-router.patch('/user/update/sex', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateSex);
-router.patch('/user/update/description', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateDescription);
-router.patch('/user/update/photo', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePhoto);
-router.patch('/user/update/location', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updateLocation);
-router.patch('/user/update/preferences', autenticacionController.comprobarAutenticacion, UsuarioController.checkStatusUser, UsuarioController.updatePreferences);
+router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
+router.patch('/user/update/password', autenticacionController.checkAuthUser, UsuarioController.updatePassword);
+router.patch('/user/update/name', autenticacionController.checkAuthUser,  UsuarioController.updateName);
+router.patch('/user/update/age', autenticacionController.checkAuthUser, UsuarioController.updateAge);
+router.patch('/user/update/sex', autenticacionController.checkAuthUser, UsuarioController.updateSex);
+router.patch('/user/update/description', autenticacionController.checkAuthUser, UsuarioController.updateDescription);
+router.patch('/user/update/photo', autenticacionController.checkAuthUser, UsuarioController.updatePhoto);
+router.patch('/user/update/location', autenticacionController.checkAuthUser, UsuarioController.updateLocation);
+router.patch('/user/update/preferences', autenticacionController.checkAuthUser, UsuarioController.updatePreferences);
 
 // Banear a un usuario
-router.patch('/user/ban', autenticacionController.comprobarAutenticacion, UsuarioController.banUser);
+router.patch('/user/ban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.banUser);
+router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.unbanUser);
 
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);

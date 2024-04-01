@@ -1,6 +1,5 @@
-import { userInfo } from 'os';
 import { prisma } from '../index';
-import { json } from 'stream/consumers';
+
 
 export const createUser = async (name: string, email: string, pass: string) =>{
     const nuevoUSuario = await prisma.usuario.create({
@@ -160,12 +159,26 @@ export const updatePreferences = async (id: number, preferences: string) => {
 }
 
 export const banUser = async (id: number) => {
+    console.log(id);
     const user = await prisma.usuario.update({
         where: {
           id: id,
         },
         data: {
           baneado: true,
+        },
+    });
+    return user;
+}
+
+export const unbanUser = async (id: number) => {
+    console.log(id);
+    const user = await prisma.usuario.update({
+        where: {
+          id: id,
+        },
+        data: {
+          baneado: false,
         },
     });
     return user;
@@ -252,6 +265,7 @@ export const getUsers = async () => {
     return users;
 }
 
+
 export default{
     createUser,
     updateEmail,
@@ -263,6 +277,7 @@ export default{
     updateLocation,
     updatePassword,
     banUser,
+    unbanUser,
     getUserByEmail,
     getUserById,
     deleteUser,

@@ -1,36 +1,48 @@
-import { prisma } from '../index';
 import { Request, Response, NextFunction } from 'express';
 import { autenticacionController } from './autenticacionController';
-import { ConversationContextImpl } from 'twilio/lib/rest/conversations/v1/conversation';
 import userBD from '../db/usuarios';
 
 class UsuarioController {
 
+  /**
+   * Registra un usuario en la base de datos.
+   * El usuario se registra con un correo, nombre y contraseña.
+   */
   public static async registerUser(req: Request, res: Response): Promise<void> {
     const info = req.body;
     try {
       console.log(info);
       const newUser = await userBD.createUser(info.correo, info.nombre, info.contrasena);
-      res.status(201).json("Usuario creado correctamente")
+      res.status(201).send({ respuesta: "Usuario creado correctamente", newUser })
     } 
     catch (error) {
       res.status(500).send({ error: 'Error al crear el usuario' });
     }
   }
 
+  /**
+   * Autentica un usuario en la base de datos.
+   * El usuario se autentica con un correo y una contraseña.
+   * Si el usuario no existe o la contraseña es incorrecta, se devuelve un error
+   * SI el usuario está baneado, se devuelve un error
+   * Si se autentica correctamente, pasa al siguiente middleware.
+   */
   public static async loginUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body; 
     try {
       console.log(info);
       const user = await userBD.getUserByEmail(info.correo);
-      if (user != null && user.contrasena === info.contrasena) {
+      if (user == null || user.contrasena != info.contrasena ) {
+        res.status(401).json({ error: 'Usuario y/o contraseña incorrectos' });
+      }
+      else if (user.baneado) {
+        res.status(403).json({ error: 'El usuario está baneado' });
+        
+      }
+      else {
         console.log('Autenticado correctamente');
         req.body.id = user.id;
-        console.log(req.body.id);
         next();
-      }
-      else{
-        res.status(401).json({ error: 'Usuario y/o contraseña incorrectos' });
       }
     } 
     catch (error) {
@@ -38,10 +50,13 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza un usuario al completo.
+   * El usuario se identifica con el token.
+   */
   public static async updateUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
-    console.log(id);
     try {
       const user = await userBD.updateUser(id, JSON.stringify(info));
       res.json("Usuario actualizado correctamente");
@@ -50,6 +65,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza el correo de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updateEmail(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -61,11 +80,14 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza el nombre de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updateName(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
     try {
-      console.log(id, info.nombre);
       const user = await userBD.updateName(id, info.nombre);
       res.json("Nombre actualizado correctamente");
     } catch (error) {
@@ -73,6 +95,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza la edad de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updateAge(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -84,6 +110,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza el sexo de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updateSex(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -95,6 +125,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza la descripción de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updateDescription(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -106,6 +140,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza la foto de perfil de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updatePhoto(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -117,6 +155,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza la localización de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updateLocation(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -128,6 +170,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza las preferencias de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updatePreferences(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -139,6 +185,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Actualiza la contraseña de un usuario.
+   * El usuario se identifica con el token.
+   */
   public static async updatePassword(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = autenticacionController.getPayload(req).id;
@@ -150,6 +200,11 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Banea a un usuario
+   * El usuario a baenar se identifica con el id y se pasa en el body
+   * Solo un administrador puede banear a un usuario
+   */
   public static async banUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
     try {
@@ -160,6 +215,25 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Desbanea a un usuario
+   * El usuario a desbanear se identifica con el id y se pasa en el body
+   * Solo un administrador puede desbanear a un usuario
+   */
+  public static async unbanUser(req: Request, res: Response): Promise<any> {
+    const info = req.body;
+    try {
+      const user = await userBD.unbanUser(info.id);
+      res.json("Usuario desbaneado correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al desbanear el usuario' });
+    }
+  }
+
+  /**
+   * Obtiene un usuario por su id
+   * El usuario se identifica con el token.
+   */
   public static async getUser(req: Request, res: Response): Promise<void> {
     const email = req.params.correo;
     try {
@@ -174,7 +248,11 @@ class UsuarioController {
     }
   }
 
-  
+  /**
+   * Comprueba si un correo ya está en uso.
+   * Si el correo ya está en uso, devuelve un error.
+   * Si el correo no está en uso, pasa al siguiente middleware.
+   */
   public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body;
     try {
@@ -189,6 +267,10 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Comprueba si un usuario está baneado.
+   * El usuario se identifica con el token.
+   */
   public static async deleteUser(req: Request, res: Response): Promise<void> {
     const id = autenticacionController.getPayload(req).id;
     try {
@@ -196,25 +278,6 @@ class UsuarioController {
       res.json("Usuario eliminado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al eliminar el usuario' });
-    }
-  }
-
-  public static async checkStatusUser(req: Request, res: Response, next: NextFunction): Promise<any> {
-    const info = req.body;
-    try {
-      const id = autenticacionController.getPayload(req).id;
-      const user = await userBD.getUserById(id);
-      if (user == null) {
-        res.status(404).json({ error: 'El usuario ha sido eliminado' });
-        return;
-      }
-      else if (user != null && user.baneado) {
-        res.status(204).json({ error: 'El usuario está baneado' });
-        return;
-      }
-      next();
-    } catch (error) {
-      res.status(500).json({ error: 'Error al conectar con la base de datos' });
     }
   }
 }
