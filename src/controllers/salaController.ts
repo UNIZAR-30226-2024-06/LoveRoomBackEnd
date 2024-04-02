@@ -79,6 +79,9 @@ const SalaController = {
     try {
       const { idUsuario } = req.params;
       const salas = await getAllSalasUsuario(idUsuario);
+      if(salas.length == 0){
+        return res.json([]);
+      }
       const formattedResponse = salas.map((sala: any) => {
         return {
           id: sala.idsala,

@@ -26,7 +26,7 @@ test('two connections, one makes match with another',async () => {
       await SalaController.verVideo('1', '1');
       await expect(getUsuariosViendoVideo('1')).resolves.toEqual([{idusuario: '1'}]);
       //Cliente 2 quiere ver el video 1
-      await SalaController.verVideo('1', '2');
+      await SalaController.verVideo('2', '1');
       await expect(getMatchesUsuario('1')).resolves.toEqual([{idusuario1: '1', idusuario2: '2'}]);
       client1.emit('match', {senderId: '1', receiverId: '2', idVideo: '1'});
       client1.disconnect();

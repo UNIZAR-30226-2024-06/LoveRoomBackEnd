@@ -2,9 +2,13 @@ import express from "express";
 import SalaController  from "./controllers/salaController";
 import VideoController from './controllers/videoController';
 import MensajeController from './controllers/mensajeController';
-import { prisma } from "./index";
+import MultimediaController from './controllers/multimediaController';
+import {upload} from './storage'
+import { prisma} from "./index";
 
 const router = express.Router();
+
+
 
 router.get("/", (req, res) => {
   res.send("Home page");
@@ -66,6 +70,16 @@ router.post("/test", (req, res) => {
 //   }
 // });
 
+router.post('/upload/:idUsuario', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    res.status(400).send('No file provided');
+    return;
+  }
+  console.log(req.file.filename);
+  res.send('File uploaded');
+
+});
+
 //------------------------------------------------Rutas de videos------------------------------------------------
 
 router.get('/videos/interes/:idUsuario', VideoController.videosInteres);
@@ -75,7 +89,7 @@ router.get('/videos/interes/:idUsuario', VideoController.videosInteres);
 
 router.get('/salas/:idUsuario', SalaController.getAllSalasUsuario);
 
-router.get('/participantes/:idSala', SalaController.getParticipantesSala);
+router.get('/salas/participantes/:idSala', SalaController.getParticipantesSala);
 
 router.get('/ver_video/:idVideo/:idUsuario', SalaController.verVideo);
 
@@ -83,10 +97,26 @@ router.get('/sala/:idSala/get_estado/:idUsuario', SalaController.getSalaSincroni
 
 router.put('/sala/:idSala/set_estado/:idUsuario', SalaController.setEstadoSala);
 
+router.delete('/sala/:idSala/delete', SalaController.deleteSala);
+
 //------------------------------------------------Rutas de mensajes------------------------------------------------
 
 router.post('/:idSala/mensaje', MensajeController.createMensaje);
 
 router.get('/:idSala/chat', MensajeController.getMensajesSala);
+
+//------------------------------------------------Rutas de multimedia------------------------------------------------
+
+router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'), (req,res) => {
+  MultimediaController.uploadFoto(req, res);
+});
+
+router.post('/multimedia/upload/video/:idUsuario', upload.single('file'), (req,res) => {
+  MultimediaController.uploadVideo(req, res);
+});
+
+router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMultimedia);
+
+router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMultimedia);
 
 export default router;
