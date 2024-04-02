@@ -43,6 +43,7 @@ class autenticacionController {
                 return;
             }
             console.log(payload);
+            req.body.token.id = payload.id;
             next();
         } 
         catch (error) {
