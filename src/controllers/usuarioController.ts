@@ -54,6 +54,25 @@ class UsuarioController {
   }
 
   /**
+   * Comprueba si un correo ya está en uso.
+   * Si el correo ya está en uso, devuelve un error.
+   * Si el correo no está en uso, pasa al siguiente middleware.
+   */
+  public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const info = req.body;
+    try {
+      const user = await userBD.getUserByEmail(info.correo);
+      if (user != null) {
+        res.status(409).json({ error: 'Ya existe un usuario con ese correo' });
+        return;
+      }
+      next();
+    } catch (error) {
+      res.status(500).json({ error: 'Error al conectar con la base de datos' });
+    }
+  }
+
+  /**
    * Actualiza un usuario al completo.
    * El usuario se identifica con el token.
    */
@@ -205,9 +224,10 @@ class UsuarioController {
 
   /**
    * Actualiza el tipo de un usuario a premiun.
+   * Se actualiza segun el tipo introducido en la ulr (normal, premium)
    * El usuario se identifica con el token.
    */
-  public  static async updatePremiun(req: Request, res: Response): Promise<any> {
+  public  static async updateType(req: Request, res: Response): Promise<any> {
     const id = autenticacionController.getPayload(req).id;   
     console.log(req.params.type);
     try {
@@ -264,7 +284,21 @@ class UsuarioController {
   }
 
   /**
-   * Obtiene un usuario por su id
+   * Comprueba si un usuario está baneado.
+   * El usuario se identifica con el token.
+   */
+  public static async deleteUser(req: Request, res: Response): Promise<void> {
+    const id = autenticacionController.getPayload(req).id;
+    try {
+      const user = await userBD.deleteUser(id);
+      res.json("Usuario eliminado correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al eliminar el usuario' });
+    }
+  }
+
+  /**
+   * Obtiene un usuario por su correo
    * El usuario se identifica con el token.
    */
   public static async getUser(req: Request, res: Response): Promise<void> {
@@ -282,42 +316,8 @@ class UsuarioController {
   }
 
   /**
-   * Comprueba si un correo ya está en uso.
-   * Si el correo ya está en uso, devuelve un error.
-   * Si el correo no está en uso, pasa al siguiente middleware.
-   */
-  public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const info = req.body;
-    try {
-      const user = await userBD.getUserByEmail(info.correo);
-      if (user != null) {
-        res.status(409).json({ error: 'Ya existe un usuario con ese correo' });
-        return;
-      }
-      next();
-    } catch (error) {
-      res.status(500).json({ error: 'Error al conectar con la base de datos' });
-    }
-  }
-
-  /**
-   * Comprueba si un usuario está baneado.
-   * El usuario se identifica con el token.
-   */
-  public static async deleteUser(req: Request, res: Response): Promise<void> {
-    const id = autenticacionController.getPayload(req).id;
-    try {
-      const user = await userBD.deleteUser(id);
-      res.json("Usuario eliminado correctamente");
-    } catch (error) {
-      res.status(500).json({ error: 'Error al eliminar el usuario' });
-    }
-  }
-
-  /**
    * Devuelve el id de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getId(req: Request, res: Response): Promise<void> {
@@ -338,7 +338,6 @@ class UsuarioController {
   /**
    * Devuelve el correo de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getEmail(req: Request, res: Response): Promise<void> {
@@ -359,7 +358,6 @@ class UsuarioController {
   /**
    * Devuelve el nombre de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getName(req: Request, res: Response): Promise<void> {
@@ -380,7 +378,6 @@ class UsuarioController {
   /**
    * Devuelve la contraseña de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getPassword(req: Request, res: Response): Promise<void> {
@@ -401,7 +398,6 @@ class UsuarioController {
   /**
    * Devuelve la edad de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getAge(req: Request, res: Response): Promise<void> {
@@ -422,7 +418,6 @@ class UsuarioController {
   /**
    * Devuelve la descripción de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getDescription(req: Request, res: Response): Promise<void> {
@@ -443,7 +438,6 @@ class UsuarioController {
   /**
    * Devuelve el sexo de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getSex(req: Request, res: Response): Promise<void> {
@@ -464,7 +458,6 @@ class UsuarioController {
   /**
    * Devuelve la foto de perfil de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getPhoto(req: Request, res: Response): Promise<void> {
@@ -485,7 +478,6 @@ class UsuarioController {
   /**
    * Devuelve la id de la localidad de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getLocation(req: Request, res: Response): Promise<void> {
@@ -506,7 +498,6 @@ class UsuarioController {
   /**
    * Devuelve las preferencias de un usuario.
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getPreferences(req: Request, res: Response): Promise<void> {
@@ -529,7 +520,6 @@ class UsuarioController {
   /**
    * Devuelve el tipo de usuario (administrados, normal, premium).
    * El usuario se pasa como parametro en la url
-   * Si el usuario no existe, devuelve un error.
    * Necesita autenticación.
    */
   public static async getType(req: Request, res: Response): Promise<void> {
