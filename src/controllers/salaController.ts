@@ -18,7 +18,7 @@ const SalaController = {
 
       // Obtenemos los usuarios de interes que estan viendo el video
       console.log("Obteniendo usuarios viendo video")
-      const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo);
+      const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo, idUsuario);
       
       //Si hay al menos un usuario de interes viendo ese video
       if (usuariosViendoVideo.length > 0) {
