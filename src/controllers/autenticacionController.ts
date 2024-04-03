@@ -19,11 +19,11 @@ class autenticacionController {
 
             // Comprobar si hay token
             if (!authorizationHeader) { // No hay token, no tiene autorizacion
-                res.status(401).json({ error: 'No estas autenticado' });
+                res.status(401).json({ error: 'No estas autenticado, introduce token' });
                 return;
             }
             const payload = autenticacionController.getPayload(req);
-
+            
             // Comprobar si el token ha expirado
             if (Date.now() > payload.exp) {
                 res.status(401).json({ error: 'Token expirado' });
@@ -43,7 +43,7 @@ class autenticacionController {
                 return;
             }
             console.log(payload);
-            req.body.token.id = payload.id;
+            req.body.idUser = payload.id;
             next();
         } 
         catch (error) {
