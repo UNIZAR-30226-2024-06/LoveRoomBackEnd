@@ -107,8 +107,11 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Obtener un usuario
+// Obtener un usuario con todos los datos
 router.get('/user/:email', autenticacionController.checkAuthUser, UsuarioController.getUser);
+
+// Obtener un dato concreto de un usuario
+router.get('/user/:email/id', autenticacionController.checkAuthUser, UsuarioController.getId);
 router.get('/user/:email/email', autenticacionController.checkAuthUser, UsuarioController.getEmail);
 router.get('/user/:email/password', autenticacionController.checkAuthUser, UsuarioController.getPassword);
 router.get('/user/:email/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
@@ -119,6 +122,7 @@ router.get('/user/:email/photo', autenticacionController.checkAuthUser, UsuarioC
 router.get('/user/:email/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
 router.get('/user/:email/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
 router.get('/user/:email/type', autenticacionController.checkAuthUser, UsuarioController.getType);
+
 
 // Actualizacion de un usario entero
 router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);

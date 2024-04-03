@@ -314,6 +314,33 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve el id de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
+  public static async getId(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({id: user.id});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el id' });
+    }
+  }
+
+  /**
+   * Devuelve el correo de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getEmail(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -329,7 +356,12 @@ class UsuarioController {
     }
   }
 
-
+  /**
+   * Devuelve el nombre de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getName(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -345,6 +377,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve la contraseña de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getPassword(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -360,6 +398,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve la edad de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getAge(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -375,6 +419,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve la descripción de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getDescription(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -390,6 +440,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve el sexo de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getSex(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -405,6 +461,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve la foto de perfil de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getPhoto(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -420,6 +482,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve la id de la localidad de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getLocation(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -435,6 +503,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve las preferencias de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getPreferences(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -452,6 +526,12 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve el tipo de usuario (administrados, normal, premium).
+   * El usuario se pasa como parametro en la url
+   * Si el usuario no existe, devuelve un error.
+   * Necesita autenticación.
+   */
   public static async getType(req: Request, res: Response): Promise<void> {
     try{
       const email = req.params.email;
@@ -466,10 +546,6 @@ class UsuarioController {
       res.status(500).json({ error: 'Error al obtener el tipo' });
     }
   }
-
-
-  
-
 
 }
 
