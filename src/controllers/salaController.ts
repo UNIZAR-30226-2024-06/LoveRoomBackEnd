@@ -29,7 +29,7 @@ const SalaController = {
 
         //Emitimos el match
         console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
-        SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
+        await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
 
         const formattedResponse = {
           id: nuevaSala.id,
@@ -116,7 +116,7 @@ const SalaController = {
     try {
       const { idSala, idUsuario } = req.params;
       const estado = await getEstadoSala(idSala,idUsuario);
-      return res.json(estado);
+      return res.json({estado: estado});
     } catch (error) {
       console.error("Error al obtener estado de sala:", error);
       return res.status(500).json({ error: "Error al obtener estado de sala" });

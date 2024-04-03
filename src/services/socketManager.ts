@@ -3,6 +3,8 @@ import { deleteSalaUnitaria } from '../db/salas';
 import { createMatch } from '../db/match';
 import { socketEvents } from '../constants/socketEvents';
 
+
+
 export default class SocketManager {
     private static instance: SocketManager;
     private io: Server | null = null;
@@ -20,7 +22,7 @@ export default class SocketManager {
         return SocketManager.instance;
     }
 
-    public initSocketServer(httpServer : any) : void  {
+    public async initSocketServer(httpServer : any) : Promise<void>  {
         const io = new Server(httpServer);
         console.log('Socket server started');
     
@@ -38,10 +40,15 @@ export default class SocketManager {
                 this.users[userId] = socket.id;
             }
     
-            socket.on(socketEvents.MATCH, ({senderId, receiverId, idVideo}: {senderId: string, receiverId: string, idVideo: string}) => {
+            socket.on(socketEvents.MATCH, async (senderId: string, receiverId: string, idVideo: string) => {
                 console.log('Match recibido', senderId, receiverId);
-                createMatch(receiverId,senderId);
-                deleteSalaUnitaria(receiverId,idVideo);
+                try {
+                    await createMatch(receiverId,senderId);
+                    await deleteSalaUnitaria(receiverId,idVideo);
+                }catch(error){
+                    console.error('Error al crear match', error);
+                }
+                
             });
     
             socket.on(socketEvents.TIME, (senderId: string,receiverId: string,idSala: string,time: number) => {
@@ -50,20 +57,20 @@ export default class SocketManager {
                 //este se convierte en el nuevo tiempo global
                 if(this.times[idSala] < time){
                     this.times[idSala] = time;
-                    socket.to(this.users[receiverId]).emit('decrease-speed', this.times[idSala]);
+                    socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
                 }else if(this.times[idSala] > time){
-                    socket.to(this.users[senderId]).emit('increase-speed', this.times[idSala]);
+                    socket.to(this.users[senderId]).emit(socketEvents.INCREASE_SPEED, this.times[idSala]);
                 }
             });
     
             socket.on(socketEvents.PAUSE, (receiverId: string) => {
                 console.log('Pause event');
-                socket.to(this.users[receiverId]).emit('pause-video');
+                socket.to(this.users[receiverId]).emit(socketEvents.PAUSE);
             });
     
             socket.on(socketEvents.PLAY, (receiverId: string) => {
                 console.log('Play event');
-                socket.to(this.users[receiverId]).emit('play-video');
+                socket.to(this.users[receiverId]).emit(socketEvents.PLAY);
             });
     
     

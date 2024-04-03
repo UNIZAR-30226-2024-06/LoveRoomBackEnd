@@ -8,8 +8,6 @@ import { prisma} from "./index";
 
 const router = express.Router();
 
-
-
 router.get("/", (req, res) => {
   res.send("Home page");
 });
@@ -69,16 +67,6 @@ router.post("/test", (req, res) => {
 //     res.status(500).json({ error: 'Internal server error' });
 //   }
 // });
-
-router.post('/upload/:idUsuario', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    res.status(400).send('No file provided');
-    return;
-  }
-  console.log(req.file.filename);
-  res.send('File uploaded');
-
-});
 
 //------------------------------------------------Rutas de videos------------------------------------------------
 
