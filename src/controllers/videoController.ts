@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 const VideoController = {
   videosInteres: async (req: Request, res: Response): Promise<any> => {
     try {
-      const { idUsuario } = req.params;
+      const idUsuario = req.body.idUser;
       const idUsuario_int = parseInt(idUsuario);
 
       // Obtenemos los datos del usuario necesarios para la logica de la consulta

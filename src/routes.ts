@@ -44,32 +44,9 @@ router.post("/test", (req, res) => {
   });
 });
 
-// Ruta para obtener la lista de usuarios viendo un video
-// router.get('/video/:url/users', async (req, res) => {
-//   try {
-//     const { url } = req.params;
-
-//     // Consulta a la base de datos para obtener la lista de usuarios viendo el video
-//     const users = await prisma.videoyoutube.findMany({
-//       where: {
-//         urlvideo: url
-//       },
-//       select: {
-//         idusuario: true // Solo se selecciona el id del usuario
-//       }
-//     });
-
-//     // Se envía la lista de usuarios en formato JSON
-//     res.json(users);
-//   } catch (error) {
-//     console.error('Error retrieving users:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
 //------------------------------------------------Rutas de videos------------------------------------------------
 
-router.get('/videos/interes/:idUsuario', VideoController.videosInteres);
+router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);
 
 router.get("/ver_video/prueba/usuario1", async (req, res) => {
   //const { urlvideo, correo } = req.params;
