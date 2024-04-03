@@ -1,90 +1,142 @@
-import SocketManager from "../controllers/socketManager";
-import { Server } from "socket.io";
-import { prisma } from "../index";
-import { parse } from "path";
+import {createSalaUnitaria, 
+        createSala,
+        deleteSala, 
+        getParticipantesSala, 
+        getAllSalasUsuario,
+        getEstadoSala,
+        setEstadoSala} from '../db/salas';
+import { createMatch } from '../db/match';
+import { getUsuariosViendoVideo } from '../db/video';
+import { Request, Response } from "express";
+import SocketManager from '../services/socketManager';
 
-class SalaController {
-  private static socketManager: SocketManager;
-
-  public static initializeSocketManager(io: Server): void {
-    if (!SalaController.socketManager) {
-      SalaController.socketManager = SocketManager.getInstance(io);
-    }
-  }
-
-  public static async verVideo(
-    idVideo: string,
-    idUsuario: string
-  ): Promise<string> {
+const SalaController = {
+  
+   verVideo: async(req: Request, res: Response): Promise<any> => {
     try {
-      const usuariosViendoVideo = await prisma.videoviewer.findMany({
-        where: { idvideo: idVideo },
-      });
+      const { idUsuario, idVideo } = req.params;
 
+      // Obtenemos los usuarios de interes que estan viendo el video
+      console.log("Obteniendo usuarios viendo video")
+      const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo);
+      
+      //Si hay al menos un usuario de interes viendo ese video
       if (usuariosViendoVideo.length > 0) {
-        const nuevaSala = await prisma.sala.create({
-          data: {
-            idvideo: idVideo,
-          },
-        });
+        console.log("Usuarios viendo video:", usuariosViendoVideo);
+        //Creamos una sala con los dos usuarios
+        const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
+        
+        //Creamos un match entre los dos usuarios
+        await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
 
-        await prisma.participa.create({
-          data: {
-            idsala: nuevaSala.id,
-            idusuario: parseInt(idUsuario),
-            estado: "Activo",
-          },
-        });
+        //Emitimos el match
+        console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
+        await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
 
-        await prisma.participa.create({
-          data: {
-            idsala: nuevaSala.id,
-            idusuario: usuariosViendoVideo[0].idusuario,
-            estado: "Activo",
-          },
-        });
-
-        this.socketManager.emitMatchBigRoom(
-          idUsuario,
-          nuevaSala.id,
-          nuevaSala.idvideo
-        );
-        return `/sala/${nuevaSala.id}`;
+        const formattedResponse = {
+          id: nuevaSala.id,
+          idvideo: nuevaSala.idvideo,
+          esSalaUnitaria: false,
+        }
+        
+        return res.json(formattedResponse);
       } else {
-        const salaUnitaria = await prisma.videoviewer.create({
-          data: {
-            idvideo: idVideo,
-            idusuario: parseInt(idUsuario),
-          },
-        });
+        //Creamos una sala unitaria 
+        console.log("No hay nadie viendo el video, creando sala unitaria");
+        const salaUnitaria = await createSalaUnitaria(idUsuario, idVideo);
 
-        return `/sala/${salaUnitaria.idvideo}`;
+        const formattedResponse = {
+          id: salaUnitaria.id,
+          idvideo: salaUnitaria.idvideo,
+          idusuario: salaUnitaria.idusuario,
+          esSalaUnitaria: true,
+        }
+        return res.json(formattedResponse);
       }
     } catch (error) {
       console.error("Error al manejar salas:", error);
-      throw new Error("Error al manejar salas");
+      return res.status(500).json({ error: "Error al manejar salas" });
+    }
+  },
+
+  getParticipantesSala: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { idSala } = req.params;
+      const usuarios = await getParticipantesSala(idSala);
+      const formattedResponse = usuarios.map((usuario: any) => {
+          return {
+            id: usuario.idusuario,
+            estado: usuario.estado,
+          };
+        });
+      return res.json(formattedResponse);
+    } catch(error){
+      console.error("Error al obtener participantes de la sala:", error);
+      return res.status(500).json({ error: "Error al obtener participantes de la sala" });
+    }
+
+  },
+
+  getAllSalasUsuario: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { idUsuario } = req.params;
+      const salas = await getAllSalasUsuario(idUsuario);
+      if(salas.length == 0){
+        return res.json([]);
+      }
+      const formattedResponse = salas.map((sala: any) => {
+        return {
+          id: sala.idsala,
+          idvideo: sala.idvideo,
+          estado: sala.estado,
+        };
+      });
+      return res.json(formattedResponse);
+    } catch (error) {
+      console.error("Error al obtener salas de usuario:", error);
+      return res.status(500).json({ error: "Error al obtener salas de usuario" });
+    }
+  },
+
+  setEstadoSala: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { idSala, idUsuario, estado } = req.body;
+      if(estado !== "sincronizada" || estado !== "no sincronizada"){
+        res.status(400).json({ error: "Estado de sala no válido" });
+        return;
+      }
+      await setEstadoSala(idSala, idUsuario, estado);
+      return res.status(200).json({ message: "Estado de sala actualizado" });
+    } catch (error) {
+      console.error("Error al actualizar estado de sala:", error);
+      return res.status(500).json({ error: "Error al actualizar estado de sala" });
+    }
+
+  },
+
+  getSalaSincronizada: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { idSala, idUsuario } = req.params;
+      const estado = await getEstadoSala(idSala,idUsuario);
+      return res.json({estado: estado});
+    } catch (error) {
+      console.error("Error al obtener estado de sala:", error);
+      return res.status(500).json({ error: "Error al obtener estado de sala" });
+    }
+
+  },
+
+  deleteSala: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { idSala } = req.params;
+      await deleteSala(idSala);
+      return res.status(200).json({ message: "Sala eliminada" });
+    } catch (error) {
+      console.error("Error al eliminar sala:", error);
+      return res.status(500).json({ error: "Error al eliminar sala" });
     }
   }
 
-  public static async borrarSalaUnitaria(
-    idvideo: string,
-    idUsuario: string
-  ): Promise<void> {
-    try {
-      await prisma.videoviewer.delete({
-        where: {
-          idvideo_idusuario: {
-            idvideo: idvideo,
-            idusuario: parseInt(idUsuario),
-          },
-        },
-      });
-      console.log("Sala unitaria borrada de usuario #{idUsuario}");
-    } catch (error) {
-      console.error("Error al borrar sala unitaria:", error);
-      throw new Error("Error al borrar sala unitaria");
-    }
-  }
 }
 
-export { SalaController };
+export default SalaController;

@@ -1,9 +1,12 @@
 import express from "express";
-import { SalaController } from "./controllers/salaController";
+import SalaController  from "./controllers/salaController";
 import VideoController from './controllers/videoController';
 import { prisma } from "./index";
 import { UsuarioController } from "./controllers/usuarioController";
 import { autenticacionController } from "./controllers/autenticacionController";
+import MensajeController from './controllers/mensajeController';
+import MultimediaController from './controllers/multimediaController';
+import {upload} from './storage';
 
 const router = express.Router();
 
@@ -13,7 +16,7 @@ router.get("/", (req, res) => {
 
 //------------------------------------------------Rutas de prueba------------------------------------------------
 //Ruta de prueba que devuelve todos los usuarios
-router.get("/usuarios", async (req, res) => {
+router.get("/users", async (req, res) => {
   try {
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -48,20 +51,39 @@ router.post("/test", (req, res) => {
 
 router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);
 
-router.get("/ver_video/prueba/usuario1", async (req, res) => {
-  //const { urlvideo, correo } = req.params;
-  const urlvideo = "test_video_url";
-  const correo = "usuario1";
-  try {
-    const salaUrl = await SalaController.verVideo(urlvideo, correo);
-    res.redirect(salaUrl);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al manejar salas" });
-  }
+router.get('/videos/:idVideo/watch/:idUsuario', SalaController.verVideo);
+
+//------------------------------------------------Rutas de salas------------------------------------------------
+
+router.get('/users/:idUsuario/rooms', SalaController.getAllSalasUsuario);
+
+router.get('/rooms/:idSala/members', SalaController.getParticipantesSala);
+
+router.get('/room/:idSala/state/:idUsuario', SalaController.getSalaSincronizada);
+
+router.put('/room/:idSala/state/:idUsuario', SalaController.setEstadoSala);
+
+router.delete('/room/:idSala', SalaController.deleteSala);
+
+//------------------------------------------------Rutas de mensajes------------------------------------------------
+
+router.post('/:idSala/mensaje', MensajeController.createMensaje);
+
+router.get('/:idSala/chat', MensajeController.getMensajesSala);
+
+//------------------------------------------------Rutas de multimedia------------------------------------------------
+
+router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'), (req,res) => {
+  MultimediaController.uploadFoto(req, res);
 });
 
-router.get("/sala/:idUsuarioMatch");
+router.post('/multimedia/upload/video/:idUsuario', upload.single('file'), (req,res) => {
+  MultimediaController.uploadVideo(req, res);
+});
+
+router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMultimedia);
+
+router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMultimedia);
 
 
 
