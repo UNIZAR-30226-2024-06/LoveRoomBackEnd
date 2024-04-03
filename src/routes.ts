@@ -14,7 +14,7 @@ router.get("/", (req, res) => {
 
 //------------------------------------------------Rutas de prueba------------------------------------------------
 //Ruta de prueba que devuelve todos los usuarios
-router.get("/usuarios", async (req, res) => {
+router.get("/users", async (req, res) => {
   try {
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -45,47 +45,23 @@ router.post("/test", (req, res) => {
   });
 });
 
-// Ruta para obtener la lista de usuarios viendo un video
-// router.get('/video/:url/users', async (req, res) => {
-//   try {
-//     const { url } = req.params;
-
-//     // Consulta a la base de datos para obtener la lista de usuarios viendo el video
-//     const users = await prisma.videoyoutube.findMany({
-//       where: {
-//         urlvideo: url
-//       },
-//       select: {
-//         idusuario: true // Solo se selecciona el id del usuario
-//       }
-//     });
-
-//     // Se envía la lista de usuarios en formato JSON
-//     res.json(users);
-//   } catch (error) {
-//     console.error('Error retrieving users:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
 //------------------------------------------------Rutas de videos------------------------------------------------
 
-router.get('/videos/interes/:idUsuario', VideoController.videosInteres);
+router.get('/videos/interest/:idUsuario', VideoController.videosInteres);
 
+router.get('/videos/:idVideo/watch/:idUsuario', SalaController.verVideo);
 
 //------------------------------------------------Rutas de salas------------------------------------------------
 
-router.get('/salas/:idUsuario', SalaController.getAllSalasUsuario);
+router.get('/users/:idUsuario/rooms', SalaController.getAllSalasUsuario);
 
-router.get('/salas/participantes/:idSala', SalaController.getParticipantesSala);
+router.get('/rooms/:idSala/members', SalaController.getParticipantesSala);
 
-router.get('/ver_video/:idVideo/:idUsuario', SalaController.verVideo);
+router.get('/room/:idSala/state/:idUsuario', SalaController.getSalaSincronizada);
 
-router.get('/sala/:idSala/get_estado/:idUsuario', SalaController.getSalaSincronizada);
+router.put('/room/:idSala/state/:idUsuario', SalaController.setEstadoSala);
 
-router.put('/sala/:idSala/set_estado/:idUsuario', SalaController.setEstadoSala);
-
-router.delete('/sala/:idSala/delete', SalaController.deleteSala);
+router.delete('/room/:idSala', SalaController.deleteSala);
 
 //------------------------------------------------Rutas de mensajes------------------------------------------------
 
