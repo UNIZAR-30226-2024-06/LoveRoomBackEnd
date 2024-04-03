@@ -1,5 +1,6 @@
 import { prisma } from "../index";
 import { Request, Response } from "express";
+import { getUserById } from "../db/usuarios";
 
 const VideoController = {
   videosInteres: async (req: Request, res: Response): Promise<any> => {
@@ -8,19 +9,7 @@ const VideoController = {
       const idUsuario_int = parseInt(idUsuario);
 
       // Obtenemos los datos del usuario necesarios para la logica de la consulta
-      const userData = await prisma.usuario.findUnique({
-        where: {
-          id: idUsuario_int,
-        },
-        select: {
-          idlocalidad: true,
-          sexo: true,
-          buscasexo: true,
-          buscaedadmin: true,
-          buscaedadmax: true,
-          edad: true,
-        },
-      });
+      const userData = await getUserById(idUsuario_int);
 
       // Buscamos los videos que estan viendo las personas de interes de ese usuario
       const videosInteres = await prisma.videoviewer.groupBy({
