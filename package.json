@@ -20,7 +20,7 @@
   "homepage": "https://github.com/UNIZAR-30226-2024-06/LoveRoomBackEnd#readme",
   "dependencies": {
     "@prisma/client": "^5.10.2",
-    "express": "^4.18.3",
+    "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "socket.io": "^4.7.4",
