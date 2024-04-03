@@ -1,9 +1,12 @@
 import express from "express";
-import { SalaController } from "./controllers/salaController";
+import SalaController  from "./controllers/salaController";
 import VideoController from './controllers/videoController';
 import { prisma } from "./index";
 import { UsuarioController } from "./controllers/usuarioController";
 import { autenticacionController } from "./controllers/autenticacionController";
+import MensajeController from './controllers/mensajeController';
+import MultimediaController from './controllers/multimediaController';
+import {upload} from './storage';
 
 const router = express.Router();
 
@@ -13,7 +16,7 @@ router.get("/", (req, res) => {
 
 //------------------------------------------------Rutas de prueba------------------------------------------------
 //Ruta de prueba que devuelve todos los usuarios
-router.get("/usuarios", async (req, res) => {
+router.get("/users", async (req, res) => {
   try {
     const users = await prisma.usuario.findMany();
     res.json(users);
@@ -44,47 +47,43 @@ router.post("/test", (req, res) => {
   });
 });
 
-// Ruta para obtener la lista de usuarios viendo un video
-// router.get('/video/:url/users', async (req, res) => {
-//   try {
-//     const { url } = req.params;
-
-//     // Consulta a la base de datos para obtener la lista de usuarios viendo el video
-//     const users = await prisma.videoyoutube.findMany({
-//       where: {
-//         urlvideo: url
-//       },
-//       select: {
-//         idusuario: true // Solo se selecciona el id del usuario
-//       }
-//     });
-
-//     // Se envía la lista de usuarios en formato JSON
-//     res.json(users);
-//   } catch (error) {
-//     console.error('Error retrieving users:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
 //------------------------------------------------Rutas de videos------------------------------------------------
 
 router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);
 
-router.get("/ver_video/prueba/usuario1", async (req, res) => {
-  //const { urlvideo, correo } = req.params;
-  const urlvideo = "test_video_url";
-  const correo = "usuario1";
-  try {
-    const salaUrl = await SalaController.verVideo(urlvideo, correo);
-    res.redirect(salaUrl);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al manejar salas" });
-  }
+router.get('/videos/:idVideo/watch/:idUsuario', SalaController.verVideo);
+
+//------------------------------------------------Rutas de salas------------------------------------------------
+
+router.get('/users/:idUsuario/rooms', SalaController.getAllSalasUsuario);
+
+router.get('/rooms/:idSala/members', SalaController.getParticipantesSala);
+
+router.get('/room/:idSala/state/:idUsuario', SalaController.getSalaSincronizada);
+
+router.put('/room/:idSala/state/:idUsuario', SalaController.setEstadoSala);
+
+router.delete('/room/:idSala', SalaController.deleteSala);
+
+//------------------------------------------------Rutas de mensajes------------------------------------------------
+
+router.post('/:idSala/mensaje', MensajeController.createMensaje);
+
+router.get('/:idSala/chat', MensajeController.getMensajesSala);
+
+//------------------------------------------------Rutas de multimedia------------------------------------------------
+
+router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'), (req,res) => {
+  MultimediaController.uploadFoto(req, res);
 });
 
-router.get("/sala/:idUsuarioMatch");
+router.post('/multimedia/upload/video/:idUsuario', upload.single('file'), (req,res) => {
+  MultimediaController.uploadVideo(req, res);
+});
+
+router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMultimedia);
+
+router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMultimedia);
 
 
 
@@ -107,10 +106,8 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Obtener un usuario con todos lo
-router.get('/user/:email', autenticacionController.checkAuthUser, UsuarioController.getUser);
-
-
+// Obtener un usuario
+router.get('/user/:correo', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
 // Actualizacion de un usario entero
 router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
@@ -119,7 +116,7 @@ router.put('/user/update', autenticacionController.checkAuthUser, UsuarioControl
 router.delete('/user/delete', autenticacionController.checkAuthUser, UsuarioController.deleteUser);
 
 // Actualizaciones parciales de los datos
-router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
+router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.getEmail);
 router.patch('/user/update/password', autenticacionController.checkAuthUser, UsuarioController.updatePassword);
 router.patch('/user/update/name', autenticacionController.checkAuthUser,  UsuarioController.updateName);
 router.patch('/user/update/age', autenticacionController.checkAuthUser, UsuarioController.updateAge);
