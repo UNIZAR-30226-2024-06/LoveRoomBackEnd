@@ -16,8 +16,7 @@ class autenticacionController {
     public static async checkAuthUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const authorizationHeader = req.headers.authorization;
-            console.log("Autenticando usuario");
-            console.log("HEader:",authorizationHeader);
+            
             // Comprobar si hay token
             if (!authorizationHeader) { // No hay token, no tiene autorizacion
                 res.status(401).json({ error: 'No estas autenticado, introduce token' });
