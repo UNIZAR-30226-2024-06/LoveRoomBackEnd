@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { autenticacionController } from './autenticacionController';
 import userBD from '../db/usuarios';
+import { usuario } from '@prisma/client';
 
 class UsuarioController {
 
@@ -267,7 +268,7 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public static async getUser(req: Request, res: Response): Promise<void> {
-    const email = req.params.correo;
+    const email = req.params.email;
     try {
       const user = await userBD.getUserByEmail(email);
       if (user == null) {
@@ -315,7 +316,7 @@ class UsuarioController {
 
   public static async getEmail(req: Request, res: Response): Promise<void> {
     try{
-      const email = req.params.correo;
+      const email = req.params.email;
       const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
@@ -327,6 +328,115 @@ class UsuarioController {
       res.status(500).json({ error: 'Error al obtener el correo' });
     }
   }
+
+
+  public static async getName(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({nombre: user.nombre});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el nombre' });
+    }
+  }
+
+  public static async getPassword(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({contrasena: user.contrasena});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la contraseña' });
+    }
+  }
+
+  public static async getAge(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({nombre: user.edad});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la edad' });
+    }
+  }
+
+  public static async getDescription(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({descripcion: user.descripcion});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la descripción' });
+    }
+  }
+
+  public static async getSex(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({sexo: user.sexo});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el sexo' });
+    }
+  }
+
+  public static async getPhoto(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({foto: user.fotoperfil});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la foto' });
+    }
+  }
+
+  public static async getLocation(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({localizacion: user.idlocalidad});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la localidad' });
+    }
+  }
+
+
+  
 
 
 }

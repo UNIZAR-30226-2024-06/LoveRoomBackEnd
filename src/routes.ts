@@ -44,6 +44,29 @@ router.post("/test", (req, res) => {
   });
 });
 
+// Ruta para obtener la lista de usuarios viendo un video
+// router.get('/video/:url/users', async (req, res) => {
+//   try {
+//     const { url } = req.params;
+
+//     // Consulta a la base de datos para obtener la lista de usuarios viendo el video
+//     const users = await prisma.videoyoutube.findMany({
+//       where: {
+//         urlvideo: url
+//       },
+//       select: {
+//         idusuario: true // Solo se selecciona el id del usuario
+//       }
+//     });
+
+//     // Se envía la lista de usuarios en formato JSON
+//     res.json(users);
+//   } catch (error) {
+//     console.error('Error retrieving users:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
 //------------------------------------------------Rutas de videos------------------------------------------------
 
 router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);
@@ -85,7 +108,16 @@ router.get('/users', async (req, res) => {
 });
 
 // Obtener un usuario
-router.get('/user/:correo', autenticacionController.checkAuthUser, UsuarioController.getUser);
+router.get('/user/:email', autenticacionController.checkAuthUser, UsuarioController.getUser);
+router.get('/user/:email/email', autenticacionController.checkAuthUser, UsuarioController.getEmail);
+router.get('/user/:email/password', autenticacionController.checkAuthUser, UsuarioController.getPassword);
+router.get('/user/:email/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
+router.get('/user/:email/age', autenticacionController.checkAuthUser, UsuarioController.getAge);
+router.get('/user/:email/sex', autenticacionController.checkAuthUser, UsuarioController.getSex);
+router.get('/user/:email/description', autenticacionController.checkAuthUser, UsuarioController.getDescription);
+router.get('/user/:email/photo', autenticacionController.checkAuthUser, UsuarioController.getPhoto);
+router.get('/user/:email/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
+router.get('/user/:email/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
 
 // Actualizacion de un usario entero
 router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
@@ -94,7 +126,7 @@ router.put('/user/update', autenticacionController.checkAuthUser, UsuarioControl
 router.delete('/user/delete', autenticacionController.checkAuthUser, UsuarioController.deleteUser);
 
 // Actualizaciones parciales de los datos
-router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.getEmail);
+router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
 router.patch('/user/update/password', autenticacionController.checkAuthUser, UsuarioController.updatePassword);
 router.patch('/user/update/name', autenticacionController.checkAuthUser,  UsuarioController.updateName);
 router.patch('/user/update/age', autenticacionController.checkAuthUser, UsuarioController.updateAge);
