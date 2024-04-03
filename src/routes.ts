@@ -110,6 +110,17 @@ router.get('/users', async (req, res) => {
 // Obtener un usuario
 router.get('/user/:correo', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
+// Obtener atributos suelto de un usuario
+router.get('/user/:correo/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
+router.get('/user/:correo/password', autenticacionController.checkAuthUser, UsuarioController.updatePassword);
+router.get('/user/:correo/name', autenticacionController.checkAuthUser,  UsuarioController.updateName);
+router.get('/user/:correo/age', autenticacionController.checkAuthUser, UsuarioController.updateAge);
+router.get('/user/:correo/sex', autenticacionController.checkAuthUser, UsuarioController.updateSex);
+router.get('/user/:correo/description', autenticacionController.checkAuthUser, UsuarioController.updateDescription);
+router.get('/user/:correo/photo', autenticacionController.checkAuthUser, UsuarioController.updatePhoto);
+router.get('/user/:correo/location', autenticacionController.checkAuthUser, UsuarioController.updateLocation);
+router.get('/user/:correo/preferences', autenticacionController.checkAuthUser, UsuarioController.updatePreferences);
+
 // Actualizacion de un usario entero
 router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
 
@@ -117,7 +128,7 @@ router.put('/user/update', autenticacionController.checkAuthUser, UsuarioControl
 router.delete('/user/delete', autenticacionController.checkAuthUser, UsuarioController.deleteUser);
 
 // Actualizaciones parciales de los datos
-router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
+router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.getEmail);
 router.patch('/user/update/password', autenticacionController.checkAuthUser, UsuarioController.updatePassword);
 router.patch('/user/update/name', autenticacionController.checkAuthUser,  UsuarioController.updateName);
 router.patch('/user/update/age', autenticacionController.checkAuthUser, UsuarioController.updateAge);

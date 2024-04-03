@@ -312,6 +312,23 @@ class UsuarioController {
       res.status(500).json({ error: 'Error al eliminar el usuario' });
     }
   }
+
+  public static async getEmail(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.correo;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({correo: user.correo});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el correo' });
+    }
+  }
+
+
 }
 
 export { UsuarioController };
