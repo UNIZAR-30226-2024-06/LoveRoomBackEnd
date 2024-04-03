@@ -368,7 +368,7 @@ class UsuarioController {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
       }
-      res.send({nombre: user.edad});
+      res.send({edad: user.edad});
     }
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la edad' });
@@ -413,7 +413,7 @@ class UsuarioController {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
       }
-      res.send({foto: user.fotoperfil});
+      res.send({fotoperfil: user.fotoperfil});
     }
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la foto' });
@@ -428,10 +428,42 @@ class UsuarioController {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
       }
-      res.send({localizacion: user.idlocalidad});
+      res.send({idlocalidad: user.idlocalidad});
     }
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la localidad' });
+    }
+  }
+
+  public static async getPreferences(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({buscaedadmax: user.buscaedadmax,
+                buscaedadmin: user.buscaedadmin,
+                buscasexo: user.buscasexo,});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener las preferencias' });
+    }
+  }
+
+  public static async getType(req: Request, res: Response): Promise<void> {
+    try{
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({tipousuario: user.tipousuario});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el tipo' });
     }
   }
 

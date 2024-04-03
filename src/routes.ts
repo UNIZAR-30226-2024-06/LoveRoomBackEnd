@@ -118,6 +118,7 @@ router.get('/user/:email/description', autenticacionController.checkAuthUser, Us
 router.get('/user/:email/photo', autenticacionController.checkAuthUser, UsuarioController.getPhoto);
 router.get('/user/:email/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
 router.get('/user/:email/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
+router.get('/user/:email/type', autenticacionController.checkAuthUser, UsuarioController.getType);
 
 // Actualizacion de un usario entero
 router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
