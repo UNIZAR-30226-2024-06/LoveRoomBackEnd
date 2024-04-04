@@ -72,7 +72,15 @@ export default class SocketManager {
                 console.log('Play event');
                 socket.to(this.users[receiverId]).emit(socketEvents.PLAY);
             });
-    
+            
+            socket.on(socketEvents.CREATE_MESSAGE, (senderId: string,receiverId: string,message: string) => {
+                console.log('Create message');
+                if(this.users[receiverId] && this.users[senderId]){
+                    socket.to(this.users[receiverId]).emit(socketEvents.SEND_MESSAGE, message);
+                    socket.to(this.users[senderId]).emit(socketEvents.SEND_MESSAGE, message);
+                }
+                
+            });
     
             socket.on('disconnect', () => {
                 console.log('User disconnected');
@@ -93,7 +101,7 @@ export default class SocketManager {
         }
         
     }
-    
+
     public emitVideoUpdated(userId: string, videoId: string){
         if(this.io){
             this.io.to(this.users[userId]).emit(socketEvents.UPDATE_VIDEO, videoId);

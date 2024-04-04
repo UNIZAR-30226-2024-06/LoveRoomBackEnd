@@ -6,4 +6,6 @@ export const socketEvents = {
     INCREASE_SPEED: 'increase-speed',
     DECREASE_SPEED: 'decrease-speed',
     UPDATE_VIDEO: 'update-video',
+    CREATE_MESSAGE: 'create-message',
+    SEND_MESSAGE: 'send-message', 
 }
