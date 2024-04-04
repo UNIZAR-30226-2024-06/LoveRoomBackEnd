@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { autenticacionController } from './autenticacionController';
+import autenticacionController  from './autenticacionController';
 import userBD from '../db/usuarios';
 
 class UsuarioController {

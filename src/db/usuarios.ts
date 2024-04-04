@@ -275,6 +275,17 @@ export const getUsers = async () => {
     return users;
 }
 
+export const getTipoUsuario = async (id: number) => {
+    const user =  await prisma.usuario.findUnique({
+      where: {
+        id: id,
+      }
+    });
+    if(user){
+      return user.tipousuario;
+    }
+}
+
 
 export default{
     createUser,

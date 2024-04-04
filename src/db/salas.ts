@@ -110,3 +110,14 @@ export const deleteSalaUnitaria = async (idUsuario: string, idVideo: string): Pr
         },
       });
 }
+
+export const updateVideoSala = async (idSala: string, idVideo: string): Promise<any> => {
+    return await prisma.sala.update({
+        where: {
+          id: parseInt(idSala),
+        },
+        data: {
+          idvideo: idVideo,
+        },
+    });
+}

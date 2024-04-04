@@ -3,9 +3,10 @@ import SalaController  from "./controllers/salaController";
 import VideoController from './controllers/videoController';
 import { prisma } from "./index";
 import { UsuarioController } from "./controllers/usuarioController";
-import { autenticacionController } from "./controllers/autenticacionController";
+import autenticacionController  from "./controllers/autenticacionController";
 import MensajeController from './controllers/mensajeController';
 import MultimediaController from './controllers/multimediaController';
+import PagosController from "./controllers/pagosController";
 import {upload} from './storage';
 
 const router = express.Router();
@@ -57,11 +58,11 @@ router.get('/videos/watch/:idVideo', autenticacionController.checkAuthUser, Sala
 
 router.get('/rooms', autenticacionController.checkAuthUser, SalaController.getAllSalasUsuario);
 
-router.get('/rooms/:idSala/members', SalaController.getParticipantesSala);
+router.get('/rooms/:idSala/members',autenticacionController.checkAuthUser, SalaController.getParticipantesSala);
 
-router.get('/rooms/:idSala/state/:idUsuario', SalaController.getSalaSincronizada);
+router.get('/rooms/:idSala/state/',autenticacionController.checkAuthUser ,SalaController.getSalaSincronizada);
 
-router.put('/rooms/:idSala/state/:idUsuario', SalaController.setEstadoSala);
+router.put('/rooms/:idSala/state/',autenticacionController.checkAuthUser , SalaController.setEstadoSala);
 
 router.delete('/rooms/:idSala', SalaController.deleteSala);
 
@@ -73,13 +74,9 @@ router.get('/:idSala/chat', MensajeController.getMensajesSala);
 
 //------------------------------------------------Rutas de multimedia------------------------------------------------
 
-router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'), (req,res) => {
-  MultimediaController.uploadFoto(req, res);
-});
+router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'),MultimediaController.uploadFoto);
 
-router.post('/multimedia/upload/video/:idUsuario', upload.single('file'), (req,res) => {
-  MultimediaController.uploadVideo(req, res);
-});
+router.post('/multimedia/upload/video/:idUsuario', upload.single('file'),MultimediaController.uploadVideo);
 
 router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMultimedia);
 
@@ -138,6 +135,11 @@ router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacion
 
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);
+
+//------------------------------------------------Rutas de pagos------------------------------------------------
+router.post('/payment', autenticacionController.checkAuthUser, PagosController.solicitarPago);
+router.post('/payment/confirm', autenticacionController.checkAuthUser, PagosController.confirmarPago);
+router.post('/payment/cancel', autenticacionController.checkAuthUser, PagosController.cancelarPago);
 
 
 export default router;

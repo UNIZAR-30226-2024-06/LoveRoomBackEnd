@@ -18,47 +18,55 @@ export const getUsuariosViendoVideo = async (
 
   // Mapeamos los IDs de los usuarios para realizar la comparacion
   const matchesPreviosIds = matchesPrevios.map((user: any) => user.id);
+  let transaction;
+  try {
+    transaction = await prisma.$transaction([
+        // Buscamos los IDs de los usuarios de interes que estan viendo el video
+        prisma.videoviewer.findMany({
+          select: {
+            idusuario: true,
+          },
+          distinct: ["idusuario"], // Obtener usuarios únicos
+          where: {
+            idvideo: idVideo,
+            usuario: {
+              id: {
+                not: idUsuario_int, // chequeamos que el usuario no sea él mismo
+                notIn: matchesPreviosIds, // chequeamos que no hayan hecho match previamente
+              },
+              idlocalidad: userData?.idlocalidad, // que esten en la misma localidad
+              sexo: userData?.buscasexo === "T" ? undefined : userData?.buscasexo, // que tenga el sexo que busca el usuario
+              // que busque el sexo del usuario o todos los sexos
+              OR: [
+                {
+                  buscasexo: userData?.sexo,
+                },
+                {
+                  buscasexo: "T",
+                },
+              ],
+              edad: {
+                // que este en el rango de edad que busca el usuario
+                gte: userData?.buscaedadmin,
+                lte: userData?.buscaedadmax,
+              },
+              buscaedadmin: {
+                // que busque el rango de edad del usuario
+                lte: userData?.edad,
+              },
+              buscaedadmax: {
+                gte: userData?.edad,
+              },
+            },
+          },
+        })
+    ]);
+    await transaction[0];
+    console.log('Operaciones completadas exitosamente.');
+  }catch(error){
+    return [];
+    console.error('Error al realizar operaciones atómicas:', error);
+  }
 
-  // Buscamos los IDs de los usuarios de interes que estan viendo el video
-  const usuariosInteres = await prisma.videoviewer.findMany({
-    select: {
-      idusuario: true,
-    },
-    distinct: ["idusuario"], // Obtener usuarios únicos
-    where: {
-      idvideo: idVideo,
-      usuario: {
-        id: {
-          not: idUsuario_int, // chequeamos que el usuario no sea él mismo
-          notIn: matchesPreviosIds, // chequeamos que no hayan hecho match previamente
-        },
-        idlocalidad: userData?.idlocalidad, // que esten en la misma localidad
-        sexo: userData?.buscasexo === "T" ? undefined : userData?.buscasexo, // que tenga el sexo que busca el usuario
-        // que busque el sexo del usuario o todos los sexos
-        OR: [
-          {
-            buscasexo: userData?.sexo,
-          },
-          {
-            buscasexo: "T",
-          },
-        ],
-        edad: {
-          // que este en el rango de edad que busca el usuario
-          gte: userData?.buscaedadmin,
-          lte: userData?.buscaedadmax,
-        },
-        buscaedadmin: {
-          // que busque el rango de edad del usuario
-          lte: userData?.edad,
-        },
-        buscaedadmax: {
-          gte: userData?.edad,
-        },
-      },
-    },
-  });
   //console.log("Usuarios de interes:", usuariosInteres);
-
-  return usuariosInteres;
 };

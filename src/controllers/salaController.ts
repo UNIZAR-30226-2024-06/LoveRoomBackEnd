@@ -4,11 +4,14 @@ import {createSalaUnitaria,
         getParticipantesSala, 
         getAllSalasUsuario,
         getEstadoSala,
-        setEstadoSala} from '../db/salas';
+        setEstadoSala,
+        updateVideoSala} from '../db/salas';
 import { createMatch } from '../db/match';
 import { getUsuariosViendoVideo } from '../db/video';
 import { Request, Response } from "express";
 import SocketManager from '../services/socketManager';
+import { maximunSalas } from '../constants/maximunSalas';
+import { getTipoUsuario } from '../db/usuarios';
 
 const SalaController = {
   
@@ -17,44 +20,54 @@ const SalaController = {
       const { idVideo } = req.params;
       const idUsuario = req.body.idUser;
 
-      // Obtenemos los usuarios de interes que estan viendo el video
-      // console.log("Obteniendo usuarios viendo video")
-      const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo, idUsuario);
-      
-      // Si hay al menos un usuario de interes viendo ese video
-      if (usuariosViendoVideo.length > 0) {
-        console.log("Usuarios viendo video:", usuariosViendoVideo);
+      //Comprobamos si el usuario ha alcanzado el limite de salas
+      const salasUsuario = await getAllSalasUsuario(idUsuario);
+      const tipoUsuario = await getTipoUsuario(idUsuario);
 
-        // Creamos una sala con los dos usuarios
-        const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
+      if(salasUsuario.length >= maximunSalas && tipoUsuario == "free"){
+        return res.status(400).json({ error: "Has alcanzado el limite de salas" });
         
-        //Creamos un match entre los dos usuarios
-        await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
-
-        //Emitimos el match
-        console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
-        await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
-
-        const formattedResponse = {
-          id: nuevaSala.id,
-          idvideo: nuevaSala.idvideo,
-          esSalaUnitaria: false,
-        }
+      }else {
+        // Obtenemos los usuarios de interes que estan viendo el video
+        // console.log("Obteniendo usuarios viendo video")
+        const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo, idUsuario);
         
-        return res.json(formattedResponse);
-      } else {
-        //Creamos una sala unitaria 
-        console.log("No hay nadie viendo el video, creando sala unitaria");
-        const salaUnitaria = await createSalaUnitaria(idUsuario, idVideo);
+        // Si hay al menos un usuario de interes viendo ese video
+        if (usuariosViendoVideo.length > 0) {
+          console.log("Usuarios viendo video:", usuariosViendoVideo);
 
-        const formattedResponse = {
-          id: salaUnitaria.id,
-          idvideo: salaUnitaria.idvideo,
-          idusuario: salaUnitaria.idusuario,
-          esSalaUnitaria: true,
+          // Creamos una sala con los dos usuarios
+          const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
+          
+          //Creamos un match entre los dos usuarios
+          await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
+
+          //Emitimos el match
+          console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
+          await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
+
+          const formattedResponse = {
+            id: nuevaSala.id,
+            idvideo: nuevaSala.idvideo,
+            esSalaUnitaria: false,
+          }
+          
+          return res.json(formattedResponse);
+        } else {
+          //Creamos una sala unitaria 
+          console.log("No hay nadie viendo el video, creando sala unitaria");
+          const salaUnitaria = await createSalaUnitaria(idUsuario, idVideo);
+
+          const formattedResponse = {
+            id: salaUnitaria.id,
+            idvideo: salaUnitaria.idvideo,
+            idusuario: salaUnitaria.idusuario,
+            esSalaUnitaria: true,
+          }
+          return res.json(formattedResponse);
         }
-        return res.json(formattedResponse);
       }
+
     } catch (error) {
       console.error("Error al manejar salas:", error);
       return res.status(500).json({ error: "Error al manejar salas" });
@@ -102,7 +115,8 @@ const SalaController = {
 
   setEstadoSala: async (req: Request, res: Response): Promise<any> => {
     try {
-      const { idSala, idUsuario, estado } = req.body;
+      const { idUsuario } = req.body.idUser;
+      const { idSala, estado } = req.body;
       if(estado !== "sincronizada" || estado !== "no sincronizada"){
         res.status(400).json({ error: "Estado de sala no válido" });
         return;
@@ -118,7 +132,8 @@ const SalaController = {
 
   getSalaSincronizada: async (req: Request, res: Response): Promise<any> => {
     try {
-      const { idSala, idUsuario } = req.params;
+      const { idSala } = req.params;
+      const { idUsuario } = req.body.idUser;
       const estado = await getEstadoSala(idSala,idUsuario);
       return res.json({estado: estado});
     } catch (error) {
@@ -136,6 +151,24 @@ const SalaController = {
     } catch (error) {
       console.error("Error al eliminar sala:", error);
       return res.status(500).json({ error: "Error al eliminar sala" });
+    }
+  },
+
+  updateVideo: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { idSala } = req.params;
+      const { idVideo } = req.body;
+      if(await updateVideoSala(idSala, idVideo)){
+        await SocketManager.getInstance().emitVideoUpdated(idSala, idVideo);
+        return res.status(200).json({ message: "Video de sala actualizado" });
+      }else{
+        console.error("Error al actualizar video de sala:");
+        return res.status(500).json({ error: "Error al actualizar video de sala" });
+      }
+      
+    } catch (error) {
+      console.error("Error al actualizar video de sala:", error);
+      return res.status(500).json({ error: "Error al actualizar video de sala" });
     }
   }
 

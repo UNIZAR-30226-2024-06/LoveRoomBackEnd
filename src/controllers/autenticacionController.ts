@@ -124,4 +124,4 @@ class autenticacionController {
       
 }
 
-export { autenticacionController };
+export default autenticacionController;

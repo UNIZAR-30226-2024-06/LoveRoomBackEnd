@@ -59,6 +59,10 @@ const MensajeController = {
         }
     },
 
+    reportMensaje: async (req: Request, res: Response): Promise<any> => {
+
+    }
+
 }
 
 export default MensajeController;

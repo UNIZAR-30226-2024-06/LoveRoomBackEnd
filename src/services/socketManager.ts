@@ -93,6 +93,12 @@ export default class SocketManager {
         }
         
     }
+    
+    public emitVideoUpdated(userId: string, videoId: string){
+        if(this.io){
+            this.io.to(this.users[userId]).emit(socketEvents.UPDATE_VIDEO, videoId);
+        }
+    }
 
 }
 
