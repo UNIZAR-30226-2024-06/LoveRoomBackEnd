@@ -44,7 +44,6 @@ export default class SocketManager {
                 console.log('Match recibido', senderId, receiverId);
                 try {
                     await createMatch(receiverId,senderId);
-                    await deleteSalaUnitaria(receiverId,idVideo);
                 }catch(error){
                     console.error('Error al crear match', error);
                 }

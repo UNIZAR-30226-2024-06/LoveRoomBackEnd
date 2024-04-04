@@ -110,3 +110,33 @@ export const deleteSalaUnitaria = async (idUsuario: string, idVideo: string): Pr
         },
       });
 }
+// Dado el id de un usuario y el id de un video, borra la sala unitaria de forma atomica si existe
+// Devuelve true si se borró al menos un registro, false en caso contrario
+export const deleteSalaUnitariaAtomic = async (idUsuario: string, idVideo: string): Promise<any> => {
+  const idUsuario_int = parseInt(idUsuario);
+  try {
+    const deleteResult = await prisma.$transaction([
+      prisma.videoviewer.deleteMany({
+        where: {
+          AND: [
+            { idvideo: idVideo },
+            { idusuario: idUsuario_int }
+          ]
+        }
+      })
+    ]);
+    console.log('Resultado de la eliminacion:', deleteResult);
+    
+    // Si el conteo de registros eliminados es mayor que cero, significa que se borró al menos un registro
+    const borrado = deleteResult[0].count > 0;
+
+    // Devuelve true si y solo si se borró al menos un registro
+    return borrado;
+
+  } catch (error) {
+    // Manejar error aquí
+    console.error('Error borrando sala unitaria de forma atomica:', error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
+}
+
