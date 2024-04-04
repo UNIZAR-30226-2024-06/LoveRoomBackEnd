@@ -40,8 +40,9 @@ export const getEstadoSala = async (idUsuario: string, idSala: string): Promise<
 
 //Dado un id de usuario devuelve una lista con las salas en las que participa
 export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
+    const idUsuario_int = parseInt(idUsuario);
     return await prisma.participa.findMany({
-        where: { idusuario: parseInt(idUsuario) },
+        where: { idusuario: idUsuario_int }
     });
 }
 //Dados dos ids de usuario crea una sala, devuelviendo su id 

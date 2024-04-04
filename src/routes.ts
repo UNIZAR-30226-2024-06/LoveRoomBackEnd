@@ -51,19 +51,19 @@ router.post("/test", (req, res) => {
 
 router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);
 
-router.get('/videos/:idVideo/watch/:idUsuario', SalaController.verVideo);
+router.get('/videos/watch/:idVideo', autenticacionController.checkAuthUser, SalaController.verVideo);
 
 //------------------------------------------------Rutas de salas------------------------------------------------
 
-router.get('/users/:idUsuario/rooms', SalaController.getAllSalasUsuario);
+router.get('/rooms', autenticacionController.checkAuthUser, SalaController.getAllSalasUsuario);
 
 router.get('/rooms/:idSala/members', SalaController.getParticipantesSala);
 
-router.get('/room/:idSala/state/:idUsuario', SalaController.getSalaSincronizada);
+router.get('/rooms/:idSala/state/:idUsuario', SalaController.getSalaSincronizada);
 
-router.put('/room/:idSala/state/:idUsuario', SalaController.setEstadoSala);
+router.put('/rooms/:idSala/state/:idUsuario', SalaController.setEstadoSala);
 
-router.delete('/room/:idSala', SalaController.deleteSala);
+router.delete('/rooms/:idSala', SalaController.deleteSala);
 
 //------------------------------------------------Rutas de mensajes------------------------------------------------
 

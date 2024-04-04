@@ -14,16 +14,18 @@ const SalaController = {
   
    verVideo: async(req: Request, res: Response): Promise<any> => {
     try {
-      const { idUsuario, idVideo } = req.params;
+      const { idVideo } = req.params;
+      const idUsuario = req.body.idUser;
 
       // Obtenemos los usuarios de interes que estan viendo el video
-      console.log("Obteniendo usuarios viendo video")
-      const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo);
+      // console.log("Obteniendo usuarios viendo video")
+      const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo, idUsuario);
       
-      //Si hay al menos un usuario de interes viendo ese video
+      // Si hay al menos un usuario de interes viendo ese video
       if (usuariosViendoVideo.length > 0) {
         console.log("Usuarios viendo video:", usuariosViendoVideo);
-        //Creamos una sala con los dos usuarios
+
+        // Creamos una sala con los dos usuarios
         const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
         
         //Creamos un match entre los dos usuarios
@@ -79,7 +81,7 @@ const SalaController = {
 
   getAllSalasUsuario: async (req: Request, res: Response): Promise<any> => {
     try {
-      const { idUsuario } = req.params;
+      const idUsuario = req.body.idUser;
       const salas = await getAllSalasUsuario(idUsuario);
       if(salas.length == 0){
         return res.json([]);
