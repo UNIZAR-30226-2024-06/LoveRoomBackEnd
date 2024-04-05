@@ -71,6 +71,18 @@ router.post('/:idSala/mensaje', MensajeController.createMensaje);
 
 router.get('/:idSala/chat', MensajeController.getMensajesSala);
 
+//router.delete('/:idSala/mensaje/:idMensaje', MensajeController.deleteMensaje); // FALTA IMPLEMENTAR
+
+router.post('/reports/:idMensaje', autenticacionController.checkAuthUser, MensajeController.reportMessage);
+
+router.get('/reports', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, MensajeController.getAllReports);
+
+router.get('/reports/:idReport', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, MensajeController.getReportById);
+
+router.patch('/reports/:idReport/resolve', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, MensajeController.resolveReport);
+
+router.delete('/reports/:idReport', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, MensajeController.deleteReport);
+
 //------------------------------------------------Rutas de multimedia------------------------------------------------
 
 router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'), (req,res) => {
