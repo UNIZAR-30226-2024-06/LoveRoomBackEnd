@@ -4,42 +4,68 @@ import {createSalaUnitaria,
         getParticipantesSala, 
         getAllSalasUsuario,
         getEstadoSala,
-        setEstadoSala} from '../db/salas';
+        setEstadoSala,
+        deleteSalaUnitariaAtomic } from '../db/salas';
 import { createMatch } from '../db/match';
 import { getUsuariosViendoVideo } from '../db/video';
 import { Request, Response } from "express";
 import SocketManager from '../services/socketManager';
+import { prisma } from "../index";
 
 const SalaController = {
   
    verVideo: async(req: Request, res: Response): Promise<any> => {
     try {
-      const { idUsuario, idVideo } = req.params;
+      const { idVideo } = req.params;
+      const idUsuario = req.body.idUser;
 
       // Obtenemos los usuarios de interes que estan viendo el video
-      console.log("Obteniendo usuarios viendo video")
+      // console.log("Obteniendo usuarios viendo video")
       const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo, idUsuario);
+      console.log("Usuarios viendo video:", usuariosViendoVideo);
       
-      //Si hay al menos un usuario de interes viendo ese video
+      // Si hay al menos un usuario de interes viendo ese video
       if (usuariosViendoVideo.length > 0) {
-        console.log("Usuarios viendo video:", usuariosViendoVideo);
-        //Creamos una sala con los dos usuarios
-        const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
-        
-        //Creamos un match entre los dos usuarios
-        await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
+        let i = 0;
+        //Comprobamos de la lista de usuarios que no se haya hecho match con el 
+        while( ( i < usuariosViendoVideo.length ) && 
+              !(await deleteSalaUnitariaAtomic(usuariosViendoVideo[i].idusuario.toString(), idVideo))){
+          i++;
+        }
 
-        //Emitimos el match
-        console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
-        await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
+        //Todos los match que habia disponibles ya no lo estan 
+        if ( i >= usuariosViendoVideo.length){
+            //Creamos una sala unitaria 
+            console.log("Todos los match posibles han sido agotados");
+            const salaUnitaria = await createSalaUnitaria(idUsuario, idVideo);
 
-        const formattedResponse = {
-          id: nuevaSala.id,
-          idvideo: nuevaSala.idvideo,
-          esSalaUnitaria: false,
+            const formattedResponse = {
+              id: salaUnitaria.id,
+              idvideo: salaUnitaria.idvideo,
+              idusuario: salaUnitaria.idusuario,
+              esSalaUnitaria: true,
+            }
+            return res.json(formattedResponse);
+        } else {
+          // Creamos una sala con los dos usuarios
+          const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
+
+          //Creamos un match entre los dos usuarios
+          await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
+
+          //Emitimos el match
+          console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
+          await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
+
+          const formattedResponse = {
+            id: nuevaSala.id,
+            idvideo: nuevaSala.idvideo,
+            esSalaUnitaria: false,
+          }
+          
+          return res.json(formattedResponse);
         }
         
-        return res.json(formattedResponse);
       } else {
         //Creamos una sala unitaria 
         console.log("No hay nadie viendo el video, creando sala unitaria");
@@ -79,7 +105,7 @@ const SalaController = {
 
   getAllSalasUsuario: async (req: Request, res: Response): Promise<any> => {
     try {
-      const { idUsuario } = req.params;
+      const idUsuario = req.body.idUser;
       const salas = await getAllSalasUsuario(idUsuario);
       if(salas.length == 0){
         return res.json([]);

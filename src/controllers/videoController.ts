@@ -1,6 +1,7 @@
 import { prisma } from "../index";
 import { Request, Response } from "express";
 import { getUserById } from "../db/usuarios";
+import { getMatchesUsuario } from "../db/match";
 
 const VideoController = {
   videosInteres: async (req: Request, res: Response): Promise<any> => {
@@ -11,6 +12,12 @@ const VideoController = {
       // Obtenemos los datos del usuario necesarios para la logica de la consulta
       const userData = await getUserById(idUsuario_int);
 
+      // Obtenemos los IDs de usuarios que hayan hecho match previamente con el usuario
+      const matchesPrevios = await getMatchesUsuario(idUsuario);
+
+      // Mapeamos los IDs de los usuarios para realizar la comparacion
+      const matchesPreviosIds = matchesPrevios.map((user: any) => user.id);
+
       // Buscamos los videos que estan viendo las personas de interes de ese usuario
       const videosInteres = await prisma.videoviewer.groupBy({
         by: ["idvideo"],
@@ -19,7 +26,10 @@ const VideoController = {
         },
         where: {
           usuario: {
-            id: { not: idUsuario_int }, // chequeamos que el usuario no sea él mismo
+            id: {
+              not: idUsuario_int, // chequeamos que el usuario no sea él mismo
+              notIn: matchesPreviosIds, // chequeamos que no hayan hecho match previamente
+            },
             idlocalidad: userData?.idlocalidad, // que esten en la misma localidad
             sexo: userData?.buscasexo === "T" ? undefined : userData?.buscasexo, // que tenga el sexo que busca el usuario
             // que busque el sexo del usuario o todos los sexos
