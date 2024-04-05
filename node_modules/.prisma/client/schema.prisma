@@ -35,11 +35,12 @@ model mensaje {
   id             Int         @id @default(autoincrement())
   idsala         Int
   idusuario      Int
-  texto          String      @db.VarChar(500)
+  texto          String?     @db.VarChar(500)
   fechahora      DateTime    @db.Timestamp(6)
   rutamultimedia String?     @db.VarChar(150)
   participa      participa   @relation(fields: [idsala, idusuario], references: [idsala, idusuario], onDelete: Cascade, onUpdate: NoAction)
   multimedia     multimedia? @relation(fields: [rutamultimedia], references: [ruta], onDelete: Cascade, onUpdate: NoAction)
+  reporte        reporte[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -48,6 +49,7 @@ model multimedia {
   tipomultimedia String        @db.VarChar(1)
   fotousuario    fotousuario[]
   mensaje        mensaje[]
+  reporte        reporte[]
   usuario        usuario[]
 }
 
@@ -60,6 +62,19 @@ model participa {
   usuario   usuario   @relation(fields: [idusuario], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([idsala, idusuario])
+}
+
+model reporte {
+  id             Int         @id @default(autoincrement())
+  idmensaje      Int?
+  idusuario      Int?
+  texto          String?     @db.VarChar(500)
+  rutamultimedia String?     @db.VarChar(150)
+  motivo         String?     @db.VarChar(100)
+  resuelto       Boolean
+  mensaje        mensaje?    @relation(fields: [idmensaje], references: [id], onUpdate: NoAction)
+  usuario        usuario?    @relation(fields: [idusuario], references: [id], onUpdate: NoAction)
+  multimedia     multimedia? @relation(fields: [rutamultimedia], references: [ruta], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model sala {
@@ -89,7 +104,7 @@ model usuario {
   buscaedadmin                    Int
   buscaedadmax                    Int
   buscasexo                       String        @db.VarChar(1)
-  fotoperfil                      String        @db.VarChar(150)
+  fotoperfil                      String?       @db.VarChar(150)
   descripcion                     String        @db.VarChar(500)
   tipousuario                     String        @db.VarChar(20)
   baneado                         Boolean
@@ -97,8 +112,9 @@ model usuario {
   match_match_idusuario1Tousuario match[]       @relation("match_idusuario1Tousuario")
   match_match_idusuario2Tousuario match[]       @relation("match_idusuario2Tousuario")
   participa                       participa[]
-  multimedia                      multimedia    @relation(fields: [fotoperfil], references: [ruta], onDelete: Cascade, onUpdate: NoAction)
-  localidad                       localidad     @relation(fields: [idlocalidad], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  reporte                         reporte[]
+  multimedia                      multimedia?   @relation(fields: [fotoperfil], references: [ruta], onDelete: NoAction, onUpdate: NoAction)
+  localidad                       localidad     @relation(fields: [idlocalidad], references: [id], onDelete: NoAction, onUpdate: NoAction)
   videoviewer                     videoviewer[]
 }
 
