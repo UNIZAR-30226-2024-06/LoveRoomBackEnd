@@ -203,7 +203,7 @@ export const getUserByEmail = async (email: string) => {
             id: true,
             correo: true,
             nombre: true,
-            contrasena: true,
+            contrasena: false,
             edad: true,
             sexo: true,
             buscaedadmin: true,
@@ -237,7 +237,7 @@ export const getUserById = async (id: number) => {
             id: true,
             correo: true,
             nombre: true,
-            contrasena: true,
+            contrasena: false,
             edad: true,
             sexo: true,
             buscaedadmin: true,
@@ -251,6 +251,30 @@ export const getUserById = async (id: number) => {
         }
     });
     return usuario;
+}
+
+export const getPasswordById = async (id: number) => {
+    const user = await prisma.usuario.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+            contrasena: true,
+        }
+    });
+    return user;
+}
+
+export const getPasswordByEmail = async (email: string) => {
+    const user = await prisma.usuario.findUnique({
+        where: {
+          correo: email,
+        },
+        select: {
+            contrasena: true,
+        }
+    });
+    return user;
 }
 
 export const getUsers = async () => {
@@ -294,4 +318,6 @@ export default{
     updatePreferences,
     updateUser,
     updateType,
+    getPasswordById,
+    getPasswordByEmail,
 }

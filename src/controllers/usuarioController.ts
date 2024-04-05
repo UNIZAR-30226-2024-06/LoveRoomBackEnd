@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { autenticacionController } from './autenticacionController';
 import userBD from '../db/usuarios';
-import { usuario } from '@prisma/client';
 
 class UsuarioController {
 
@@ -35,14 +33,13 @@ class UsuarioController {
     try {
       console.log(info);
       const user = await userBD.getUserByEmail(info.correo);
-      if (user == null || user.contrasena != info.contrasena ) {
+      const userPass = await userBD.getPasswordByEmail(info.correo);
+      const pass = userPass?.contrasena;
+      if (user == null || pass !== info.contrasena) {
         res.status(401).json({ error: 'Usuario y/o contraseña incorrectos' });
-      }
-      else if (user.baneado) {
+      } else if (user.baneado) {
         res.status(403).json({ error: 'El usuario está baneado' });
-        
-      }
-      else {
+      } else {
         console.log('Autenticado correctamente');
         req.body.id = user.id;
         next();
@@ -78,7 +75,7 @@ class UsuarioController {
    */
   public static async updateUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateUser(id, JSON.stringify(info));
       res.json("Usuario actualizado correctamente");
@@ -93,7 +90,7 @@ class UsuarioController {
    */
   public static async updateEmail(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateEmail(id, info.correo);
       res.json("Correo actualizado correctamente");
@@ -108,7 +105,7 @@ class UsuarioController {
    */
   public static async updateName(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateName(id, info.nombre);
       res.json("Nombre actualizado correctamente");
@@ -123,7 +120,7 @@ class UsuarioController {
    */
   public static async updateAge(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateAge(id, info.edad);
       res.json("Edad actualizada correctamente");
@@ -138,7 +135,7 @@ class UsuarioController {
    */
   public static async updateSex(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateSex(id, info.sexo);
       res.json("Sexo actualizado correctamente");
@@ -153,7 +150,7 @@ class UsuarioController {
    */
   public static async updateDescription(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateDescription(id, info.descripcion);
       res.json("Descripción actualizada correctamente");
@@ -168,7 +165,7 @@ class UsuarioController {
    */
   public static async updatePhoto(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updatePhoto(id, info.fotoperfil);
       res.json("Foto de perfil actualizada correctamente");
@@ -183,7 +180,7 @@ class UsuarioController {
    */
   public static async updateLocation(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateLocation(id, info.idlocalidad);
       res.json("Localización actualizada correctamente");
@@ -198,7 +195,7 @@ class UsuarioController {
    */
   public static async updatePreferences(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updatePreferences(id, JSON.stringify(info));
       res.json("Preferencias actualizadas correctamente");
@@ -213,9 +210,15 @@ class UsuarioController {
    */
   public static async updatePassword(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
+    const userPass = await userBD.getPasswordById(id);
+    const pass = userPass?.contrasena
+    if (info.antiguaContrasena != pass) {
+      res.status(401).json({ error: 'Contraseña incorrecta' });
+      return;
+    }
     try {
-      const user = await userBD.updatePassword(id, info.contrasena);
+      const user = await userBD.updatePassword(id, info.nuevaContrasena);
       res.json("Contraseña actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la contraseña' });
@@ -228,7 +231,7 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public  static async updateType(req: Request, res: Response): Promise<any> {
-    const id = autenticacionController.getPayload(req).id;   
+    const id = req.body.idUser   
     console.log(req.params.type);
     try {
       const user = await userBD.updateType(id, req.params.type);  //normal, premium, administrador
@@ -288,7 +291,7 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public static async deleteUser(req: Request, res: Response): Promise<void> {
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.deleteUser(id);
       res.json("Usuario eliminado correctamente");
@@ -382,8 +385,8 @@ class UsuarioController {
    */
   public static async getPassword(req: Request, res: Response): Promise<void> {
     try{
-      const email = req.params.email;
-      const user = await userBD.getUserByEmail(email);
+      const id = req.body.userId
+      const user = await userBD.getPasswordById(id);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
