@@ -72,13 +72,14 @@ router.post('/:idSala/mensaje', MensajeController.createMensaje);
 
 router.get('/:idSala/chat', MensajeController.getMensajesSala);
 
+router.get('/:idMensaje/multimedia', MensajeController.getMultimediaAttachedToMensaje);
 //------------------------------------------------Rutas de multimedia------------------------------------------------
 
-router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'),MultimediaController.uploadFoto);
+router.post('/multimedia/upload/foto/:idUsuario', [upload.single('file'),autenticacionController.checkAuthUser],MultimediaController.uploadFoto);
 
-router.post('/multimedia/upload/video/:idUsuario', upload.single('file'),MultimediaController.uploadVideo);
+router.post('/multimedia/upload/video/:idUsuario', [upload.single('file'),autenticacionController.checkAuthUser],MultimediaController.uploadVideo);
 
-router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMultimedia);
+router.get('/multimedia/:nombreArchivo', MultimediaController.getMultimedia);
 
 router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMultimedia);
 

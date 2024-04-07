@@ -44,6 +44,7 @@ class autenticacionController {
             }
             console.log(payload);
             req.body.idUser = payload.id;
+            req.body.tipousuario = user.tipousuario;   
             next();
         } 
         catch (error) {

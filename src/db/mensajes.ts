@@ -4,6 +4,7 @@ import { prisma } from "../index";
 export const getMensajesSala = async (idSala: string): Promise<any> => {
     return await prisma.mensaje.findMany({
         where: { idsala: parseInt(idSala) },
+        orderBy: { fechahora: 'asc' },
     });
 }
 
