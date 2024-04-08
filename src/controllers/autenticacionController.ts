@@ -59,6 +59,7 @@ class autenticacionController {
     public static async crearToken(req: Request, res: Response) : Promise<void> {
         const token = jwt.sign({
             id: req.body.id,
+            // correo: req.body.correo,
             exp: Date.now() + 60 * 60 * 1000 * 24 * 3   // 3 dia
         }, secret)
         console.log(token);
