@@ -59,7 +59,7 @@ class autenticacionController {
     public static async crearToken(req: Request, res: Response) : Promise<void> {
         const token = jwt.sign({
             id: req.body.id,
-            // correo: req.body.correo,
+            //correo: req.body.correo,
             exp: Date.now() + 60 * 60 * 1000 * 24 * 3   // 3 dia
         }, secret)
         console.log(token);
@@ -88,13 +88,13 @@ class autenticacionController {
     public static async checkToken(req: Request, res: Response) : Promise<void> {
         try {
             const payload = autenticacionController.getPayload(req);
-            const user = await getUserById(payload.id);
-            if (Date.now() > payload.exp || !user || user.baneado || !payload) {
+            const usuario = await getUserById(payload.id);
+            if (Date.now() > payload.exp || !usuario || usuario.baneado || !payload) {
                 res.status(401).json({ valido: false });
                 return;
             }
             else {
-                res.status(200).json({ valido: true });
+                res.status(200).json({ valido: true, usuario});
             }
         }
         catch (error) {

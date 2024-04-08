@@ -158,11 +158,11 @@ router.get('/user/:id/preferences', autenticacionController.checkAuthUser, Usuar
 router.get('/user/:id/type', autenticacionController.checkAuthUser, UsuarioController.getType);
 
 
-// Actualizacion de un usario entero
-router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
-
 // Eliminacion de un usuario
 router.delete('/user/delete', autenticacionController.checkAuthUser, UsuarioController.deleteUser);
+
+// Actualizacion de un usario entero
+router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
 
 // Actualizaciones parciales de los datos
 router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
@@ -187,6 +187,8 @@ router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacion
 
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);
+
+//router.post('/user/refresh/password', UsuarioController.refreshPassword);
 
 
 export default router;
