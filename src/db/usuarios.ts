@@ -4,8 +4,8 @@ import { prisma } from '../index';
 export const createUser = async (name: string, email: string, pass: string) =>{
     const nuevoUSuario = await prisma.usuario.create({
         data: {
-            correo: name,
-            nombre: email,
+            correo: email,
+            nombre: name,
             contrasena: pass,
             tipousuario: 'normal',
             sexo: 'O',
@@ -19,6 +19,8 @@ export const createUser = async (name: string, email: string, pass: string) =>{
             idlocalidad: 0,
         },
     });
+    console.log(nuevoUSuario);
+    console.log("Creado con exito");
     return nuevoUSuario;
 }
 
@@ -216,6 +218,7 @@ export const getUserByEmail = async (email: string) => {
             baneado: true,
         }
     });
+    console.log(usuario);
     return usuario;
 }
 
@@ -250,6 +253,7 @@ export const getUserById = async (id: number) => {
             baneado: true,
         }
     });
+    console.log(usuario);
     return usuario;
 }
 
