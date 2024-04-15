@@ -20,6 +20,13 @@ jobs:
     - name: Install debug and axios
       run: npm install debug axios
 
+    - name: DB pull
+      run: npx prisma db pull
+      env: 
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
+        SECRET: $${{ secrets.SECRET }}
+      
+
     - name: Deploy Backend
       run: npm run dev &
 
