@@ -19,7 +19,11 @@ jobs:
       
     - name: Deploy Backend
       run:  npm start dev
-     
+      
+    - name: Wait for Backend Deployment
+      uses: jakejarvis/wait-action@v1
+      with:
+        time: '1m'
     - name: Run Jest Tests
       run: npm test
 
