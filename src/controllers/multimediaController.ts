@@ -32,13 +32,13 @@ const MultimediaController = {
     },
 
     deleteMultimedia: async (req: Request, res: Response): Promise<any> => {
-        const { nombreArchivo, idUsuario} = req.params;
+        const { nombreArchivo } = req.params;
         const rutaMultimedia = uploadsDirectory + '/' + nombreArchivo;
         const result = await deleteMultimedia(rutaMultimedia);
     },
 
     getMultimedia: async (req: Request, res: Response): Promise<any> => {
-        const { nombreArchivo, idUsuario} = req.params;
+        const { nombreArchivo } = req.params;
         const rutaMultimedia = uploadsDirectory + '/' + nombreArchivo;
         return res.sendFile(rutaMultimedia);
     }

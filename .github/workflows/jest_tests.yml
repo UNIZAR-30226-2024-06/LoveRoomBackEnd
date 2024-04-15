@@ -45,4 +45,3 @@ jobs:
 
     - name: Run Jest Tests
       run: npm test
-      working-directory: src

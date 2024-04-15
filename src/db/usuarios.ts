@@ -1,6 +1,115 @@
 import { prisma } from '../index';
 
 
+//Devulve el numero de usuarios que han sido baneados
+export const getBannedUsers = async () => {
+  const users = await prisma.usuario.count({
+    where: {
+        baneado: true
+    }
+  });
+  return users;
+}
+
+//Devuelve el numero de usuarios total
+export const getTotalUsers = async () => {
+  const users = await prisma.usuario.count();
+  return users;
+}
+
+//Devuelve los usuarios y las localidades en las que buscan pareja
+export const getUsersLocalidad = async () => {
+  const users = await prisma.usuario.findMany({
+    select: {
+        id: false,
+        correo: false,
+        nombre: true,
+        contrasena: false,
+        edad: false,
+        sexo: false,
+        buscaedadmin: false,
+        buscaedadmax: false,
+        buscasexo: false,
+        descripcion: false,
+        fotoperfil: false,
+        localidad: { // Incluir información de la localidad
+            select: {
+                nombre: true // Seleccionar solo el nombre de la localidad
+            }
+        },
+        tipousuario: false,
+        baneado: false,
+    }
+  });
+  return users;
+}
+
+//Devuelve los usuarios y su sexo
+export const getUsersSex = async () => {
+  const users = await prisma.usuario.findMany({
+    select: {
+        id: false,
+        correo: false,
+        nombre: true,
+        contrasena: false,
+        edad: false,
+        sexo: true,
+        buscaedadmin: false,
+        buscaedadmax: false,
+        buscasexo: false,
+        descripcion: false,
+        fotoperfil: false,
+        localidad: false,
+        tipousuario: false,
+        baneado: false,
+    }
+  });
+  return users;
+}
+
+//Devuelve los usuarios y su edad
+export const getUsersAge = async () => {
+  const users = await prisma.usuario.findMany({
+    select: {
+        id: false,
+        correo: false,
+        nombre: true,
+        contrasena: false,
+        edad: true,
+        sexo: false,
+        buscaedadmin: false,
+        buscaedadmax: false,
+        buscasexo: false,
+        descripcion: false,
+        fotoperfil: false,
+        localidad: false,
+        tipousuario: false,
+        baneado: false,
+    }
+  });
+  return users;
+}
+
+//Devuelve el numero de usuarios premium
+export const getPremiumUsers = async () => {
+  const users = await prisma.usuario.count({
+    where: {
+        tipousuario: 'premium'
+    }
+  });
+  return users;
+}
+
+//Devuelve el numero de usuarios normales
+export const getNormalUsers = async () => {
+  const users = await prisma.usuario.count({
+    where: {
+        tipousuario: 'normal'
+    }
+  });
+  return users;
+}
+
 export const createUser = async (name: string, email: string, pass: string) =>{
     const nuevoUSuario = await prisma.usuario.create({
         data: {
