@@ -45,7 +45,3 @@ jobs:
 
     - name: Run Jest Tests
       run: npm test
-<<<<<<< Updated upstream
-=======
-      working-directory: src
->>>>>>> Stashed changes
