@@ -16,7 +16,10 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-
+      
+    - name: Deploy Backend
+      run:  npm start dev
+     
     - name: Run Jest Tests
       run: npm test
 
