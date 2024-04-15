@@ -20,6 +20,9 @@ jobs:
     - name: Install debug and axios
       run: npm install debug axios
 
+    - name: Init prisma
+      run: npx prisma init
+
     - name: Deploy Backend
       run: npm run dev &
 
