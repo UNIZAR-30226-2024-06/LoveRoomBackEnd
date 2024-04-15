@@ -1,0 +1,22 @@
+name: Run Jest Tests
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  jest_tests:
+    name: Run Jest Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Jest Tests
+      run: npm test
+
