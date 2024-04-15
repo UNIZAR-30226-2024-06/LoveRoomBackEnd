@@ -27,9 +27,3 @@ jobs:
 
     - name: Run Jest Tests
       run: npm test
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run Jest Tests
-      run: npm test
