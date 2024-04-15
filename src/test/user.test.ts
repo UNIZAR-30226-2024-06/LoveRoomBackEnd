@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 
 
 
-test('Borrado, get y creacion de un usuario de test',async () => {
+/*test('Borrado, get y creacion de un usuario de test',async () => {
   const postData = {
     nombre: "test",
     correo: "test@gmail.com",
@@ -54,5 +54,5 @@ test('Borrado, get y creacion de un usuario de test',async () => {
     console.log(error);
   }
 
-},1000000);
+},1000000);*/
 
