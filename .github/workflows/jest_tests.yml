@@ -25,6 +25,12 @@ jobs:
       env: 
         DATABASE_URL:   ${{ secrets.DATABASE_URL }}
         SECRET: $${{ secrets.SECRET }}
+        
+    - name: Generate prisma client
+      run: npx prisma generate 
+      env: 
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
+        SECRET: $${{ secrets.SECRET }}
       
 
     - name: Deploy Backend
