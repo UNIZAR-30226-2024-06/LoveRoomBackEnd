@@ -6,9 +6,35 @@ on:
       - '*'
 
 jobs:
-  jest_tests:
+  deploy_backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install backend dependencies
+      run: npm install
+
+    - name: Deploy Backend
+      run: npm run dev
+
+  wait_for_backend:
+    name: Wait for Backend Deployment
+    runs-on: ubuntu-latest
+    needs: deploy_backend
+
+    steps:
+    - name: Wait for Backend Deployment
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '1m' # Espera durante 1 minuto
+
+  run_tests:
     name: Run Jest Tests
     runs-on: ubuntu-latest
+    needs: wait_for_backend
 
     steps:
     - name: Checkout repository
@@ -16,14 +42,6 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      
-    - name: Deploy Backend
-      run:  npm start dev
-      
-    - name: Wait for Backend Deployment
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '1m'
+
     - name: Run Jest Tests
       run: npm test
-
