@@ -16,6 +16,9 @@ jobs:
 
     - name: Install backend dependencies
       run: npm install
+      
+    - name: Install debug and axios
+      run: npm install debug axios
 
     - name: Deploy Backend
       run: npm run dev &
