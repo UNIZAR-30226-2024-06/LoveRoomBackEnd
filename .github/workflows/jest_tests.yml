@@ -33,3 +33,6 @@ jobs:
 
     - name: Run Jest Tests
       run: npm test
+      env: 
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
+        SECRET: $${{ secrets.SECRET }}
