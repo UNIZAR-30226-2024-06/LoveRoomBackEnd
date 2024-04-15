@@ -1,6 +1,4 @@
 import { Server } from 'socket.io';
-import { autenticacionController } from '../controllers/autenticacionController';
-import { createMatch } from '../db/match';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
 

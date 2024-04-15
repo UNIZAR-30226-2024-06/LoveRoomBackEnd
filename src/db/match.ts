@@ -12,6 +12,11 @@ export const createMatch = async (idUsuario1: string, idUsuario2: string): Promi
   return match;
 };
 
+//Devuelve el numero de usuarios que han hecho match
+export const getMatches = async (): Promise<any> => {
+  return await prisma.match.count();
+};
+
 //Dado un ID de usuario devuelve una lista con los IDs de usuarios que hayan hecho match previamente con el usuario
 export const getMatchesUsuario = async (idUsuario: string): Promise<any> => {
   const idUsuario_int = parseInt(idUsuario);
