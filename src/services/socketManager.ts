@@ -1,7 +1,6 @@
 import { Server } from 'socket.io';
-import { deleteSalaUnitaria } from '../db/salas';
-import { createMatch } from '../db/match';
 import { socketEvents } from '../constants/socketEvents';
+import { jwt } from '../index';
 
 
 
@@ -10,6 +9,7 @@ export default class SocketManager {
     private io: Server | null = null;
     private users: Record<string, string> = {};
     private times: Record<string, number> = {};
+    private secret = process.env.SECRET
 
     private constructor() {
         
@@ -23,32 +23,37 @@ export default class SocketManager {
     }
 
     public async initSocketServer(httpServer : any) : Promise<void>  {
-        const io = new Server(httpServer);
+        this.io = new Server(httpServer);
         console.log('Socket server started');
     
-        /*io.use((socket: any, next) => {
+        this.io.use((socket: any, next) => {
             console.log('Middleware');
-            //TODO -- Middleware to check if user is authenticated
-            socket.authUser = null;
-        });*/
+            const token = socket.handshake.auth.token;
+            console.log('Token', token);
+            if (!token) {
+                return next(new Error('Authentication error'));
+            }
+            try {
+                
+                const payload = jwt.verify(token.split(' ')[1], this.secret);
+                console.log('Usuario correctamente autenticado',payload.id);
+                socket.authUser = payload.id;
+                next();
         
-        io.on('connection', (socket : any) => {
+            }catch(error){
+                console.error('Error en la autenticación', error);
+                next(new Error('Authentication error'));
+            }
+
+        });
+        
+        this.io.on('connection', (socket : any) => {
             console.log('Socket connection. socket.connected: ', socket.connected);
             const userId = socket.authUser;
             //Añadimos al usuario a la lista de usuarios conectados 
             if(!this.users[userId]){
                 this.users[userId] = socket.id;
             }
-    
-            socket.on(socketEvents.MATCH, async (senderId: string, receiverId: string, idVideo: string) => {
-                console.log('Match recibido', senderId, receiverId);
-                try {
-                    await createMatch(receiverId,senderId);
-                }catch(error){
-                    console.error('Error al crear match', error);
-                }
-                
-            });
     
             socket.on(socketEvents.TIME, (senderId: string,receiverId: string,idSala: string,time: number) => {
                 console.log('Time submitted', time);

@@ -16,6 +16,30 @@ export const setEstadoSala = async (idUsuario: string, idSala: string, estado: s
     });
 }
 
+//Devuelve el numero de salas que no estan sincronizadas
+export const getSalasNoSincronizadas = async (): Promise<any> => {
+    return await prisma.participa.count({
+        where: { estado: "no_sincronizada" },
+    });
+}
+
+//Devuelve el numero de salas que estan sincronizadas
+export const getSalasSincronizadas = async (): Promise<any> => {
+    return await prisma.participa.count({
+        where: { estado: "sincronizada" },
+    });
+}
+
+//Devuelve el numero de usuarios que no han hecho match actualmente
+export const getSalasUnitariasCount = async (): Promise<any> => {
+    return await prisma.videoviewer.count();
+}
+
+//Devuelve el numero de salas que hay en la base de datos
+export const getTotalSalas = async (): Promise<any> => {
+    return await prisma.sala.count();
+}
+
 //Dado un id de sala devuelve una lista con los participantes de dicha sala
 export const getParticipantesSala = async (idSala: string): Promise<any> => {
     const participantes = await prisma.participa.findMany({

@@ -123,3 +123,16 @@ export const deleteReport = async (idReport: string): Promise<any> => {
     throw error;
   }
 }
+//Devuelve el numero de reportes que han sido resueltos
+export const getResolvedReports = async (): Promise<any> => {
+  return await prisma.reporte.count({
+    where: { resuelto: true }
+  });
+}
+
+//Devuelve el numero de reportes que no han sido resueltos
+export const getUnresolvedReports = async (): Promise<any> => {
+  return await prisma.reporte.count({
+    where: { resuelto: false }
+  });
+}
