@@ -9,7 +9,7 @@ import { createServer } from "http";
 const jwt = require('jsonwebtoken');
 const app: Express = express();
 const prisma = new PrismaClient();
-const port =  5000;
+const port =  process.env.PORT | 5000;
 
 // Para parsear el body de las peticiones a JSON
 app.use(express.json());
