@@ -11,12 +11,13 @@ class UsuarioController {
     const info = req.body;
     try {
       console.log(info);
-      const newUser = await userBD.createUser(info.correo, info.nombre, info.contrasena);
+      const newUser = await userBD.createUser(info.nombre, info.correo, info.contrasena);
       //res.status(201).json( "Usuario creado correctamente" )
       req.body.id = newUser.id;
       next();
     } 
     catch (error) {
+      console.log(error);
       res.status(500).send({ error: 'Error al crear el usuario' });
     }
   }
@@ -312,7 +313,7 @@ class UsuarioController {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
       }
-      res.json(user);
+      res.status(200).json(user);
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener el usuario' });
     }

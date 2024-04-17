@@ -4,6 +4,7 @@ import VideoController from './controllers/videoController';
 import { prisma } from "./index";
 import { UsuarioController } from "./controllers/usuarioController";
 import { autenticacionController } from "./controllers/autenticacionController";
+import  adminController  from "./controllers/adminController";
 import MensajeController from './controllers/mensajeController';
 import MultimediaController from './controllers/multimediaController';
 import {upload} from './storage';
@@ -46,6 +47,16 @@ router.post("/test", (req, res) => {
     id,
   });
 });
+//------------------------------------------------Rutas admin------------------------------------------------
+router.get('/admin/stats/users', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, adminController.getUsuariosStats);
+
+router.get('/admin/stats/rooms', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, adminController.getSalasStats);
+
+router.get('/admin/stats/reports', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, adminController.getReportesStats);
+
+router.get('/admin/stats/users/age', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, adminController.getUsersAgeStats);
+
+router.get('/admin/stats/users/localidad', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, adminController.getUsersLocalidadStats);
 
 // Ruta para obtener la lista de usuarios viendo un video
 // router.get('/video/:url/users', async (req, res) => {
@@ -108,13 +119,9 @@ router.delete('/reports/:idReport', autenticacionController.checkAuthUser, auten
 
 //------------------------------------------------Rutas de multimedia------------------------------------------------
 
-router.post('/multimedia/upload/foto/:idUsuario', upload.single('file'), (req,res) => {
-  MultimediaController.uploadFoto(req, res);
-});
+router.post('/multimedia/upload/foto/:idUsuario', [upload.single('file'), autenticacionController.checkAuthUser], MultimediaController.uploadFoto);
 
-router.post('/multimedia/upload/video/:idUsuario', upload.single('file'), (req,res) => {
-  MultimediaController.uploadVideo(req, res);
-});
+router.post('/multimedia/upload/video/:idUsuario', [upload.single('file'), autenticacionController.checkAuthUser],MultimediaController.uploadVideo);
 
 router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMultimedia);
 

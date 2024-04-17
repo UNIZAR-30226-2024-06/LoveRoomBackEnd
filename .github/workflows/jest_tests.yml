@@ -1,0 +1,51 @@
+name: Run Jest Tests
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  deploy_backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install backend dependencies
+      run: npm install
+      
+    - name: Install debug and axios
+      run: npm install debug axios
+
+    - name: DB pull
+      run: npx prisma db pull
+      env: 
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
+        SECRET: $${{ secrets.SECRET }}
+        
+    - name: Generate prisma client
+      run: npx prisma generate 
+      env: 
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
+        SECRET: $${{ secrets.SECRET }}
+      
+
+    - name: Deploy Backend
+      run: npm run dev &
+      env: 
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
+        SECRET: $${{ secrets.SECRET }}
+
+    - name: Wait for Backend Deployment
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '1m' # Espera durante 1 minuto
+
+    - name: Run Jest Tests
+      run: npm test
+      env: 
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
+        SECRET: $${{ secrets.SECRET }}
