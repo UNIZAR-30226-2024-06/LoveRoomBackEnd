@@ -10,7 +10,7 @@ import { createMatch } from '../db/match';
 import { getUsuariosViendoVideo } from '../db/video';
 import { Request, Response } from "express";
 import SocketManager from '../services/socketManager';
-import { prisma } from "../index";
+
 
 const SalaController = {
   
@@ -52,6 +52,8 @@ const SalaController = {
 
           //Creamos un match entre los dos usuarios
           await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
+          //Creamos el match inverso
+          await createMatch(usuariosViendoVideo[0].idusuario.toString(), idUsuario);
 
           //Emitimos el match
           console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
