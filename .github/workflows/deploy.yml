@@ -4,44 +4,39 @@ on:
   push:
     branches:
       - main
+
 jobs:
-    deploy:
-      runs-on: ubuntu-latest
-  
-      steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v2
-  
-        # Enviar código a Azure
-        - name: Send code to Azure
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.AZURE_HOST }}
-            username: ${{ secrets.AZURE_USERNAME }}
-            key: ${{ secrets.AZURE_SSH_KEY }}
-            script: |
-              # Ejecutar comandos para enviar el código a la máquina virtual de Azure
-              # Por ejemplo:
-              scp -r . username@host:/ruta/destino
-  
-        # Construir la imagen Docker
-        - name: Build Docker image
-          with:
-            host: ${{ secrets.AZURE_HOST }}
-            username: ${{ secrets.AZURE_USERNAME }}
-            key: ${{ secrets.AZURE_SSH_KEY }}
-            script: |
-              ssh username@host "cd /ruta/destino && docker build -t mi-aplicacion ."
-  
-        # Ejecutar el contenedor Docker y reiniciar nginx
-        - name: Run Docker container and restart nginx
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.AZURE_HOST }}
-            username: ${{ secrets.AZURE_USERNAME }}
-            key: ${{ secrets.AZURE_SSH_KEY }}
-            script: |
-              # Ejecutar comandos para ejecutar el contenedor Docker y reiniciar nginx
-              # Por ejemplo:
-              ssh username@host "docker run -d --name mi-contenedor -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' mi-aplicacion && sudo systemctl restart nginx"
-              ssh username@host "sudo systemctl restart nginx"
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Enviar código a Azure
+      - name: Send code to Azure
+        run: |
+          scp -r . username@host:/home/"${{ secrets.AZURE_USERNAME }}"/
+        env:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+
+      # Construir la imagen Docker
+      - name: Build Docker image
+        run: |
+          ssh username@host "cd LoveRoomBackEnd && docker build -t loveroom ."
+        env:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+
+      # Ejecutar el contenedor Docker y reiniciar nginx
+      - name: Run Docker container and restart nginx
+        run: |
+          ssh username@host "docker run -d --name loveroom_container -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' loveroom && sudo systemctl restart nginx"
+        env:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+
