@@ -20,7 +20,12 @@ jobs:
       run: docker save loveroom > image.tar
       
     - name: Copy image to Azure VM
-      run: scp -i ${{ secrets.AZURE_SSH_KEY }} image.tar ${{ secrets.AZURE_USER }}@${{ secrets.AZURE_HOST }}:/loveroom_images/image.tar
+      run: |
+        echo "$SSH_PRIVATE_KEY" > ssh_key.pem
+        chmod 600 ssh_key.pem
+        scp -i ssh_key.pem image.tar ${{ secrets.AZURE_USER }}@${{ secrets.AZURE_HOST }}:/loveroom_images/image.tar
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_KEY }}
 
     - name: Load Docker image on Azure VM
       run: ssh -i ${{ secrets.AZURE_SSH_KEY }} ${{ secrets.AZURE_USER }}@${{ secrets.AZURE_HOST }} "docker load -i /loveroom_images/image.tar"
