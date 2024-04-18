@@ -36,10 +36,16 @@ jobs:
       run: | 
         scp -i ssh_key.pem -o StrictHostKeyChecking=no "image_${TIMESTAMP}.tar" ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/${{ secrets.AZURE_USERNAME }}/loveroom_images/
     
-    - name: Stop and remove existing Docker container on Azure VM
+    - name: Stop and remove existing Docker container on Azure VM if running
       run: |
-        ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker stop loveroom_container && docker rm loveroom_container"
-      
+        is_running=$(ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker ps -q -f name=loveroom_container")
+        if [ -n "$is_running" ]; then
+          echo "Container is running."
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker stop loveroom_container && docker rm loveroom_container"
+        else
+          echo "Container is not running."
+        fi
+        
     - name: Load Docker image on Azure VM
       run: | 
         ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker load -i /home/${{ secrets.AZURE_USERNAME }}/loveroom_images/image_${TIMESTAMP}.tar"
