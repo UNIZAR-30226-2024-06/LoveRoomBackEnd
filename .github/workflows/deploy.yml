@@ -18,27 +18,18 @@ jobs:
 
     - name: Save Docker image to file
       run: docker save loveroom > image.tar
-      
-    - name: Copy image to Azure VM
+
+    - name: Setup SSH
       run: |
-        echo "$SSH_PRIVATE_KEY" > ssh_key.pem
+        echo "${{ secrets.AZURE_SSH_KEY }}" > ssh_key.pem
         chmod 600 ssh_key.pem
-        scp -i ssh_key.pem image.tar ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/loveroom_images/image.tar
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_KEY }}
+        cat ssh_key.pem
+
+    - name: Copy image to Azure VM
+      run: scp -i ssh_key.pem image.tar ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/loveroom_images/image.tar
 
     - name: Load Docker image on Azure VM
-      run: | 
-        echo "$SSH_PRIVATE_KEY" > ssh_key.pem
-        chmod 600 ssh_key.pem
-        ssh -i ${{ secrets.AZURE_SSH_KEY }} ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker load -i /loveroom_images/image.tar"
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_KEY }}
+      run: ssh -i ssh_key.pem ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker load -i /loveroom_images/image.tar"
 
     - name: Run Docker container on Azure VM
-      run: | 
-        echo "$SSH_PRIVATE_KEY" > ssh_key.pem
-        chmod 600 ssh_key.pem   
-        ssh -i ${{ secrets.AZURE_SSH_KEY }} ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker run -d --name loveroom_container -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' loveroom"
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_KEY }}  
+      run: ssh -i ssh_key.pem ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker run -d --name loveroom_container -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' loveroom"
