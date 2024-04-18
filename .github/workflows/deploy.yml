@@ -19,20 +19,20 @@ jobs:
           key: ${{ secrets.AZURE_SSH_KEY }}
         run: |
           set -x
-          scp -r . ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/"${{ secrets.AZURE_USERNAME }}"/
+          scp -r . "${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}":/home/"${{ secrets.AZURE_USERNAME }}"/
 
       # Construir la imagen Docker
       - name: Build Docker image
         env:
           key: ${{ secrets.AZURE_SSH_KEY }}
         run: |
-          ssh ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "cd LoveRoomBackEnd && docker build -t loveroom ."
+          ssh "${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}" "cd LoveRoomBackEnd && docker build -t loveroom ."
 
       # Ejecutar el contenedor Docker y reiniciar nginx
       - name: Run Docker container and restart nginx
         env:
           key: ${{ secrets.AZURE_SSH_KEY }}
         run: |
-          ssh ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker run -d --name loveroom_container -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' loveroom && sudo systemctl restart nginx"
+          ssh "${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}" "docker run -d --name loveroom_container -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' loveroom && sudo systemctl restart nginx"
 
 
