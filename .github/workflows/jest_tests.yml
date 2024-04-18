@@ -90,5 +90,5 @@ jobs:
               # Ejecutar comandos para ejecutar el contenedor Docker y reiniciar nginx
               # Por ejemplo:
               ssh username@host "docker run -d --name mi-contenedor -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' mi-aplicacion && sudo systemctl restart nginx"
-        
-                      ssh usuario@ip "sudo systemctl restart nginx"
+              ssh username@host "sudo systemctl restart nginx"
+                    
