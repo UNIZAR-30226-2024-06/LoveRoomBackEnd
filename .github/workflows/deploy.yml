@@ -27,10 +27,11 @@ jobs:
     - name: Set timestamp as environment variable
       run: |
         echo "export TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+        echo ${{ env.TIMESTAMP }}
 
     - name: Add timestamp to image name
       run: |
-        mv image.tar "image_${TIMESTAMP}.tar"
+        mv image.tar "image_${{ env.TIMESTAMP }}.tar"
     
     - name: Copy image to Azure VM
       run: | 
