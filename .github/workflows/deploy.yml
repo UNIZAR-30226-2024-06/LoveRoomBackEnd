@@ -27,7 +27,10 @@ jobs:
     - name: Set timestamp as environment variable
       run: |
         echo "export TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-        echo ${{ env.TIMESTAMP }}
+        
+    - name: Debug - Print TIMESTAMP
+      run: |
+        echo "TIMESTAMP: ${{ env.TIMESTAMP }}"
 
     - name: Add timestamp to image name
       run: |
