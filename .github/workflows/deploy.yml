@@ -23,7 +23,6 @@ jobs:
       run: |
         echo "${{ secrets.AZURE_SSH_KEY }}" > ssh_key.pem
         chmod 600 ssh_key.pem
-        cat ssh_key.pem
 
     - name: Copy image to Azure VM
       run: scp -i ssh_key.pem image.tar ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/loveroom_images/image.tar
