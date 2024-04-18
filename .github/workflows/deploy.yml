@@ -24,7 +24,7 @@ jobs:
       run: npx prisma db pull
       env: 
         DATABASE_URL:   ${{ secrets.DATABASE_URL }}
-        SECRET: $${{ secrets.SECRET }}
+        SECRET: ${{ secrets.SECRET }}
         
     - name: Generate prisma client
       run: npx prisma generate 
@@ -52,6 +52,7 @@ jobs:
         
   deploy:
     runs-on: ubuntu-latest
+    needs: test_backend_locally
     
     steps:
     - name: Checkout code
