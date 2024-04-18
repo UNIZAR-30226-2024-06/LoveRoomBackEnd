@@ -19,7 +19,7 @@ jobs:
           key: ${{ secrets.AZURE_SSH_KEY }}
         run: |
           set -x
-          scp -r . "${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}":/home/"${{ secrets.AZURE_USERNAME }}"/
+          scp -r . azureuser@40.121.163.248:/home/azureuser/
 
       # Construir la imagen Docker
       - name: Build Docker image
