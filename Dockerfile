@@ -1,38 +1,30 @@
-# Fase de construcción: Instalar dependencias y compilar TypeScript
-FROM node:latest AS builder
+# Utilizamos una imagen base de Node.js
+FROM node:18.19
 
-# Establecer el directorio de trabajo
-WORKDIR /app
+# Establecemos el directorio de trabajo en el contenedor
+WORKDIR /usr/src/app
 
-# Copiar los archivos de configuración
-COPY package.json package-lock.json tsconfig.json ./
+# Copiamos el archivo package.json y package-lock.json para instalar las dependencias
+COPY package*.json ./
 
-# Instalar dependencias
+# Instalamos las dependencias
 RUN npm install
 
-# Copiar el código fuente
-COPY src ./src
+# Copiamos el resto de los archivos de la aplicación
+COPY . .
 
-# Compilar TypeScript
+#Compilamos el codigo
 RUN npm run build
 
-# Fase de producción: Servir la aplicación con Nginx
-FROM nginx:latest
+#Pillamos los ultimos cambios de la BD
+RUN npx prisma db pull
 
-# Copiar los archivos de configuración de Nginx y los certificados SSL/TLS
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY certs/server.crt /etc/nginx/server.crt
-COPY certs/server.key /etc/nginx/server.key
+#Generamos el cliente de prisma
+RUN npx prisma generate
 
-# Copiar el código compilado de la aplicación desde la fase de construcción
-COPY --from=builder /app/build /usr/share/nginx/html
+# Exponemos el puerto en el que corre la aplicación Node.js
+EXPOSE 5000
 
-# Exponer los puertos 80 y 443 para HTTP y HTTPS respectivamente
-EXPOSE 80
-EXPOSE 443
-
-# Iniciar Nginx y tu servidor Node.js usando un script de inicio
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-CMD ["/start.sh"]
+# Comando para iniciar la aplicación cuando el contenedor se ejecute
+CMD ["npm","run","start:prod"]
 
