@@ -15,28 +15,29 @@ jobs:
 
       # Enviar código a Azure
       - name: Send code to Azure
-        run: |
-          scp -r . username@host:/home/"${{ secrets.AZURE_USERNAME }}"/
         env:
           host: ${{ secrets.AZURE_HOST }}
           username: ${{ secrets.AZURE_USERNAME }}
           key: ${{ secrets.AZURE_SSH_KEY }}
+        run: |
+          scp -r . username@host:/home/"${{ secrets.AZURE_USERNAME }}"/
 
       # Construir la imagen Docker
       - name: Build Docker image
-        run: |
-          ssh username@host "cd LoveRoomBackEnd && docker build -t loveroom ."
         env:
           host: ${{ secrets.AZURE_HOST }}
           username: ${{ secrets.AZURE_USERNAME }}
           key: ${{ secrets.AZURE_SSH_KEY }}
+        run: |
+          ssh username@host "cd LoveRoomBackEnd && docker build -t loveroom ."
 
       # Ejecutar el contenedor Docker y reiniciar nginx
       - name: Run Docker container and restart nginx
-        run: |
-          ssh username@host "docker run -d --name loveroom_container -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' loveroom && sudo systemctl restart nginx"
         env:
           host: ${{ secrets.AZURE_HOST }}
           username: ${{ secrets.AZURE_USERNAME }}
           key: ${{ secrets.AZURE_SSH_KEY }}
+        run: |
+          ssh username@host "docker run -d --name loveroom_container -e DATABASE_URL='${{ secrets.DATABASE_URL }}' -e SECRET='${{ secrets.SECRET }}' loveroom && sudo systemctl restart nginx"
+
 
