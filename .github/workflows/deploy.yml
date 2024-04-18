@@ -17,9 +17,7 @@ jobs:
       - name: Send code to Azure
         env:
           key: ${{ secrets.AZURE_SSH_KEY }}
-        run: |
-          set -x
-          scp -r . azureuser@40.121.163.248:/home/azureuser/
+        run: scp -r . azureuser@40.121.163.248:/home/azureuser/
 
       # Construir la imagen Docker
       - name: Build Docker image
