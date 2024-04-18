@@ -4,6 +4,12 @@ FROM node:18.19
 # Establecemos el directorio de trabajo en el contenedor
 WORKDIR /usr/src/app
 
+# Establecemos las variables de entorno para DATABASE_URL y SECRET
+ARG DATABASE_URL
+ARG SECRET
+ENV DATABASE_URL=$DATABASE_URL
+ENV SECRET=$SECRET
+
 # Copiamos el archivo package.json y package-lock.json para instalar las dependencias
 COPY package*.json ./
 
