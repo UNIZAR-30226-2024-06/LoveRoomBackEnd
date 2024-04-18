@@ -63,7 +63,7 @@ const VideoController = {
       });
 
       // Procesamos la respuesta para formatearla como una lista de: {idvideo, viewers}
-      const formattedResponse = videosInteres.map((video) => {
+      const formattedResponse = videosInteres.map((video: any) => {
         return {
           idvideo: video.idvideo,
           viewers: video._count.idvideo,
