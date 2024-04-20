@@ -74,13 +74,13 @@ export default class SocketManager {
             });
     
             socket.on(socketEvents.PAUSE, (receiverId: string) => {
-                console.log('Pause event');
-                socket.to(this.users[receiverId]).emit(socketEvents.PAUSE);
+                console.log('Pause event generado, enviando a', receiverId);
+                socket.to(this.users[receiverId]).emit(socketEvents.PAUSE, receiverId);
             });
     
             socket.on(socketEvents.PLAY, (receiverId: string) => {
-                console.log('Play event');
-                socket.to(this.users[receiverId]).emit(socketEvents.PLAY);
+                console.log('Play event generado, enviando a', receiverId);
+                socket.to(this.users[receiverId]).emit(socketEvents.PLAY, receiverId);
             });
             
             socket.on(socketEvents.CREATE_MESSAGE, (data :any) => {
