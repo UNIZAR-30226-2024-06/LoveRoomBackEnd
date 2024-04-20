@@ -306,9 +306,11 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public static async getUser(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
     try {
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -326,6 +328,8 @@ class UsuarioController {
    */
   public static async getId(req: Request, res: Response): Promise<void> {
     try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
       const email = req.params.email;
       const user = await userBD.getUserByEmail(email);
       if (user == null) {
@@ -366,8 +370,10 @@ class UsuarioController {
    */
   public static async getName(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -406,8 +412,10 @@ class UsuarioController {
    */
   public static async getAge(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -426,8 +434,10 @@ class UsuarioController {
    */
   public static async getDescription(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -446,8 +456,10 @@ class UsuarioController {
    */
   public static async getSex(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -466,8 +478,10 @@ class UsuarioController {
    */
   public static async getPhoto(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -486,8 +500,10 @@ class UsuarioController {
    */
   public static async getLocation(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -506,8 +522,10 @@ class UsuarioController {
    */
   public static async getPreferences(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -528,8 +546,10 @@ class UsuarioController {
    */
   public static async getType(req: Request, res: Response): Promise<void> {
     try{
-      const id = parseInt(req.params.id);
-      const user = await userBD.getUserById(id);
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;

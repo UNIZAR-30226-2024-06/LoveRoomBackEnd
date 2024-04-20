@@ -142,7 +142,6 @@ export const updateUser = async (id: number, info: string) => {
         data: {
           correo: user.correo,
           nombre: user.nombre,
-          contrasena: user.contrasena,
           edad: user.edad,
           sexo: user.sexo,
           buscaedadmin: user.buscaedadmin,
@@ -151,8 +150,6 @@ export const updateUser = async (id: number, info: string) => {
           descripcion: user.descripcion,
           fotoperfil: user.fotoperfil,
           idlocalidad: user.idlocalidad,
-          tipousuario: user.tipousuario,
-          baneado: user.baneado,
         },
     });
 }

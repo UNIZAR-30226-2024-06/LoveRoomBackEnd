@@ -149,20 +149,20 @@ router.get('/users', async (req, res) => {
 });
 
 // Obtener un usuario con todos los datos
-router.get('/user/:id', autenticacionController.checkAuthUser, UsuarioController.getUser);
+router.get('/user/:email', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
 // Obtener un dato concreto de un usuario
 router.get('/user/:email/id', autenticacionController.checkAuthUser, UsuarioController.getId);
 router.get('/user/:id/email', autenticacionController.checkAuthUser, UsuarioController.getEmail);
 //router.get('/user/:id/password', autenticacionController.checkAuthUser, UsuarioController.getPassword);
-router.get('/user/:id/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
-router.get('/user/:id/age', autenticacionController.checkAuthUser, UsuarioController.getAge);
-router.get('/user/:id/sex', autenticacionController.checkAuthUser, UsuarioController.getSex);
-router.get('/user/:id/description', autenticacionController.checkAuthUser, UsuarioController.getDescription);
-router.get('/user/:id/photo', autenticacionController.checkAuthUser, UsuarioController.getPhoto);
-router.get('/user/:id/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
-router.get('/user/:id/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
-router.get('/user/:id/type', autenticacionController.checkAuthUser, UsuarioController.getType);
+router.get('/user/:email/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
+router.get('/user/:email/age', autenticacionController.checkAuthUser, UsuarioController.getAge);
+router.get('/user/:email/sex', autenticacionController.checkAuthUser, UsuarioController.getSex);
+router.get('/user/:email/description', autenticacionController.checkAuthUser, UsuarioController.getDescription);
+router.get('/user/:email/photo', autenticacionController.checkAuthUser, UsuarioController.getPhoto);
+router.get('/user/:email/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
+router.get('/user/:email/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
+router.get('/user/:email/type', autenticacionController.checkAuthUser, UsuarioController.getType);
 
 
 // Eliminacion de un usuario
@@ -181,7 +181,6 @@ router.patch('/user/update/description', autenticacionController.checkAuthUser, 
 router.patch('/user/update/photo', autenticacionController.checkAuthUser, UsuarioController.updatePhoto);
 router.patch('/user/update/location', autenticacionController.checkAuthUser, UsuarioController.updateLocation);
 router.patch('/user/update/preferences', autenticacionController.checkAuthUser, UsuarioController.updatePreferences);
-
 
 // Actualizar el tipo de usuario a admin, solo puede ser realizado por un admin
 router.patch('/user/update/type/admin', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateAdmin);
