@@ -68,13 +68,15 @@ router.get('/videos/watch/:idVideo', autenticacionController.checkAuthUser, Sala
 
 router.get('/rooms', autenticacionController.checkAuthUser, SalaController.getAllSalasUsuario);
 
-router.get('/rooms/:idSala/members', SalaController.getParticipantesSala);
+router.get('/rooms/:idSala/members',autenticacionController.checkAuthUser, SalaController.getParticipantesSala);
 
-router.get('/rooms/:idSala/state/:idUsuario', SalaController.getSalaSincronizada);
+router.get('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUser,SalaController.getSalaSincronizada);
 
-router.put('/rooms/:idSala/state/:idUsuario', SalaController.setEstadoSala);
+router.put('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUser, SalaController.setEstadoSala);
 
-router.delete('/rooms/:idSala', SalaController.deleteSala);
+router.delete('/rooms/:idSala', autenticacionController.checkAuthUser,SalaController.deleteSala);
+
+router.delete('/rooms/:idVideo',autenticacionController.checkAuthUser, SalaController.deleteSalaUnitaria);
 
 //------------------------------------------------Rutas de mensajes------------------------------------------------
 

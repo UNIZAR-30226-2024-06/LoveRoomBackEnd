@@ -59,11 +59,17 @@ export default class SocketManager {
                 console.log('Time submitted', time);
                 //Comprobamos el tiempo que ha enviado el cliente, si es mayor que el que tenemos guardado,
                 //este se convierte en el nuevo tiempo global
-                if(this.times[idSala] < time){
+                if(!this.times[idSala]){
                     this.times[idSala] = time;
-                    socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
-                }else if(this.times[idSala] > time){
-                    socket.to(this.users[senderId]).emit(socketEvents.INCREASE_SPEED, this.times[idSala]);
+                }else{
+                    if(this.times[idSala] < time){
+                        console.log('Nuevo tiempo marcado por el usuario ',senderId);
+                        this.times[idSala] = time;
+                        socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
+                    }else if(this.times[idSala] > time){
+                        console.log('Nuevo tiempo marcado por el usuario ',receiverId);
+                        socket.to(this.users[senderId]).emit(socketEvents.INCREASE_SPEED, this.times[idSala]);
+                    }
                 }
             });
     
@@ -76,8 +82,16 @@ export default class SocketManager {
                 console.log('Play event');
                 socket.to(this.users[receiverId]).emit(socketEvents.PLAY);
             });
-    
-    
+            
+            socket.on(socketEvents.CREATE_MESSAGE, (data :any) => {
+                const senderId = data.senderId;
+                const receiverId = data.receiverId;
+                if(this.users[receiverId] && this.users[senderId]){
+                    socket.to(this.users[receiverId]).emit(socketEvents.SEND_MESSAGE, data);
+                    socket.to(this.users[senderId]).emit(socketEvents.SEND_MESSAGE, data);
+                }
+            });
+
             socket.on('disconnect', () => {
                 console.log('User disconnected');
                 delete this.users[userId];
@@ -89,11 +103,11 @@ export default class SocketManager {
     public emitMatch(senderId: string, receiverId: string,idVideo: string){
         console.log('Match sent',senderId ,receiverId);
         if(this.io){
-            this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, {
+            this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
                 senderId,
                 receiverId,
                 idVideo
-            });
+            );
         }
         
     }

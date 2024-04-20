@@ -10,6 +10,7 @@ import { createMatch } from '../db/match';
 import { getUsuariosViendoVideo } from '../db/video';
 import { Request, Response } from "express";
 import SocketManager from '../services/socketManager';
+import usuarios from '../db/usuarios';
 
 
 const SalaController = {
@@ -38,6 +39,7 @@ const SalaController = {
             //Creamos una sala unitaria 
             console.log("Todos los match posibles han sido agotados");
             const salaUnitaria = await createSalaUnitaria(idUsuario, idVideo);
+            
 
             const formattedResponse = {
               id: salaUnitaria.id,
@@ -47,21 +49,23 @@ const SalaController = {
             }
             return res.json(formattedResponse);
         } else {
+          const usuarioMatch = usuariosViendoVideo[i].idusuario.toString();
           // Creamos una sala con los dos usuarios
-          const nuevaSala = await createSala(idUsuario, usuariosViendoVideo[0].idusuario.toString(), idVideo);
+          const nuevaSala = await createSala(idUsuario, usuarioMatch, idVideo);
 
           //Creamos un match entre los dos usuarios
-          await createMatch(idUsuario, usuariosViendoVideo[0].idusuario.toString());
+          await createMatch(idUsuario, usuarioMatch);
           //Creamos el match inverso
-          await createMatch(usuariosViendoVideo[0].idusuario.toString(), idUsuario);
+          await createMatch(usuarioMatch, idUsuario);
 
           //Emitimos el match
-          console.log("Emitiendo match a usuario", usuariosViendoVideo[0].idusuario.toString());
-          await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuariosViendoVideo[0].idusuario.toString(),nuevaSala.idvideo);
+          console.log("Emitiendo match a usuario", usuarioMatch);
+          await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuarioMatch,nuevaSala.idvideo);
 
           const formattedResponse = {
             id: nuevaSala.id,
             idvideo: nuevaSala.idvideo,
+            idusuario: usuarioMatch,
             esSalaUnitaria: false,
           }
           
@@ -163,8 +167,19 @@ const SalaController = {
       console.error("Error al eliminar sala:", error);
       return res.status(500).json({ error: "Error al eliminar sala" });
     }
-  }
+  },
 
+  deleteSalaUnitaria: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { idVideo} = req.params;
+      const idUsuario = req.body.idUser;
+      await deleteSalaUnitariaAtomic(idUsuario, idVideo);
+      return res.status(200).json({ message: "Sala unitaria eliminada" });
+    } catch (error) {
+      console.error("Error al eliminar sala unitaria:", error);
+      return res.status(500).json({ error: "Error al eliminar sala unitaria" });
+    }
+  }
 }
 
 export default SalaController;
