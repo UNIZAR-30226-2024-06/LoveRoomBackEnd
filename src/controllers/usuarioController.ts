@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { autenticacionController } from './autenticacionController';
 import userBD from '../db/usuarios';
 
 class UsuarioController {
@@ -35,15 +34,13 @@ class UsuarioController {
     try {
       console.log(info);
       const user = await userBD.getUserByEmail(info.correo);
-      if (user == null || user.contrasena != info.contrasena ) {
-        console.log('Usuario y/o contraseña incorrectos', user, info.contrasena, user?.contrasena);
+      const userPass = await userBD.getPasswordByEmail(info.correo);
+      const pass = userPass?.contrasena;
+      if (user == null || pass !== info.contrasena) {
         res.status(401).json({ error: 'Usuario y/o contraseña incorrectos' });
-      }
-      else if (user.baneado) {
+      } else if (user.baneado) {
         res.status(403).json({ error: 'El usuario está baneado' });
-        
-      }
-      else {
+      } else {
         console.log('Autenticado correctamente');
         req.body.id = user.id;
         next();
@@ -55,12 +52,31 @@ class UsuarioController {
   }
 
   /**
+   * Comprueba si un correo ya está en uso.
+   * Si el correo ya está en uso, devuelve un error.
+   * Si el correo no está en uso, pasa al siguiente middleware.
+   */
+  public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const info = req.body;
+    try {
+      const user = await userBD.getUserByEmail(info.correo);
+      if (user != null && user.id != req.body.idUser) {
+        res.status(409).json({ error: 'Ya existe un usuario con ese correo' });
+        return;
+      }
+      next();
+    } catch (error) {
+      res.status(500).json({ error: 'Error al conectar con la base de datos' });
+    }
+  }
+
+  /**
    * Actualiza un usuario al completo.
    * El usuario se identifica con el token.
    */
   public static async updateUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateUser(id, JSON.stringify(info));
       res.json("Usuario actualizado correctamente");
@@ -75,7 +91,7 @@ class UsuarioController {
    */
   public static async updateEmail(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateEmail(id, info.correo);
       res.json("Correo actualizado correctamente");
@@ -90,7 +106,7 @@ class UsuarioController {
    */
   public static async updateName(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateName(id, info.nombre);
       res.json("Nombre actualizado correctamente");
@@ -105,7 +121,7 @@ class UsuarioController {
    */
   public static async updateAge(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateAge(id, info.edad);
       res.json("Edad actualizada correctamente");
@@ -120,7 +136,7 @@ class UsuarioController {
    */
   public static async updateSex(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateSex(id, info.sexo);
       res.json("Sexo actualizado correctamente");
@@ -135,7 +151,7 @@ class UsuarioController {
    */
   public static async updateDescription(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateDescription(id, info.descripcion);
       res.json("Descripción actualizada correctamente");
@@ -150,7 +166,7 @@ class UsuarioController {
    */
   public static async updatePhoto(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updatePhoto(id, info.fotoperfil);
       res.json("Foto de perfil actualizada correctamente");
@@ -165,7 +181,7 @@ class UsuarioController {
    */
   public static async updateLocation(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updateLocation(id, info.idlocalidad);
       res.json("Localización actualizada correctamente");
@@ -180,7 +196,7 @@ class UsuarioController {
    */
   public static async updatePreferences(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
     try {
       const user = await userBD.updatePreferences(id, JSON.stringify(info));
       res.json("Preferencias actualizadas correctamente");
@@ -195,9 +211,15 @@ class UsuarioController {
    */
   public static async updatePassword(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = autenticacionController.getPayload(req).id;
+    const id = req.body.idUser
+    const userPass = await userBD.getPasswordById(id);
+    const pass = userPass?.contrasena
+    if (info.antiguaContrasena != pass) {
+      res.status(401).json({ error: 'Contraseña incorrecta' });
+      return;
+    }
     try {
-      const user = await userBD.updatePassword(id, info.contrasena);
+      const user = await userBD.updatePassword(id, info.nuevaContrasena);
       res.json("Contraseña actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la contraseña' });
@@ -206,10 +228,11 @@ class UsuarioController {
 
   /**
    * Actualiza el tipo de un usuario a premiun.
+   * Se actualiza segun el tipo introducido en la ulr (normal, premium)
    * El usuario se identifica con el token.
    */
-  public  static async updatePremiun(req: Request, res: Response): Promise<any> {
-    const id = autenticacionController.getPayload(req).id;   
+  public  static async updateType(req: Request, res: Response): Promise<any> {
+    const id = req.body.idUser   
     console.log(req.params.type);
     try {
       const user = await userBD.updateType(id, req.params.type);  //normal, premium, administrador
@@ -265,12 +288,28 @@ class UsuarioController {
   }
 
   /**
-   * Obtiene un usuario por su id
+   * Comprueba si un usuario está baneado.
+   * El usuario se identifica con el token.
+   */
+  public static async deleteUser(req: Request, res: Response): Promise<void> {
+    const id = req.body.idUser
+    try {
+      const user = await userBD.deleteUser(id);
+      res.json("Usuario eliminado correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al eliminar el usuario' });
+    }
+  }
+
+  /**
+   * Obtiene un usuario por su correo
    * El usuario se identifica con el token.
    */
   public static async getUser(req: Request, res: Response): Promise<void> {
-    const email = req.params.correo;
     try {
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
       const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
@@ -283,42 +322,36 @@ class UsuarioController {
   }
 
   /**
-   * Comprueba si un correo ya está en uso.
-   * Si el correo ya está en uso, devuelve un error.
-   * Si el correo no está en uso, pasa al siguiente middleware.
+   * Devuelve el id de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
    */
-  public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const info = req.body;
-    try {
-      const user = await userBD.getUserByEmail(info.correo);
-      if (user != null) {
-        res.status(409).json({ error: 'Ya existe un usuario con ese correo' });
+  public static async getId(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
         return;
       }
-      next();
-    } catch (error) {
-      res.status(500).json({ error: 'Error al conectar con la base de datos' });
+      res.send({id: user.id});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el id' });
     }
   }
 
   /**
-   * Comprueba si un usuario está baneado.
-   * El usuario se identifica con el token.
+   * Devuelve el correo de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
    */
-  public static async deleteUser(req: Request, res: Response): Promise<void> {
-    const id = autenticacionController.getPayload(req).id;
-    try {
-      const user = await userBD.deleteUser(id);
-      res.json("Usuario eliminado correctamente");
-    } catch (error) {
-      res.status(500).json({ error: 'Error al eliminar el usuario' });
-    }
-  }
-
   public static async getEmail(req: Request, res: Response): Promise<void> {
     try{
-      const email = req.params.correo;
-      const user = await userBD.getUserByEmail(email);
+      const id = parseInt(req.params.id);
+      const user = await userBD.getUserById(id);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
@@ -330,6 +363,203 @@ class UsuarioController {
     }
   }
 
+  /**
+   * Devuelve el nombre de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getName(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({nombre: user.nombre});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el nombre' });
+    }
+  }
+
+  /**
+   * Devuelve la contraseña de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getPassword(req: Request, res: Response): Promise<void> {
+    try{
+      const id = req.body.userId
+      const user = await userBD.getPasswordById(id);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({contrasena: user.contrasena});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la contraseña' });
+    }
+  }
+
+  /**
+   * Devuelve la edad de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getAge(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({edad: user.edad});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la edad' });
+    }
+  }
+
+  /**
+   * Devuelve la descripción de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getDescription(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({descripcion: user.descripcion});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la descripción' });
+    }
+  }
+
+  /**
+   * Devuelve el sexo de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getSex(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({sexo: user.sexo});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el sexo' });
+    }
+  }
+
+  /**
+   * Devuelve la foto de perfil de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getPhoto(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({fotoperfil: user.fotoperfil});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la foto' });
+    }
+  }
+
+  /**
+   * Devuelve la id de la localidad de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getLocation(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({idlocalidad: user.idlocalidad});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener la localidad' });
+    }
+  }
+
+  /**
+   * Devuelve las preferencias de un usuario.
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getPreferences(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({buscaedadmax: user.buscaedadmax,
+                buscaedadmin: user.buscaedadmin,
+                buscasexo: user.buscasexo,});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener las preferencias' });
+    }
+  }
+
+  /**
+   * Devuelve el tipo de usuario (administrados, normal, premium).
+   * El usuario se pasa como parametro en la url
+   * Necesita autenticación.
+   */
+  public static async getType(req: Request, res: Response): Promise<void> {
+    try{
+      //const id = parseInt(req.params.id);
+      //const user = await userBD.getUserById(id);
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+      res.send({tipousuario: user.tipousuario});
+    }
+    catch (error) {
+      res.status(500).json({ error: 'Error al obtener el tipo' });
+    }
+  }
 
 }
 

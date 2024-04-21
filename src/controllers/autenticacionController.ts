@@ -15,8 +15,9 @@ const autenticacionController = {
      */
     async checkAuthUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            console.log("Comprobando autenticacion");
             const authorizationHeader = req.headers.authorization;
-            
+            console.log(authorizationHeader);
             // Comprobar si hay token
             if (!authorizationHeader) { // No hay token, no tiene autorizacion
                 res.status(401).json({ error: 'No estas autenticado, introduce token' });
@@ -30,7 +31,6 @@ const autenticacionController = {
                 return;
             }
             const user = await getUserById(payload.id);
-
             // Comprobar si el usaurio ha sido eliminado
             if (user == null) {
                 res.status(404).json({ error: 'El usuario ha sido eliminado' });
@@ -43,6 +43,7 @@ const autenticacionController = {
                 return;
             }
             console.log(payload);
+            console.log("Usuario autenticado");
             req.body.idUser = payload.id;
             next();
         } 
@@ -59,6 +60,7 @@ const autenticacionController = {
     async crearToken(req: Request, res: Response) : Promise<void> {
         const token = jwt.sign({
             id: req.body.id,
+            //correo: req.body.correo,
             exp: Date.now() + 60 * 60 * 1000 * 24 * 3   // 3 dia
         }, secret)
         console.log(token);
@@ -87,13 +89,13 @@ const autenticacionController = {
     async checkToken(req: Request, res: Response) : Promise<void> {
         try {
             const payload = autenticacionController.getPayload(req);
-            const user = await getUserById(payload.id);
-            if (Date.now() > payload.exp || !user || user.baneado || !payload) {
+            const usuario = await getUserById(payload.id);
+            if (Date.now() > payload.exp || !usuario || usuario.baneado || !payload) {
                 res.status(401).json({ valido: false });
                 return;
             }
             else {
-                res.status(200).json({ valido: true });
+                res.status(200).json({ valido: true, usuario});
             }
         }
         catch (error) {
@@ -107,18 +109,20 @@ const autenticacionController = {
      * El usuario debe estar autenticado.
      */
     async checkAdmin(req: Request, res: Response, next: NextFunction) : Promise<void> {
+        console.log("Comprobando si es admin");
         try {
-            const payload = await autenticacionController.getPayload(req);
-            const user = await getUserById(payload.id);
+            const id = req.body.idUser
+            const user = await getUserById(id);
             if (user && user.tipousuario == "administrador") {
+                console.log("Es admin");
                 next();
             }
             else {
-                res.status(403).json({ error: 'No tienes permisos de administrador' });
+                res.status(401).json({ error: 'No tienes permisos de administrador' });
             }
         }
         catch (error) {
-            res.status(403).json({ error: 'No estas autenticado' });
+            res.status(401).json({ error: 'No estas autenticado' });
         }
     }
       

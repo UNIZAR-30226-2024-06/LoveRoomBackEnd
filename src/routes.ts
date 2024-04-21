@@ -58,6 +58,29 @@ router.get('/admin/stats/users/age', autenticacionController.checkAuthUser, aute
 
 router.get('/admin/stats/users/localidad', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, adminController.getUsersLocalidadStats);
 
+// Ruta para obtener la lista de usuarios viendo un video
+// router.get('/video/:url/users', async (req, res) => {
+//   try {
+//     const { url } = req.params;
+
+//     // Consulta a la base de datos para obtener la lista de usuarios viendo el video
+//     const users = await prisma.videoyoutube.findMany({
+//       where: {
+//         urlvideo: url
+//       },
+//       select: {
+//         idusuario: true // Solo se selecciona el id del usuario
+//       }
+//     });
+
+//     // Se envía la lista de usuarios en formato JSON
+//     res.json(users);
+//   } catch (error) {
+//     console.error('Error retrieving users:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
 //------------------------------------------------Rutas de videos------------------------------------------------
 
 router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);
@@ -127,17 +150,31 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Obtener un usuario
-router.get('/user/:correo', autenticacionController.checkAuthUser, UsuarioController.getUser);
+// Obtener un usuario con todos los datos
+router.get('/user/:email', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
-// Actualizacion de un usario entero
-router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
+// Obtener un dato concreto de un usuario
+router.get('/user/:email/id', autenticacionController.checkAuthUser, UsuarioController.getId);
+router.get('/user/:id/email', autenticacionController.checkAuthUser, UsuarioController.getEmail);
+//router.get('/user/:id/password', autenticacionController.checkAuthUser, UsuarioController.getPassword);
+router.get('/user/:email/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
+router.get('/user/:email/age', autenticacionController.checkAuthUser, UsuarioController.getAge);
+router.get('/user/:email/sex', autenticacionController.checkAuthUser, UsuarioController.getSex);
+router.get('/user/:email/description', autenticacionController.checkAuthUser, UsuarioController.getDescription);
+router.get('/user/:email/photo', autenticacionController.checkAuthUser, UsuarioController.getPhoto);
+router.get('/user/:email/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
+router.get('/user/:email/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
+router.get('/user/:email/type', autenticacionController.checkAuthUser, UsuarioController.getType);
+
 
 // Eliminacion de un usuario
 router.delete('/user/delete', autenticacionController.checkAuthUser, UsuarioController.deleteUser);
 
+// Actualizacion de un usario entero
+router.put('/user/update', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateUser);
+
 // Actualizaciones parciales de los datos
-router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.getEmail);
+router.patch('/user/update/email', autenticacionController.checkAuthUser, UsuarioController.mailAlreadyUse, UsuarioController.updateEmail);
 router.patch('/user/update/password', autenticacionController.checkAuthUser, UsuarioController.updatePassword);
 router.patch('/user/update/name', autenticacionController.checkAuthUser,  UsuarioController.updateName);
 router.patch('/user/update/age', autenticacionController.checkAuthUser, UsuarioController.updateAge);
@@ -147,11 +184,10 @@ router.patch('/user/update/photo', autenticacionController.checkAuthUser, Usuari
 router.patch('/user/update/location', autenticacionController.checkAuthUser, UsuarioController.updateLocation);
 router.patch('/user/update/preferences', autenticacionController.checkAuthUser, UsuarioController.updatePreferences);
 
-
 // Actualizar el tipo de usuario a admin, solo puede ser realizado por un admin
 router.patch('/user/update/type/admin', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateAdmin);
 // Actualizar el tipo de usuario a premium o normal: normal, premium
-router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, UsuarioController.updatePremiun);
+router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, UsuarioController.updateType);
 
 // Banear a un usuario, solo puede ser realizado por un admin
 router.patch('/user/ban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.banUser);
@@ -159,6 +195,8 @@ router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacion
 
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);
+
+//router.post('/user/refresh/password', UsuarioController.refreshPassword);
 
 
 export default router;
