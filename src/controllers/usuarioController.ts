@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcrypt';
 import userBD from '../db/usuarios';
 
 class UsuarioController {
@@ -11,7 +12,8 @@ class UsuarioController {
     const info = req.body;
     try {
       console.log(info);
-      const newUser = await userBD.createUser(info.nombre, info.correo, info.contrasena);
+      const encryptedPass = await bcrypt.hash(info.contrasena, 10);
+      const newUser = await userBD.createUser(info.nombre, info.correo, encryptedPass);
       //res.status(201).json( "Usuario creado correctamente" )
       req.body.id = newUser.id;
       next();
@@ -35,10 +37,15 @@ class UsuarioController {
       console.log(info);
       const user = await userBD.getUserByEmail(info.correo);
       const userPass = await userBD.getPasswordByEmail(info.correo);
-      const pass = userPass?.contrasena;
-      if (user == null || pass !== info.contrasena) {
-        res.status(401).json({ error: 'Usuario y/o contraseña incorrectos' });
-      } else if (user.baneado) {
+      const isCorrect = userPass?.contrasena ? await bcrypt.compare(info.contrasena, userPass?.contrasena) : false;
+      console.log(userPass?.contrasena);
+      if (user == null) {
+        res.status(401).json({ error: 'El usuario introducido no existe' });
+      } 
+      else if (!isCorrect) {
+        res.status(401).json({ error: 'Contraseña incorrecta' });
+      }
+      else if (user.baneado) {
         res.status(403).json({ error: 'El usuario está baneado' });
       } else {
         console.log('Autenticado correctamente');
@@ -213,13 +220,13 @@ class UsuarioController {
     const info = req.body;
     const id = req.body.idUser
     const userPass = await userBD.getPasswordById(id);
-    const pass = userPass?.contrasena
-    if (info.antiguaContrasena != pass) {
+    const isSame = userPass?.contrasena ? await bcrypt.compare(info.antiguaContrasena, userPass?.contrasena) : false;
+    if (!isSame) {
       res.status(401).json({ error: 'Contraseña incorrecta' });
       return;
     }
     try {
-      const user = await userBD.updatePassword(id, info.nuevaContrasena);
+      const user = await userBD.updatePassword(id, await bcrypt.hash(info.nuevaContrasena, 10));
       res.json("Contraseña actualizada correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la contraseña' });

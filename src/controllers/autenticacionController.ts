@@ -58,13 +58,13 @@ const autenticacionController = {
      * El token expira en 3 dias.
      */
     async crearToken(req: Request, res: Response) : Promise<void> {
+        const user = await getUserById(req.body.id);
         const token = jwt.sign({
             id: req.body.id,
-            //correo: req.body.correo,
+            correo: req.body.correo,
             exp: Date.now() + 60 * 60 * 1000 * 24 * 3   // 3 dia
-        }, secret)
+        }, secret, { algorithm: 'HS512' })
         console.log(token);
-        const user = await getUserById(req.body.id);
         res.status(200).send({token: token, usuario: user});
     },
 

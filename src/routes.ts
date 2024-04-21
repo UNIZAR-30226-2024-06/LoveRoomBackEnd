@@ -198,5 +198,4 @@ router.get('/user/check/token', autenticacionController.checkToken);
 
 //router.post('/user/refresh/password', UsuarioController.refreshPassword);
 
-
 export default router;
