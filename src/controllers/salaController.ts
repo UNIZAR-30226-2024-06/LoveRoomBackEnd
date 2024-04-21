@@ -5,12 +5,12 @@ import {createSalaUnitaria,
         getAllSalasUsuario,
         getEstadoSala,
         setEstadoSala,
-        deleteSalaUnitariaAtomic } from '../db/salas';
+        deleteSalaUnitariaAtomic,
+        sobrepasaLimiteSalas } from '../db/salas';
 import { createMatch } from '../db/match';
 import { getUsuariosViendoVideo } from '../db/video';
 import { Request, Response } from "express";
 import SocketManager from '../services/socketManager';
-import usuarios from '../db/usuarios';
 
 
 const SalaController = {
@@ -22,6 +22,11 @@ const SalaController = {
 
       // Borramos las posibles entradas previas de videoViewer para ese usuario
       await deleteSalaUnitariaAtomic(idUsuario);
+
+      // Comprobamos que el usuario no haya sobrepasado su limite de salas
+      if (await sobrepasaLimiteSalas(idUsuario)) {
+        return res.status(403).json({ error: "El usuario ha sobrepasado su limite de salas" });
+      }
 
       // Obtenemos los usuarios de interes que estan viendo el video
       // console.log("Obteniendo usuarios viendo video")

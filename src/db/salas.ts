@@ -69,6 +69,35 @@ export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
         where: { idusuario: idUsuario_int }
     });
 }
+
+// Dado un id de usuario comprueba si ese usuario ha sobrepasado su limite de salas (3 para usuarios normales),
+// (infinitas para usuarios premium). Devuelve true si ha sobrepasado el limite, false en caso contrario
+export const sobrepasaLimiteSalas = async (idUsuario: string): Promise<any> => {
+  try {
+    const idUsuario_int = parseInt(idUsuario);
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: idUsuario_int }
+    });
+
+    if (!usuario) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    // Si el usuario es premium o administrador, no tiene limite de salas
+    if (usuario.tipousuario === 'premium' || usuario.tipousuario === 'administrador') {
+      return false;
+    }
+
+    // Si el usuario es normal, comprobamos si tiene 3 o mas salas
+    const salasUsuario = await getAllSalasUsuario(idUsuario);
+    return salasUsuario.length >= 3; // Devuelve true si tiene 3 o mas salas, false en caso contrario
+
+  } catch (error) {
+    console.error('Error al comprobar limite de salas:', error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
+}
+
 //Dados dos ids de usuario crea una sala, devuelviendo su id 
 export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo: string): Promise<any> => {
     const nuevaSala = await prisma.sala.create({
