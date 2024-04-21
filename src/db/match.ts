@@ -8,7 +8,7 @@ export const createMatch = async (idUsuario1: string, idUsuario2: string): Promi
       idusuario2: parseInt(idUsuario2),
     },
   });
-  console.log("Match creado entre", idUsuario1, "y", idUsuario2);
+  console.log("Match creado entre ", idUsuario1, " y ", idUsuario2);
   return match;
 };
 

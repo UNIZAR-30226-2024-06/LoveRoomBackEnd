@@ -62,7 +62,9 @@ router.get('/admin/stats/users/localidad', autenticacionController.checkAuthUser
 
 router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);
 
-router.get('/videos/watch/:idVideo', autenticacionController.checkAuthUser, SalaController.verVideo);
+router.post('/videos/watch/:idVideo', autenticacionController.checkAuthUser, SalaController.verVideo);
+
+router.delete('/videos/quit', autenticacionController.checkAuthUser, SalaController.deleteSalaUnitaria);
 
 //------------------------------------------------Rutas de salas------------------------------------------------
 
@@ -75,8 +77,6 @@ router.get('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUs
 router.put('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUser, SalaController.setEstadoSala);
 
 router.delete('/rooms/:idSala', autenticacionController.checkAuthUser,SalaController.deleteSala);
-
-router.delete('/rooms/:idVideo',autenticacionController.checkAuthUser, SalaController.deleteSalaUnitaria);
 
 //------------------------------------------------Rutas de mensajes------------------------------------------------
 

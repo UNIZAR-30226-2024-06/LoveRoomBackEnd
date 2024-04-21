@@ -113,7 +113,7 @@ export const deleteSala = async (idSala: string): Promise<any> => {
     });
 }
 
-//Dado un usuario crea una sala unitaria
+//Dado un usuario crea una sala unitaria (en realidad es solo una entrada en la tabla videoviewer)
 export const createSalaUnitaria = async (idUsuario: string, idVideo: string): Promise<any> => {
     return await prisma.videoviewer.create({
         data: {
@@ -134,18 +134,16 @@ export const deleteSalaUnitaria = async (idUsuario: string, idVideo: string): Pr
         },
       });
 }
-// Dado el id de un usuario y el id de un video, borra la sala unitaria de forma atomica si existe
-// Devuelve true si se borró al menos un registro, false en caso contrario
-export const deleteSalaUnitariaAtomic = async (idUsuario: string, idVideo: string): Promise<any> => {
+// Dado el id de un usuario borra todas las entradas de la tabla videoViewer que correspondan 
+// a ese usuario de forma atomica (si existen).
+// Devuelve True si se borró al menos un registro, False en caso contrario
+export const deleteSalaUnitariaAtomic = async (idUsuario: string): Promise<any> => {
   const idUsuario_int = parseInt(idUsuario);
   try {
     const deleteResult = await prisma.$transaction([
       prisma.videoviewer.deleteMany({
         where: {
-          AND: [
-            { idvideo: idVideo },
-            { idusuario: idUsuario_int }
-          ]
+          idusuario: idUsuario_int
         }
       })
     ]);

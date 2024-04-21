@@ -362,7 +362,7 @@ export const getUserById = async (id: number) => {
             baneado: true,
         }
     });
-    console.log(usuario);
+    //console.log(usuario);
     return usuario;
 }
 

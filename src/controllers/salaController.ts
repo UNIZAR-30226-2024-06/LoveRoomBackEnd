@@ -17,8 +17,11 @@ const SalaController = {
   
    verVideo: async(req: Request, res: Response): Promise<any> => {
     try {
-      const { idVideo } = req.params;
-      const idUsuario = req.body.idUser;
+      const { idVideo } = req.params; // Cogemos el id del video de la URL
+      const idUsuario = req.body.idUser;  // Cogemos el id del checkAuthUser
+
+      // Borramos las posibles entradas previas de videoViewer para ese usuario
+      await deleteSalaUnitariaAtomic(idUsuario);
 
       // Obtenemos los usuarios de interes que estan viendo el video
       // console.log("Obteniendo usuarios viendo video")
@@ -30,64 +33,58 @@ const SalaController = {
         let i = 0;
         //Comprobamos de la lista de usuarios que no se haya hecho match con el 
         while( ( i < usuariosViendoVideo.length ) && 
-              !(await deleteSalaUnitariaAtomic(usuariosViendoVideo[i].idusuario.toString(), idVideo))){
+              !(await deleteSalaUnitariaAtomic(usuariosViendoVideo[i].idusuario.toString()))){
           i++;
         }
 
-        //Todos los match que habia disponibles ya no lo estan 
+        // Si todos los match que habia disponibles ya no lo estan 
         if ( i >= usuariosViendoVideo.length){
-            //Creamos una sala unitaria 
+            // Creamos una sala unitaria 
             console.log("Todos los match posibles han sido agotados");
-            const salaUnitaria = await createSalaUnitaria(idUsuario, idVideo);
+            await createSalaUnitaria(idUsuario, idVideo);
             
-
             const formattedResponse = {
-              id: salaUnitaria.id,
-              idvideo: salaUnitaria.idvideo,
-              idusuario: salaUnitaria.idusuario,
-              esSalaUnitaria: true,
+              esSalaUnitaria: true
             }
             return res.json(formattedResponse);
-        } else {
+        } else {  // Hay match
           const usuarioMatch = usuariosViendoVideo[i].idusuario.toString();
           // Creamos una sala con los dos usuarios
           const nuevaSala = await createSala(idUsuario, usuarioMatch, idVideo);
 
-          //Creamos un match entre los dos usuarios
+          // Creamos el match entre los dos usuarios
           await createMatch(idUsuario, usuarioMatch);
-          //Creamos el match inverso
-          await createMatch(usuarioMatch, idUsuario);
-
-          //Emitimos el match
-          console.log("Emitiendo match a usuario", usuarioMatch);
-          await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuarioMatch,nuevaSala.idvideo);
-
-          const formattedResponse = {
-            id: nuevaSala.id,
-            idvideo: nuevaSala.idvideo,
-            idusuario: usuarioMatch,
-            esSalaUnitaria: false,
-          }
           
-          return res.json(formattedResponse);
-        }
-        
-      } else {
+          try {
+            // Emitimos el match
+            console.log("Emitiendo match a usuario", usuarioMatch);
+            await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuarioMatch, nuevaSala.idvideo);
+
+            const formattedResponse = {
+              idsala: nuevaSala.id,
+              idusuario: Number(usuarioMatch),
+              esSalaUnitaria: false,
+            }
+            
+            return res.json(formattedResponse);
+          } catch (error) {
+            console.error("Error al emitir match:", error);
+            return res.status(500).json({ error: "Error al emitir match" });
+          }
+        }  
+      } else {  // No hay usuarios de interes viendo el video
         //Creamos una sala unitaria 
         console.log("No hay nadie viendo el video, creando sala unitaria");
-        const salaUnitaria = await createSalaUnitaria(idUsuario, idVideo);
+        await createSalaUnitaria(idUsuario, idVideo);
 
         const formattedResponse = {
-          id: salaUnitaria.id,
-          idvideo: salaUnitaria.idvideo,
-          idusuario: salaUnitaria.idusuario,
-          esSalaUnitaria: true,
+          esSalaUnitaria: true
         }
         return res.json(formattedResponse);
       }
     } catch (error) {
-      console.error("Error al manejar salas:", error);
-      return res.status(500).json({ error: "Error al manejar salas" });
+      console.error("Error al ver video:", error);
+      return res.status(500).json({ error: "Error al ver video" });
     }
   },
 
@@ -171,10 +168,12 @@ const SalaController = {
 
   deleteSalaUnitaria: async (req: Request, res: Response): Promise<any> => {
     try {
-      const { idVideo} = req.params;
       const idUsuario = req.body.idUser;
-      await deleteSalaUnitariaAtomic(idUsuario, idVideo);
-      return res.status(200).json({ message: "Sala unitaria eliminada" });
+      if (await deleteSalaUnitariaAtomic(idUsuario)) {
+        return res.status(200).json({ message: "Sala unitaria eliminada" });
+      } else {
+        return res.status(404).json({ error: "El usuario no estaba viendo ningun video" });
+      }
     } catch (error) {
       console.error("Error al eliminar sala unitaria:", error);
       return res.status(500).json({ error: "Error al eliminar sala unitaria" });
