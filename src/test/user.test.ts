@@ -158,7 +158,7 @@ test ('Comprobar banear usuario', async () => {
   const responseBan = await axios.patch('http://localhost:5000/user/ban', userBan, headers); 
   expect(responseBan.status).toBe(200);
   
-  // Actualiza el id del usuario baneado
+  // Actualiza el id del usuario baneado en los 2 siguienes tests
   idBan = idUser;
 
   const responseCheck = await axios.get('http://localhost:5000/user/check/token', { headers: {'Authorization': 'Bearer ' + tokenUser } })
@@ -229,6 +229,25 @@ test ('Ban sin ser admin', async () => {
   
 });
 
+test ('Cambiar contraseña', async () => {
+  const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
+  const idUser = responseUser.data.usuario.id;
+  const tokenUser = responseUser.data.token;
+  const headers = {
+    headers: {'Authorization': 'Bearer ' + tokenUser }
+  }
+  const responseUpdate= await axios.patch('http://localhost:5000/user/update/password', {nuevaContrasena: "nuevaPass", antiguaContrasena: "test"}, headers);
+  expect(responseUpdate.status).toBe(200);
+  const responseLoginUpdate = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "nuevaPass"});
+  expect(responseLoginUpdate.status).toBe(200);
+  await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "nuevaPass"})
+  .catch((error: any) => {
+    expect(error.response?.status).toBe(401);
+  });
+  const responseReset= await axios.patch('http://localhost:5000/user/update/password', {nuevaContrasena: "test", antiguaContrasena: "nuevaPass"}, headers);
+  expect(responseUpdate.status).toBe(200);
+});
+
 test ('Eliminar usuario', async () => {
   let token = '';
   const userTest = {
@@ -250,6 +269,8 @@ test ('Eliminar usuario', async () => {
   });
 },1000000);
 
+
+
 test ('Actualizar usuario', async () => {
   const userTest = {
     nombre: "testUpdate",
@@ -269,7 +290,7 @@ test ('Actualizar usuario', async () => {
     "buscaedadmin": 20,
     "buscaedadmax": 81,
     "buscasexo": "M",
-    "escripcion": "esto es una prueba",
+    "descripcion": "esto es una prueba",
     "fotoperfil": "null.jpg",
     "idlocalidad": 0,
   };
