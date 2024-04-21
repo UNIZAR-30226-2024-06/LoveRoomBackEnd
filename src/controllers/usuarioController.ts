@@ -60,7 +60,7 @@ class UsuarioController {
     const info = req.body;
     try {
       const user = await userBD.getUserByEmail(info.correo);
-      if (user != null) {
+      if (user != null && user.id != req.body.idUser) {
         res.status(409).json({ error: 'Ya existe un usuario con ese correo' });
         return;
       }

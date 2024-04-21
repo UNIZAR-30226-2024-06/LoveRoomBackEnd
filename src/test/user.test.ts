@@ -234,12 +234,12 @@ test ('Eliminar usuario', async () => {
 test ('Actualizar usuario', async () => {
   const userTest = {
     nombre: "testUpdate",
-    correo: "testUpdate@gmail.com",
+    correo: "testUpdate1@gmail.com",
     contrasena: "testUpdate",
   };
   // Registro
   const responseRegister = await axios.post('http://localhost:5000/user/create', userTest);
-  const responseLogin = await axios.post('http://localhost:5000/user/login', { correo: "testUpdate@gmail.com", contrasena: "testUpdate"});
+  const responseLogin = await axios.post('http://localhost:5000/user/login', { correo: "testUpdate1@gmail.com", contrasena: "testUpdate"});
   const token = responseLogin.data.token;
   console.log(responseLogin.data.token);
   const userUpdate = {
@@ -257,9 +257,6 @@ test ('Actualizar usuario', async () => {
   const headers = {
     headers: {'Authorization': 'Bearer ' + token }
   };
-  const updateEmail = {
-    correo: "test@gmail.com",
-  };
   // Update
   const response = await axios.put('http://localhost:5000/user/update', userUpdate, headers);
   expect(response.status).toBe(200);
@@ -271,4 +268,42 @@ test ('Actualizar usuario', async () => {
   expect(responseDelete.status).toBe(200);
   
 }, 1000000);
+
+test ('Actualizar todo menos correo', async () => {
+  const userTest = {
+    nombre: "testUpdate",
+    correo: "testUpdate2@gmail.com",
+    contrasena: "testUpdate",
+  };
+  // Registro
+  const responseRegister = await axios.post('http://localhost:5000/user/create', userTest);
+  const responseLogin = await axios.post('http://localhost:5000/user/login', { correo: "testUpdate2@gmail.com", contrasena: "testUpdate"});
+  const token = responseLogin.data.token;
+  console.log(token);
+  const userUpdate = {
+    "correo":  "testUpdate2@gmail.com",
+    "nombre": "prueba",
+    "edad": 21,
+    "sexo": "H",
+    "buscaedadmin": 20,
+    "buscaedadmax": 81,
+    "buscasexo": "M",
+    "escripcion": "esto es una prueba",
+    "fotoperfil": "null.jpg",
+    "idlocalidad": 0,
+  };
+  const headers = {
+    headers: {'Authorization': 'Bearer ' + token }
+  };
+  const response = await axios.put('http://localhost:5000/user/update', userUpdate, headers);
+  expect(response.status).toBe(200);
+  console.log(response);
+  const responseLoginUpdate = await axios.post('http://localhost:5000/user/login', { correo: "testUpdate2@gmail.com", contrasena: "testUpdate"});
+  expect(responseLoginUpdate.status).toBe(200);
+  console.log(responseLoginUpdate.data.usuario);
+  const getUser = await axios.get('http://localhost:5000/user/testUpdate2@gmail.com', { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
+  expect(getUser.data.nombre).toBe("prueba");
+  const getDelete = await axios.delete('http://localhost:5000/user/delete', { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
+  expect(getDelete.status).toBe(200);
+});
 
