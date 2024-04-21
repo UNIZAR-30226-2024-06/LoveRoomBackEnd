@@ -97,9 +97,9 @@ test('Comprobacion de envio de tiempos', async () => {
         
 
         // El usuario test1 quiere ver el video video_prueba
-        const response4 = await axios.get('http://localhost:5000/videos/watch/video_prueba', postData1);
+        const response4 = await axios.post('http://localhost:5000/videos/watch/video_prueba', postData1);
         //El usuario test2 va a ver el mismo video
-        const response5 = await axios.get('http://localhost:5000/videos/watch/video_prueba', postData2);
+        const response5 = await axios.post('http://localhost:5000/videos/watch/video_prueba', postData2);
         console.log(response5.data);
         
 
