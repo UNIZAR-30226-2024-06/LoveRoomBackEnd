@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { error } from 'console';
 import e, { response } from 'express';
 import { exitCode } from 'process';
 
@@ -208,6 +209,24 @@ test ('Comprobar desbanear usuario', async () => {
   expect(responseCheck.data.valido).toBe(true);
   expect(responseCheck.data).toHaveProperty('valido');
   expect(responseCheck.data).toHaveProperty('usuario');
+});
+
+test ('Ban sin ser admin', async () => {
+  const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
+  const idUser = responseUser.data.usuario.id;
+  const headers = {
+    headers: {'Authorization': 'Bearer ' + responseUser.data.token }
+  }
+  const responseBan = await axios.patch('http://localhost:5000/user/ban', {id: idUser}, headers)
+  .catch((error: any) => {
+    expect(error.response?.status).toBe(401)
+  });
+
+  const responseUnban = await axios.patch('http://localhost:5000/user/unban', {id: idUser}, headers)
+  .catch((error: any) => {
+    expect(error.response?.status).toBe(401)
+  });
+  
 });
 
 test ('Eliminar usuario', async () => {
