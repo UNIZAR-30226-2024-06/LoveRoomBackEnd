@@ -229,7 +229,7 @@ test ('Ban sin ser admin', async () => {
   
 });
 
-test ('Cambiar contraseña', async () => {
+test ('Cambiar contraseña ', async () => {
   const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
   const idUser = responseUser.data.usuario.id;
   const tokenUser = responseUser.data.token;
@@ -246,6 +246,27 @@ test ('Cambiar contraseña', async () => {
   });
   const responseReset= await axios.patch('http://localhost:5000/user/update/password', {nuevaContrasena: "test", antiguaContrasena: "nuevaPass"}, headers);
   expect(responseUpdate.status).toBe(200);
+});
+
+test ('Cambiar contraseña fallo', async () => {
+  const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
+  const idUser = responseUser.data.usuario.id;
+  const tokenUser = responseUser.data.token;
+  const headers = {
+    headers: {'Authorization': 'Bearer ' + tokenUser }
+  }
+  const responseUpdate= await axios.patch('http://localhost:5000/user/update/password', {nuevaContrasena: "nuevaPass", antiguaContrasena: "hola"}, headers)
+  .catch((error: any) => {
+    expect(error.response?.status).toBe(401);
+  });
+  await axios.patch('http://localhost:5000/user/update/password', {nuevaContrasena: "nuevaPass", antiguaContrasena: ""}, headers)
+  .catch((error: any) => {
+    expect(error.response?.status).toBe(401);
+  });
+  await axios.patch('http://localhost:5000/user/update/password', {nuevaContrasena: "nuevaPass"}, headers)
+  .catch((error: any) => {
+    expect(error.response?.status).toBe(500);
+  });
 });
 
 test ('Eliminar usuario', async () => {
