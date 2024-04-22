@@ -217,15 +217,15 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public static async updatePassword(req: Request, res: Response): Promise<any> {
-    const info = req.body;
-    const id = req.body.idUser
-    const userPass = await userBD.getPasswordById(id);
-    const isSame = userPass?.contrasena ? await bcrypt.compare(info.antiguaContrasena, userPass?.contrasena) : false;
-    if (!isSame) {
-      res.status(401).json({ error: 'Contraseña incorrecta' });
-      return;
-    }
     try {
+      const info = req.body;
+      const id = req.body.idUser
+      const userPass = await userBD.getPasswordById(id);
+      const isSame = userPass?.contrasena ? await bcrypt.compare(info.antiguaContrasena, userPass?.contrasena) : false;
+      if (!isSame) {
+        res.status(401).json({ error: 'Contraseña incorrecta' });
+        return;
+      }
       const user = await userBD.updatePassword(id, await bcrypt.hash(info.nuevaContrasena, 10));
       res.json("Contraseña actualizada correctamente");
     } catch (error) {
