@@ -363,7 +363,8 @@ test ('Actualizar todo menos correo', async () => {
   expect(responseLoginUpdate.status).toBe(200);
   console.log(responseLoginUpdate.data.usuario);
   const getUser = await axios.get('http://localhost:5000/user/testUpdate2@gmail.com', { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
-  expect(getUser.data.nombre).toBe("prueba");
+  expect(getUser.data.nombre).toBe(userUpdate.nombre);
+  expect(getUser.data.descripcion).toBe(userUpdate.descripcion)
   const getDelete = await axios.delete('http://localhost:5000/user/delete', { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
   expect(getDelete.status).toBe(200);
 });
