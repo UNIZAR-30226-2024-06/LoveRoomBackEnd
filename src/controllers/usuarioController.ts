@@ -88,6 +88,7 @@ class UsuarioController {
       const user = await userBD.updateUser(id, JSON.stringify(info));
       res.json("Usuario actualizado correctamente");
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: 'Error al actualizar el usuario' });
     }
   }
