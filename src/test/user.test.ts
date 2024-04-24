@@ -349,7 +349,7 @@ test ('Actualizar todo menos correo', async () => {
     "buscaedadmin": 20,
     "buscaedadmax": 81,
     "buscasexo": "M",
-    "escripcion": "esto es una prueba",
+    "descripcion": "esto es una prueba",
     "fotoperfil": "null.jpg",
     "idlocalidad": 0,
   };
