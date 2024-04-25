@@ -60,21 +60,25 @@ const SalaController = {
           // Creamos el match entre los dos usuarios
           await createMatch(idUsuario, usuarioMatch);
           
+          const formattedResponse = {
+            idsala: nuevaSala.id,
+            idusuario: Number(usuarioMatch),
+            esSalaUnitaria: false,
+          }
+
           try {
             // Emitimos el match
             console.log("Emitiendo match a usuario", usuarioMatch);
-            await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuarioMatch, nuevaSala.idvideo);
+            SocketManager.getInstance().emitMatch(idUsuario.toString(), usuarioMatch, nuevaSala.idvideo);
 
-            const formattedResponse = {
-              idsala: nuevaSala.id,
-              idusuario: Number(usuarioMatch),
-              esSalaUnitaria: false,
-            }
-            
             return res.json(formattedResponse);
           } catch (error) {
             console.error("Error al emitir match:", error);
-            return res.status(500).json({ error: "Error al emitir match" });
+
+            // Aunque falle la emision del match, no se borra la sala creada,
+            // y el usuario al que no le ha llegado el match podra acceder a ella
+            // desde su lista de salas
+            return res.json(formattedResponse);
           }
         }  
       } else {  // No hay usuarios de interes viendo el video

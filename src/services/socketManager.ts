@@ -100,28 +100,39 @@ export default class SocketManager {
     
     }
 
-    public async emitMatch(senderId: string, receiverId: string, idVideo: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            if (this.io) {
-                this.io.to(this.users[receiverId]).emit(socketEvents.MATCH,
-                    senderId,
-                    receiverId,
-                    idVideo,
-                    (error: any) => {
-                        if (error) {
-                            console.error("Error while emitting match:", error);
-                            reject(error);
-                        } else {
-                            console.log('Match sent', senderId, receiverId);
-                            resolve();
-                        }
-                    }
-                );
-            } else {
-                reject(new Error("Socket.IO not initialized"));
-            }
-        });
+    public emitMatch(senderId: string, receiverId: string,idVideo: string){
+        if(this.io){
+            this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
+                senderId,
+                receiverId,
+                idVideo
+            );
+            console.log('Match sent by id: ', senderId, ' to id: ', receiverId);
+        }
+        
     }
+    // public async emitMatch(senderId: string, receiverId: string, idVideo: string): Promise<void> {
+    //     return new Promise<void>((resolve, reject) => {
+    //         if (this.io) {
+    //             this.io.to(this.users[receiverId]).emit(socketEvents.MATCH,
+    //                 senderId,
+    //                 receiverId,
+    //                 idVideo,
+    //                 (error: any) => {
+    //                     if (error) {
+    //                         console.error("Error while emitting match:", error);
+    //                         reject(error);
+    //                     } else {
+    //                         console.log('Match sent', senderId, receiverId);
+    //                         resolve();
+    //                     }
+    //                 }
+    //             );
+    //         } else {
+    //             reject(new Error("Socket.IO not initialized"));
+    //         }
+    //     });
+    // }
     
 
 }
