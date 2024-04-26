@@ -66,9 +66,13 @@ export default class SocketManager {
                         console.log('Nuevo tiempo marcado por el usuario ',senderId);
                         this.times[idSala] = time;
                         socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
+                    }else if( 0 < time / this.times[idSala] < 1.5){
+                        console.log('El tiempo es parecido por lo que no hay que hacer nada');
+                        socket.to(this.users[receiverId].emit('do-nothing', this.times[idSala]);
+                    }
                     }else if(this.times[idSala] > time){
-                        console.log('Nuevo tiempo marcado por el usuario ',receiverId);
-                        socket.to(this.users[senderId]).emit(socketEvents.INCREASE_SPEED, this.times[idSala]);
+                        console.log('No se ha cambiado el tiempo marcado por el usuario ',receiverId);
+                        socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
                     }
                 }
             });
