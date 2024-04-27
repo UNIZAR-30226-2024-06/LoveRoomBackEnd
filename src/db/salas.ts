@@ -78,7 +78,7 @@ export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
     const infosalas = await prisma.sala.findMany({
       where: {
         id: {
-          in: salas.map(room => room.idsala)
+          in: salas.map((room: { idsala: number }) => room.idsala) // Explicitly annotate type for 'room'
         }
       },
       select: {
