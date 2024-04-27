@@ -1,6 +1,5 @@
 import axios, { AxiosError } from 'axios';
 import { error } from 'console';
-import e, { response } from 'express';
 import { exitCode } from 'process';
 
 test('Registrar usuario',async () => {
