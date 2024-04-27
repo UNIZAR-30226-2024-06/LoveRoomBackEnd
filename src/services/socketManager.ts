@@ -88,6 +88,7 @@ export default class SocketManager {
             });
             
             socket.on(socketEvents.CREATE_MESSAGE, (data :any) => {
+                console.log('Mensaje recibido: ', data);
                 const senderId = data.senderId;
                 const receiverId = data.receiverId;
                 if(this.users[receiverId] && this.users[senderId]){
