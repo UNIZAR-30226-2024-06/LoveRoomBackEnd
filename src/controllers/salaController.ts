@@ -115,24 +115,25 @@ const SalaController = {
 
   },
 
-  // Devuelve de cada sala su id, su estado, su idvideo y el id del otro usuario que esta en la sala
+  // Devuelve para cada sala de un usuario: idsala, estado, idvideo, idusuariomatch
   getAllSalasUsuario: async (req: Request, res: Response): Promise<any> => {
     try {
       const idUsuario = req.body.idUser;
-      const salas = await getAllSalasUsuario(idUsuario);
-      if(salas.length == 0){
-        return res.json([]);
-      }
-      const formattedResponse = salas.map((sala: any) => {
-        return {
-          id: sala.idsala,
-          idvideo: sala.idvideo,
-          estado: sala.estado,
-        };
-      });
-      return res.json(formattedResponse);
+      const infoSalas = await getAllSalasUsuario(idUsuario);
+      return res.json(infoSalas);
+      // if(infoSalas.length == 0){
+      //   return res.json([]);
+      // }
+      // const formattedResponse = salas.map((sala: any) => {
+      //   return {
+      //     id: sala.idsala,
+      //     idvideo: sala.idvideo,
+      //     estado: sala.estado,
+      //   };
+      // });
+      // return res.json(formattedResponse);
     } catch (error) {
-      console.error("Error al obtener salas de usuario:", error);
+      console.error("Error al obtener salas de usuario: ", error);
       return res.status(500).json({ error: "Error al obtener salas de usuario" });
     }
   },
