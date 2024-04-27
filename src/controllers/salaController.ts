@@ -115,6 +115,7 @@ const SalaController = {
 
   },
 
+  // Devuelve de cada sala su id, su estado, su idvideo y el id del otro usuario que esta en la sala
   getAllSalasUsuario: async (req: Request, res: Response): Promise<any> => {
     try {
       const idUsuario = req.body.idUser;
