@@ -97,7 +97,6 @@ export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
         }
       }
     });
-    console.log('Salas del usuario: \n', infosalas);
 
     // Formatear el resultado
     const result = infosalas.map(sala => {
@@ -108,57 +107,12 @@ export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
         idusuariomatch: sala.participa[0].idusuario // asumimos que solo hay un participante adicional
       };
     });
-    console.log('Resultado formateado: \n', result);
 
     return result;
   } catch (error) {
     throw new Error(`Error al obtener las salas del usuario: ${error}`);
   }
 }
-// export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
-//     const idUsuario_int = parseInt(idUsuario);
-//     try {
-//       // Obtener todas las salas del usuario
-//       const salasUsuario = await prisma.participa.findMany({
-//           where: {
-//               idusuario: idUsuario_int
-//           },
-//           include: {
-//               sala: {
-//                   select: {
-//                       id: true,
-//                       idvideo: true,
-//                       participa: {
-//                           select: {
-//                               idusuario: true,
-//                               estado: true
-//                           },
-//                           where: {
-//                               NOT: {
-//                                   idusuario: idUsuario_int // Excluir al usuario actual
-//                               }
-//                           }
-//                       }
-//                   }
-//               }
-//           }
-//       });
-
-//       // Formatear el resultado
-//       const result = salasUsuario.map(salaUsuario => {
-//           return {
-//               idSala: salaUsuario.sala.id,
-//               idVideo: salaUsuario.sala.idvideo,
-//               estado: salaUsuario.participa[0].estado, // asumimos que solo hay un participante adicional
-//               idOtroUsuario: salaUsuario.participa[0].idusuario // asumimos que solo hay un participante adicional
-//           };
-//       });
-
-//       return result;
-//     } catch (error) {
-//         throw new Error(`Error al obtener las salas del usuario: ${error}`);
-//     }
-// }
 
 // Dado un id de usuario comprueba si ese usuario ha sobrepasado su limite de salas (3 para usuarios normales),
 // (infinitas para usuarios premium). Devuelve true si ha sobrepasado el limite, false en caso contrario
