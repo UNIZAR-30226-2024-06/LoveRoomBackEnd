@@ -7,4 +7,5 @@ export const socketEvents = {
     DECREASE_SPEED: 'decrease-speed',
     CREATE_MESSAGE: 'create-message',
     SEND_MESSAGE: 'send-message',
+    NOTHING: 'do-nothing'
 }

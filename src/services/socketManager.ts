@@ -1,3 +1,4 @@
+
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
@@ -66,10 +67,9 @@ export default class SocketManager {
                         console.log('Nuevo tiempo marcado por el usuario ',senderId);
                         this.times[idSala] = time;
                         socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
-                    }else if( 0 < time / this.times[idSala] < 1.5){
+                    }else if( 0 < (time / this.times[idSala]) && (time / this.times[idSala]) < 1.5){
                         console.log('El tiempo es parecido por lo que no hay que hacer nada');
-                        socket.to(this.users[receiverId].emit('do-nothing', this.times[idSala]);
-                    }
+                        socket.to(this.users[receiverId]).emit('do-nothing', this.times[idSala]);
                     }else if(this.times[idSala] > time){
                         console.log('No se ha cambiado el tiempo marcado por el usuario ',receiverId);
                         socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
@@ -104,37 +104,16 @@ export default class SocketManager {
     
     }
 
-    public async emitMatch(senderId: string, receiverId: string,idVideo: string): Promise<void>{
+
+    public async emitMatch(senderId: string, receiverId: string, idVideo: string): Promise<void> {
         if(this.io){
-            this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
+            await this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
                 senderId,
                 receiverId,
                 idVideo
             );
             console.log('Match sent by id: ', senderId, ' to id: ', receiverId);
         }
-        
     }
 }
 
-
-/*function getCookie(cookie, name) {
-    cookie = ';' + cookie;
-    cookie = cookie.split('; ').join(';');
-    cookie = cookie.split(' =').join('=');
-    cookie = cookie.split(';' + name + '=');
-    if (cookie.length < 2) {
-      return null;
-    } else {
-      return decodeURIComponent(cookie[1].split(';')[0]);
-    }
-}*/
-
-/*setInterval(async () => {
-    const currentUsers = await prisma.usuario.findMany();
-    currentUsers.forEach(async (u) => {
-      if (!users[u.id.toString()]) {
-        // TODO - Make user online
-      }
-    });
-  }, 5 * 60 * 1000);*/
