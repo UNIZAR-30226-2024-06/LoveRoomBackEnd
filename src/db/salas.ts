@@ -99,7 +99,7 @@ export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
     });
 
     // Formatear el resultado
-    const result = infosalas.map(sala => {
+    const result = infosalas.map((sala: { id: number, idvideo: string, participa: { idusuario: number, estado: string }[] }) => {
       return {
         idsala: sala.id,
         estado: sala.participa[0].estado, // asumimos que solo hay un participante adicional
