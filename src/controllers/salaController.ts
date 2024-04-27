@@ -69,7 +69,7 @@ const SalaController = {
           try {
             // Emitimos el match
             console.log("Emitiendo match a usuario", usuarioMatch);
-            SocketManager.getInstance().emitMatch(idUsuario.toString(), usuarioMatch, nuevaSala.idvideo);
+            await SocketManager.getInstance().emitMatch(idUsuario.toString(), usuarioMatch, nuevaSala.idvideo);
 
             return res.json(formattedResponse);
           } catch (error) {
