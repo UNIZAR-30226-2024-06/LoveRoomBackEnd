@@ -568,6 +568,23 @@ class UsuarioController {
     }
   }
 
+  public static async userExits(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const email = req.params.email;
+      const user = await userBD.getUserByEmail(email);
+      if (user == null) {
+        res.status(404).json({ error: 'El usuario introducido no existe' });
+        return;
+      }
+      res.status(200).json({ message: 'Usuario encontrado' });
+      next();
+    } catch (error) {
+      res.status(500).json({ error: 'Error al buscar el usuario' });
+    }
+  }
+
+  
+
 }
 
 export { UsuarioController };
