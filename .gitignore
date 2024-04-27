@@ -1,6 +1,7 @@
 # Ignore node_modules and its contents
 /src/uploads/
 node_modules/
+node_modules/.prisma/client/
 /src/public/
 # Keep environment variables out of version control
 .env
