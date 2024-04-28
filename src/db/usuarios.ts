@@ -405,6 +405,7 @@ export const getUsers = async () => {
             baneado: true,
         }
     });
+    //console.log(users);
     return users;
 }
 

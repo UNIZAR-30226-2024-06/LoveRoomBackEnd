@@ -18,6 +18,7 @@ router.get("/", (req, res) => {
 
 //------------------------------------------------Rutas de prueba------------------------------------------------
 //Ruta de prueba que devuelve todos los usuarios
+/*
 router.get("/users", async (req, res) => {
   try {
     const users = await prisma.usuario.findMany();
@@ -27,7 +28,7 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
+*/
 // Ruta de prueba GET para conexion del frontend con el backend
 router.get("/test", (req, res) => {
   // Devolvemos un .json con un mensaje de prueba
@@ -141,16 +142,16 @@ router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.
 router.post('/user/login', UsuarioController.loginUser, autenticacionController.crearToken);
 
 // Ver todos lso usuarios creados
-//router.get('/users', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.getUsers);
+router.get('/users', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.getUsers);
 
 // Obtener un usuario con todos los datos
 router.get('/user/:id', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
 // Obtener un dato concreto de un usuario
-router.get('/user/:email/id', autenticacionController.checkAuthUser, UsuarioController.getId);
+//router.get('/user/:email/id', autenticacionController.checkAuthUser,  UsuarioController.getId);
 router.get('/user/:id/email', autenticacionController.checkAuthUser, UsuarioController.getEmail);
 //router.get('/user/:id/password', autenticacionController.checkAuthUser, UsuarioController.getPassword);
-router.get('/user/:id/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
+router.get('/user/:id/name', autenticacionController.checkAuthUser, UsuarioController.getName);
 router.get('/user/:id/age', autenticacionController.checkAuthUser, UsuarioController.getAge);
 router.get('/user/:id/sex', autenticacionController.checkAuthUser, UsuarioController.getSex);
 router.get('/user/:id/description', autenticacionController.checkAuthUser, UsuarioController.getDescription);

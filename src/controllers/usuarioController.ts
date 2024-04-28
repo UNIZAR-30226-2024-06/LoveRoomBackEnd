@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import userBD from '../db/usuarios';
+import { getMatchesUsuario } from '../db/match';
+import { isForStatement } from 'typescript';
 
 class UsuarioController {
 
@@ -585,15 +587,38 @@ class UsuarioController {
     }
   }
 
-  public static getUsers(req: Request, res: Response): void {
+  public static async getUsers(req: Request, res: Response): Promise<void> {
     try{
-      const users = userBD.getUsers();
+      const users = await userBD.getUsers();
+      console.log(users);
       res.json(users);
     }
     catch(error){
       console.error(error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
+  }
+
+  public static async checkMatchUser(req: Request, res: Response, next: NextFunction) : Promise<any> {
+    const idOtherUser = req.params.id;
+    const idUserToken = req.body.idUser;
+    try {
+      if ( idOtherUser == idUserToken ) {
+        console.log("Perfil personal");
+        next();
+      }
+      const matches = await getMatchesUsuario(idUserToken.toString());
+      for (let i = 0; i < matches.length; i++) {
+        if (matches[i].id == parseInt(idOtherUser)) {
+          next();
+        }
+      }
+      res.status(403).json({ error: 'No hay match con el usuario buscado' });
+    }
+    catch(error){
+      res.status(500).json({ error: 'Error al comprobar si hay match con el usuario' });
+    }
+    
   }
     
 }
