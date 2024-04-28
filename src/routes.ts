@@ -140,16 +140,8 @@ router.post('/user/create', UsuarioController.mailAlreadyUse, UsuarioController.
 // Inicia sesion con un nuevo usuario
 router.post('/user/login', UsuarioController.loginUser, autenticacionController.crearToken);
 
-router.get('/users', async (req, res) => {
-  try{
-    const users = await prisma.usuario.findMany();
-    res.json(users);
-  }
-  catch(error){
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los usuarios' });
-  }
-});
+// Ver todos lso usuarios creados
+//router.get('/users', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.getUsers);
 
 // Obtener un usuario con todos los datos
 router.get('/user/:id', autenticacionController.checkAuthUser, UsuarioController.getUser);

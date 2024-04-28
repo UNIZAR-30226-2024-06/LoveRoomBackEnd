@@ -585,8 +585,17 @@ class UsuarioController {
     }
   }
 
-  
-
+  public static getUsers(req: Request, res: Response): void {
+    try{
+      const users = userBD.getUsers();
+      res.json(users);
+    }
+    catch(error){
+      console.error(error);
+      res.status(500).json({ error: 'Error al obtener los usuarios' });
+    }
+  }
+    
 }
 
 export { UsuarioController };
