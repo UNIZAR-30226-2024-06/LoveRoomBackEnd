@@ -97,15 +97,17 @@ export default class SocketManager {
                     }
                 }
             });
-    
-            socket.on(socketEvents.PAUSE, (receiverId: string) => {
-                console.log('Pause event generado, enviando a', receiverId);
-                socket.to(this.users[receiverId]).emit(socketEvents.PAUSE, receiverId);
+            
+            // Evento para pausar el video en una sala
+            socket.on(socketEvents.PAUSE, (idsala: string) => {
+                console.log('Pause event generado en sala ', idsala, ' por usuario ', userId);
+                socket.to(idsala).emit(socketEvents.PAUSE);
             });
     
-            socket.on(socketEvents.PLAY, (receiverId: string) => {
-                console.log('Play event generado, enviando a', receiverId);
-                socket.to(this.users[receiverId]).emit(socketEvents.PLAY, receiverId);
+            // Evento para reproducir el video en una sala
+            socket.on(socketEvents.PLAY, (idsala: string) => {
+                console.log('Play event generado en sala ', idsala, ' por usuario ', userId);
+                socket.to(idsala).emit(socketEvents.PLAY);
             });
             
             // Evento para enviar un mensaje en una sala. (Nota: rutaMultimedia debe ser el path a una imagen ya subida al servidor?)
