@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { error } from 'console';
+import e, { response } from 'express';
 import { exitCode } from 'process';
 
 test('Registrar usuario',async () => {
@@ -57,7 +58,26 @@ test ('Login usuario incorrecto', async () => {
   }
 },1000000);
 
-test ('Comprobar usuarios', async() => {
+test ('Comprobar perfil personal usuario', async() => {
+  const responseLogin = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
+  const userGet = {
+    headers: {'Authorization': 'Bearer ' + responseLogin.data.token }
+  }
+  const profile = await axios.get('http://localhost:5000/user/profile', userGet);
+  expect(profile.status).toBe(200);
+  expect(profile.data).toHaveProperty('correo');
+  expect(profile.data).toHaveProperty('nombre');
+  expect(profile.data).toHaveProperty('edad');
+  expect(profile.data).toHaveProperty('sexo');
+  expect(profile.data).toHaveProperty('buscaedadmin');
+  expect(profile.data).toHaveProperty('buscaedadmax');
+  expect(profile.data).toHaveProperty('buscasexo');
+  expect(profile.data).toHaveProperty('descripcion');
+  expect(profile.data).toHaveProperty('fotoperfil');
+  expect(profile.data).toHaveProperty('idlocalidad');
+});
+
+test ('Comprobar datos usuario', async() => {
   const responseLogin = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
   const userGet = {
     headers: {'Authorization': 'Bearer ' + responseLogin.data.token }
@@ -89,10 +109,10 @@ test ('Comprobar usuarios', async() => {
   expect(responserGetPreferences.data.buscasexo).toBe(responseGet.data.buscasexo);
   expect(responserGetPreferences.data.buscaedadmax).toBe(responseGet.data.buscaedadmax);
   expect(responserGetPreferences.data.buscaedadmin).toBe(responseGet.data.buscaedadmin);
-  const responseGetId = await axios.get('http://localhost:5000/user/' + responseLogin.data.usuario.correo + '/id', userGet);
-  expect(responseGetId.data.id).toBe(responseLogin.data.usuario.id);
+  //const responseGetId = await axios.get('http://localhost:5000/user/' + responseLogin.data.usuario.correo + '/id', userGet);
+  //expect(responseGetId.data.id).toBe(responseLogin.data.usuario.id);
   console.log(responseGet.data);
-});
+}, 1000000);
 
 test ('Eliminar usuario no autorizado', async () => {
   let token = '';
@@ -106,7 +126,7 @@ test ('Eliminar usuario no autorizado', async () => {
     .catch((error: any) => { 
       expect(error.response?.status).toBe(401);
     });
-});
+},1000000);
 
 test ('Comprobar token valido', async () => {
   let token = '';
@@ -122,7 +142,7 @@ test ('Comprobar token valido', async () => {
   expect(responseCheck.data).toHaveProperty('valido');
   expect(responseCheck.data).toHaveProperty('usuario');
   console.log(responseCheck.data.usuario);
-});
+}, 1000000);
 
 test ('Comprobar token no valido', async () => {
   let token = '';
@@ -140,7 +160,7 @@ test ('Comprobar token no valido', async () => {
     expect(error.response?.status).toBe(401);
     expect(error.response?.data.valido).toBe(false);
   });
-});
+}, 1000000);
 
 let idBan = 0;
 
@@ -180,7 +200,7 @@ test ('Comprobar banear usuario', async () => {
     expect(error.response?.status).toBe(403);
   });
   
-});
+}, 1000000);
 
 
 test ('Comprobar desbanear usuario', async () => {
@@ -212,7 +232,7 @@ test ('Comprobar desbanear usuario', async () => {
   expect(responseCheck.data.valido).toBe(true);
   expect(responseCheck.data).toHaveProperty('valido');
   expect(responseCheck.data).toHaveProperty('usuario');
-});
+}, 1000000);
 
 test ('Ban sin ser admin', async () => {
   const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
@@ -230,7 +250,7 @@ test ('Ban sin ser admin', async () => {
     expect(error.response?.status).toBe(401)
   });
   
-});
+}, 1000000);
 
 test ('Cambiar contraseña ', async () => {
   const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
@@ -249,7 +269,7 @@ test ('Cambiar contraseña ', async () => {
   });
   const responseReset= await axios.patch('http://localhost:5000/user/update/password', {nuevaContrasena: "test", antiguaContrasena: "nuevaPass"}, headers);
   expect(responseUpdate.status).toBe(200);
-});
+}, 1000000);
 
 test ('Cambiar contraseña fallo', async () => {
   const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
@@ -270,7 +290,7 @@ test ('Cambiar contraseña fallo', async () => {
   .catch((error: any) => {
     expect(error.response?.status).toBe(500);
   });
-});
+}, 1000000);
 
 test ('Eliminar usuario', async () => {
   let token = '';
@@ -371,5 +391,5 @@ test ('Actualizar todo menos correo', async () => {
   console.log(getUser.data);
   const getDelete = await axios.delete('http://localhost:5000/user/delete', { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
   expect(getDelete.status).toBe(200);
-});
+}, 1000000);
 

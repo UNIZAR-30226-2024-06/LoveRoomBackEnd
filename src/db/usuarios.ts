@@ -393,7 +393,6 @@ export const getUsers = async () => {
             id: true,
             correo: true,
             nombre: true,
-            contrasena: true,
             edad: true,
             sexo: true,
             buscaedadmin: true,
@@ -406,6 +405,7 @@ export const getUsers = async () => {
             baneado: true,
         }
     });
+    //console.log(users);
     return users;
 }
 
@@ -430,4 +430,5 @@ export default{
     updateType,
     getPasswordById,
     getPasswordByEmail,
+    getUsers,
 }
