@@ -123,11 +123,11 @@ const SalaController = {
   setEstadoSala: async (req: Request, res: Response): Promise<any> => {
     try {
       const { idSala, idUsuario, estado } = req.body;
-      if(estado !== "sincronizada" || estado !== "no sincronizada"){
+      if(estado !== "sincronizada" || estado !== "no_sincronizada"){
         res.status(400).json({ error: "Estado de sala no válido" });
         return;
       }
-      await setEstadoSala(idSala, idUsuario, estado);
+      await setEstadoSala(idSala, estado);
       return res.status(200).json({ message: "Estado de sala actualizado" });
     } catch (error) {
       console.error("Error al actualizar estado de sala:", error);
@@ -138,8 +138,8 @@ const SalaController = {
 
   getSalaSincronizada: async (req: Request, res: Response): Promise<any> => {
     try {
-      const { idSala, idUsuario } = req.params;
-      const estado = await getEstadoSala(idSala,idUsuario);
+      const { idSala } = req.params;
+      const estado = await getEstadoSala(idSala);
       return res.json({estado: estado});
     } catch (error) {
       console.error("Error al obtener estado de sala:", error);

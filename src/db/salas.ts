@@ -1,31 +1,25 @@
 import { prisma } from "../index";
 
 
-//Dado un id de una sala y un usuario modifica su estado a no_sincronizada o sincronizada
-export const setEstadoSala = async (idUsuario: string, idSala: string, estado: string): Promise<any> => {
-    await prisma.participa.update({
-         where: {
-             idsala_idusuario: {
-                 idusuario: parseInt(idUsuario),
-                 idsala: parseInt(idSala),
-             }
-         },
-        data: {
-          estado:estado,
-        },
+//Dado un id de una sala modifica su estado a no_sincronizada o sincronizada
+export const setEstadoSala = async (idSala: string, estado: string): Promise<any> => {
+    const idSala_int = parseInt(idSala);
+    await prisma.sala.update({
+        where: { id: idSala_int },
+        data: { estado: estado },
     });
 }
 
 //Devuelve el numero de salas que no estan sincronizadas
 export const getSalasNoSincronizadas = async (): Promise<any> => {
-    return await prisma.participa.count({
+    return await prisma.sala.count({
         where: { estado: "no_sincronizada" },
     });
 }
 
 //Devuelve el numero de salas que estan sincronizadas
 export const getSalasSincronizadas = async (): Promise<any> => {
-    return await prisma.participa.count({
+    return await prisma.sala.count({
         where: { estado: "sincronizada" },
     });
 }
@@ -55,16 +49,17 @@ export const getParticipantesSala = async (idSala: string): Promise<any> => {
     }
 }
 
-//Dado un id de usuario y una sala devuelve el estado de dicha sala
-export const getEstadoSala = async (idUsuario: string, idSala: string): Promise<any> => {
-    const participante = await prisma.participa.findFirst({
-        where: { idusuario: parseInt(idUsuario), idsala: parseInt(idSala) },
+// Dado un id de una sala devuelve su estado
+export const getEstadoSala = async (idSala: string): Promise<any> => {
+    const idSala_int = parseInt(idSala);
+    const sala = await prisma.sala.findUnique({
+        where: { id: idSala_int },
     });
-    if(participante){
-        return participante.estado;
-    }else {
-        return null;
+    if (!sala) {
+        console.error('Sala no encontrada');
+        throw new Error('Sala no encontrada');
     }
+    return sala.estado;
 }
 
 // Dado un id de usuario devuelve una lista con todos los ids de las salas en las que participa
@@ -185,7 +180,9 @@ export const getNumSalasUsuario = async (idUsuario: string): Promise<any> => {
 export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo: string): Promise<any> => {
     const nuevaSala = await prisma.sala.create({
         data: {
+          nombre: "Sala de " + idUsuario1 + " y " + idUsuario2,
           idvideo: idVideo,
+          estado: "sincronizada",
         },
       });
     
@@ -194,7 +191,6 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
         data: {
           idsala: nuevaSala.id,
           idusuario: parseInt(idUsuario1),
-          estado: "sincronizada",
         },
     });
 
@@ -202,7 +198,6 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
         data: {
           idsala: nuevaSala.id,
           idusuario: parseInt(idUsuario2),
-          estado: "sincronizada",
         },
     });
 
