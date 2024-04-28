@@ -9,6 +9,7 @@ export default class SocketManager {
     private static instance: SocketManager;
     private io: Server | null = null;
     private users: Record<string, string> = {};
+    private userRooms: Record<string, string> = {};
     private times: Record<string, number> = {};
     private secret = process.env.SECRET
 
@@ -55,6 +56,25 @@ export default class SocketManager {
             if(!this.users[userId]){
                 this.users[userId] = socket.id;
             }
+            
+            // Evento que debe ser llamado por el cliente al entrar a una sala
+            socket.on(socketEvents.JOIN_ROOM, (idsala: string) => {
+                if (this.userRooms[userId]) {
+                    // Si el usuario ya estaba en una sala, lo sacamos de ella
+                    socket.leave(this.userRooms[userId]);
+                    console.log(userId, ' left room ', this.userRooms[userId]);
+                }
+                socket.join(idsala);
+                console.log(userId, ' joined room ', idsala);
+                this.userRooms[userId] = idsala;
+            });
+            
+            // Evento que debe ser llamado por el cliente al salir de una sala
+            socket.on(socketEvents.LEAVE_ROOM, (idsala: string) => {
+                socket.leave(idsala);
+                console.log(userId, ' left room ', idsala);
+                delete this.userRooms[userId];
+            });
     
             socket.on(socketEvents.TIME, (senderId: string,receiverId: string,idSala: string,time: number) => {
                 console.log('Time submitted', time);
@@ -87,14 +107,16 @@ export default class SocketManager {
                 socket.to(this.users[receiverId]).emit(socketEvents.PLAY, receiverId);
             });
             
-            socket.on(socketEvents.CREATE_MESSAGE, (data :any) => {
+            socket.on(socketEvents.CREATE_MESSAGE, (data: any, idsala: string, callback: any) => {
                 console.log('Mensaje recibido: ', data);
-                const senderId = data.senderId;
-                const receiverId = data.receiverId;
-                if(this.users[receiverId] && this.users[senderId]){
-                    socket.to(this.users[receiverId]).emit(socketEvents.SEND_MESSAGE, data);
-                    socket.to(this.users[senderId]).emit(socketEvents.SEND_MESSAGE, data);
-                }
+                // const senderId = userId;
+                socket.to(idsala).emit(socketEvents.SEND_MESSAGE, data);
+                callback("Mensaje enviado en la sala " + idsala);
+                // const receiverId = data.receiverId;
+                // if(this.users[receiverId] && this.users[senderId]){
+                //     socket.to(this.users[receiverId]).emit(socketEvents.SEND_MESSAGE, data);
+                //     socket.to(this.users[senderId]).emit(socketEvents.SEND_MESSAGE, data);
+                // }
             });
             
             // Completar: añadir evento para cambiar video, desactivar sincronización y ¿borrar sala?
@@ -108,12 +130,12 @@ export default class SocketManager {
     
     }
 
-    // Completar: idsala
-    public async emitMatch(senderId: string, receiverId: string, idVideo: string): Promise<void> {
+    public emitMatch(senderId: string, receiverId: string, idSala: string, idVideo: string) {
         if(this.io){
-            await this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
+            this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
                 senderId,
                 receiverId,
+                idSala,
                 idVideo
             );
             console.log('Match sent by id: ', senderId, ' to id: ', receiverId);
