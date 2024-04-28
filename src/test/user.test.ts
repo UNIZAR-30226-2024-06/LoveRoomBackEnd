@@ -63,6 +63,25 @@ test ('Comprobar perfil personal usuario', async() => {
   const userGet = {
     headers: {'Authorization': 'Bearer ' + responseLogin.data.token }
   }
+  const profile = await axios.get('http://localhost:5000/user/profile', userGet);
+  expect(profile.status).toBe(200);
+  expect(profile.data).toHaveProperty('correo');
+  expect(profile.data).toHaveProperty('nombre');
+  expect(profile.data).toHaveProperty('edad');
+  expect(profile.data).toHaveProperty('sexo');
+  expect(profile.data).toHaveProperty('buscaedadmin');
+  expect(profile.data).toHaveProperty('buscaedadmax');
+  expect(profile.data).toHaveProperty('buscasexo');
+  expect(profile.data).toHaveProperty('descripcion');
+  expect(profile.data).toHaveProperty('fotoperfil');
+  expect(profile.data).toHaveProperty('idlocalidad');
+});
+
+test ('Comprobar datos usuario', async() => {
+  const responseLogin = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
+  const userGet = {
+    headers: {'Authorization': 'Bearer ' + responseLogin.data.token }
+  }
   const route = 'http://localhost:5000/user/' + responseLogin.data.usuario.id;
   const responseGet = await axios.get(route, userGet)
   console.log(responseGet.data);

@@ -144,6 +144,9 @@ router.post('/user/login', UsuarioController.loginUser, autenticacionController.
 // Ver todos lso usuarios creados
 router.get('/users', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.getUsers);
 
+// Obtener el perfil del usuario
+router.get('/user/profile', autenticacionController.checkAuthUser, UsuarioController.getProfile);
+
 // Obtener un usuario con todos los datos
 router.get('/user/:id', autenticacionController.checkAuthUser, UsuarioController.getUser);
 

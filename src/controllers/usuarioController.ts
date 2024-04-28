@@ -618,7 +618,24 @@ class UsuarioController {
     catch(error){
       res.status(500).json({ error: 'Error al comprobar si hay match con el usuario' });
     }
-    
+  }
+
+  public static async getProfile(req: Request, res: Response): Promise<void> {
+    try{
+      console.log(req.body);
+      const id = parseInt(req.body.idUser);
+      const user = await userBD.getUserById(id);
+      console.log(user);
+      if (user == null) {
+        res.status(404).json({ error: 'Perfil no encontrado' });
+        return;
+      }
+      res.json(user);
+    }
+    catch(error){
+      console.error(error);
+      res.status(500).json({ error: 'Error al obtener el perfil' });
+    }
   }
     
 }
