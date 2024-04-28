@@ -62,14 +62,16 @@ test ('Comprobar usuarios', async() => {
   const userGet = {
     headers: {'Authorization': 'Bearer ' + responseLogin.data.token }
   }
-  const route = 'http://localhost:5000/user/' + responseLogin.data.usuario.correo;
+  const route = 'http://localhost:5000/user/' + responseLogin.data.usuario.id;
   const responseGet = await axios.get(route, userGet)
   console.log(responseGet.data);
   expect(responseGet.status).toBe(200);
-  const responseGetId = await axios.get(route + '/id', userGet);
-  expect(responseGetId.data.id).toBe(responseGet.data.id);
+  const responseGetEmail = await axios.get(route + '/email', userGet);
+  expect(responseGetEmail.data.email).toBe(responseGet.data.email);
+  console.log(responseGet.data);
   const responseGetName = await axios.get(route + '/name', userGet);
   expect(responseGetName.data.nombre).toBe(responseGet.data.nombre);
+  console.log(responseGet.data);
   const responseGetAge = await axios.get(route + '/age', userGet);
   expect(responseGetAge.data.edad).toBe(responseGet.data.edad);
   const responseGetSex = await axios.get(route + '/sex', userGet);
@@ -83,11 +85,13 @@ test ('Comprobar usuarios', async() => {
   const responserGetType = await axios.get(route + '/type', userGet);
   expect(responserGetType.data.tipousuario).toBe(responseGet.data.tipousuario);
   const responserGetPreferences = await axios.get(route + '/preferences', userGet);
+  console.log(responseGet.data);
   expect(responserGetPreferences.data.buscasexo).toBe(responseGet.data.buscasexo);
   expect(responserGetPreferences.data.buscaedadmax).toBe(responseGet.data.buscaedadmax);
   expect(responserGetPreferences.data.buscaedadmin).toBe(responseGet.data.buscaedadmin);
-  const responseGetEmail = await axios.get('http://localhost:5000/user/' + responseLogin.data.usuario.id + '/email', userGet);
-  expect(responseGetEmail.data.email).toBe(responseLogin.data.usuario.email);
+  const responseGetId = await axios.get('http://localhost:5000/user/' + responseLogin.data.usuario.correo + '/id', userGet);
+  expect(responseGetId.data.id).toBe(responseLogin.data.usuario.id);
+  console.log(responseGet.data);
 });
 
 test ('Eliminar usuario no autorizado', async () => {
@@ -348,7 +352,7 @@ test ('Actualizar todo menos correo', async () => {
     "buscaedadmin": 20,
     "buscaedadmax": 81,
     "buscasexo": "M",
-    "escripcion": "esto es una prueba",
+    "descripcion": "esto es una prueba",
     "fotoperfil": "null.jpg",
     "idlocalidad": 0,
   };
@@ -361,8 +365,10 @@ test ('Actualizar todo menos correo', async () => {
   const responseLoginUpdate = await axios.post('http://localhost:5000/user/login', { correo: "testUpdate2@gmail.com", contrasena: "testUpdate"});
   expect(responseLoginUpdate.status).toBe(200);
   console.log(responseLoginUpdate.data.usuario);
-  const getUser = await axios.get('http://localhost:5000/user/testUpdate2@gmail.com', { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
-  expect(getUser.data.nombre).toBe("prueba");
+  const getUser = await axios.get('http://localhost:5000/user/' + responseLoginUpdate.data.usuario.id, { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
+  expect(getUser.data.nombre).toBe(userUpdate.nombre);
+  expect(getUser.data.descripcion).toBe(userUpdate.descripcion);
+  console.log(getUser.data);
   const getDelete = await axios.delete('http://localhost:5000/user/delete', { headers: {'Authorization': 'Bearer ' + responseLoginUpdate.data.token } });
   expect(getDelete.status).toBe(200);
 });
