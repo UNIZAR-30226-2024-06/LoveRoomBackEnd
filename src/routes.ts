@@ -151,7 +151,7 @@ router.get('/users', async (req, res) => {
 });
 
 // Obtener un usuario con todos los datos
-router.get('/user/:email', autenticacionController.checkAuthUser, UsuarioController.getUser);
+router.get('/user/:id', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
 // Obtener un dato concreto de un usuario
 router.get('/user/:email/id', autenticacionController.checkAuthUser, UsuarioController.getId);
