@@ -7,8 +7,8 @@ import { autenticacionController } from "./controllers/autenticacionController";
 import  adminController  from "./controllers/adminController";
 import MensajeController from './controllers/mensajeController';
 import MultimediaController from './controllers/multimediaController';
-import correoController from './controllers/correoController';
-import {upload} from './storage';
+import { correoController } from './controllers/correoController';
+import { upload } from './storage';
 
 const router = express.Router();
 
@@ -152,20 +152,20 @@ router.get('/users', async (req, res) => {
 });
 
 // Obtener un usuario con todos los datos
-router.get('/user/:email', autenticacionController.checkAuthUser, UsuarioController.getUser);
+router.get('/user/:id', autenticacionController.checkAuthUser, UsuarioController.getUser);
 
 // Obtener un dato concreto de un usuario
 router.get('/user/:email/id', autenticacionController.checkAuthUser, UsuarioController.getId);
 router.get('/user/:id/email', autenticacionController.checkAuthUser, UsuarioController.getEmail);
 //router.get('/user/:id/password', autenticacionController.checkAuthUser, UsuarioController.getPassword);
-router.get('/user/:email/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
-router.get('/user/:email/age', autenticacionController.checkAuthUser, UsuarioController.getAge);
-router.get('/user/:email/sex', autenticacionController.checkAuthUser, UsuarioController.getSex);
-router.get('/user/:email/description', autenticacionController.checkAuthUser, UsuarioController.getDescription);
-router.get('/user/:email/photo', autenticacionController.checkAuthUser, UsuarioController.getPhoto);
-router.get('/user/:email/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
-router.get('/user/:email/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
-router.get('/user/:email/type', autenticacionController.checkAuthUser, UsuarioController.getType);
+router.get('/user/:id/name', autenticacionController.checkAuthUser,  UsuarioController.getName);
+router.get('/user/:id/age', autenticacionController.checkAuthUser, UsuarioController.getAge);
+router.get('/user/:id/sex', autenticacionController.checkAuthUser, UsuarioController.getSex);
+router.get('/user/:id/description', autenticacionController.checkAuthUser, UsuarioController.getDescription);
+router.get('/user/:id/photo', autenticacionController.checkAuthUser, UsuarioController.getPhoto);
+router.get('/user/:id/location', autenticacionController.checkAuthUser, UsuarioController.getLocation);
+router.get('/user/:id/preferences', autenticacionController.checkAuthUser, UsuarioController.getPreferences);
+router.get('/user/:id/type', autenticacionController.checkAuthUser, UsuarioController.getType);
 
 
 // Eliminacion de un usuario
@@ -197,6 +197,6 @@ router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacion
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);
 
-router.post('/user/forgot/password', correoController.sendEmail);
+router.post('/user/forgot/password', UsuarioController.userExits, correoController.sendEmail);
 
 export default router;
