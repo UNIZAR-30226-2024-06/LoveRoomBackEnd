@@ -316,10 +316,10 @@ class UsuarioController {
    */
   public static async getUser(req: Request, res: Response): Promise<void> {
     try {
-      //const id = parseInt(req.params.id);
-      //const user = await userBD.getUserById(id);
-      const email = req.params.email;
-      const user = await userBD.getUserByEmail(email);
+      const id = parseInt(req.params.id);
+      const user = await userBD.getUserById(id);
+      // const email = req.params.email;
+      // const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'Usuario no encontrado' });
         return;
