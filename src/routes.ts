@@ -91,7 +91,7 @@ router.delete('/videos/quit', autenticacionController.checkAuthUser, SalaControl
 
 //------------------------------------------------Rutas de salas------------------------------------------------
 
-router.get('/rooms', autenticacionController.checkAuthUser, SalaController.getAllSalasUsuario);
+router.get('/rooms', autenticacionController.checkAuthUser, SalaController.getInfoSalasUsuario);
 
 router.get('/rooms/:idSala/members',autenticacionController.checkAuthUser, SalaController.getParticipantesSala);
 

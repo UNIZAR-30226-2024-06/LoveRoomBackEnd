@@ -2,7 +2,7 @@ import {createSalaUnitaria,
         createSala,
         deleteSala, 
         getParticipantesSala, 
-        getAllSalasUsuario,
+        getInfoSalasUsuario,
         getEstadoSala,
         setEstadoSala,
         deleteSalaUnitariaAtomic,
@@ -116,10 +116,10 @@ const SalaController = {
   },
 
   // Devuelve para cada sala de un usuario: idsala, estado, idvideo, idusuariomatch
-  getAllSalasUsuario: async (req: Request, res: Response): Promise<any> => {
+  getInfoSalasUsuario: async (req: Request, res: Response): Promise<any> => {
     try {
       const idUsuario = req.body.idUser;
-      const infoSalas = await getAllSalasUsuario(idUsuario);
+      const infoSalas = await getInfoSalasUsuario(idUsuario);
       return res.json(infoSalas);
     } catch (error) {
       console.error("Error al obtener salas de usuario: ", error);

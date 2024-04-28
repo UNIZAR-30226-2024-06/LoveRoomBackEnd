@@ -62,9 +62,27 @@ export const getEstadoSala = async (idUsuario: string, idSala: string): Promise<
     }
 }
 
+// Dado un id de usuario devuelve una lista con todos los ids de las salas en las que participa
+export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
+  const idUsuario_int = parseInt(idUsuario);
+  try {
+    // Obtenemos todos los ids de las salas del usuario
+    const salasUsuario = await prisma.participa.findMany({
+      select: {
+        idsala: true
+      },
+      where: { idusuario: idUsuario_int }
+    });
+    return salasUsuario;
+  } catch (error) {
+    console.error('Error al obtener salas de usuario:', error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
+}
+
 // Dado un id de usuario devuelve una lista con la informacion de las salas en las que participa
 // Devuelve para cada sala: idsala, estado, idvideo, idusuariomatch
-export const getAllSalasUsuario = async (idUsuario: string): Promise<any> => {
+export const getInfoSalasUsuario = async (idUsuario: string): Promise<any> => {
   const idUsuario_int = parseInt(idUsuario);
   try {
     // Obtenemos todos los ids de las salas del usuario
