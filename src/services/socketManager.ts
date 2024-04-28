@@ -2,14 +2,14 @@
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
-
-
+import { changeVideoSala, setEstadoSala } from '../db/salas';
+import { createMensaje } from '../db/mensajes';
 
 export default class SocketManager {
     private static instance: SocketManager;
     private io: Server | null = null;
-    private users: Record<string, string> = {};
-    private userRooms: Record<string, string> = {};
+    private users: Record<string, string> = {}; // userId -> socketId
+    private userRooms: Record<string, string> = {}; // userId -> roomId
     private times: Record<string, number> = {};
     private secret = process.env.SECRET
 
@@ -52,6 +52,7 @@ export default class SocketManager {
         this.io.on('connection', (socket : any) => {
             console.log('Socket connection. socket.connected: ', socket.connected);
             const userId = socket.authUser;
+
             //Añadimos al usuario a la lista de usuarios conectados 
             if(!this.users[userId]){
                 this.users[userId] = socket.id;
@@ -59,7 +60,7 @@ export default class SocketManager {
             
             // Evento que debe ser llamado por el cliente al entrar a una sala
             socket.on(socketEvents.JOIN_ROOM, (idsala: string) => {
-                if (this.userRooms[userId]) {
+                if (this.userRooms[userId] && this.userRooms[userId] !== idsala) {
                     // Si el usuario ya estaba en una sala, lo sacamos de ella
                     socket.leave(this.userRooms[userId]);
                     console.log(userId, ' left room ', this.userRooms[userId]);
@@ -107,25 +108,81 @@ export default class SocketManager {
                 socket.to(this.users[receiverId]).emit(socketEvents.PLAY, receiverId);
             });
             
-            socket.on(socketEvents.CREATE_MESSAGE, (data: any, idsala: string, callback: any) => {
-                console.log('Mensaje recibido: ', data);
-                // const senderId = userId;
-                socket.to(idsala).emit(socketEvents.SEND_MESSAGE, data);
-                callback("Mensaje enviado en la sala " + idsala);
-                // const receiverId = data.receiverId;
-                // if(this.users[receiverId] && this.users[senderId]){
-                //     socket.to(this.users[receiverId]).emit(socketEvents.SEND_MESSAGE, data);
-                //     socket.to(this.users[senderId]).emit(socketEvents.SEND_MESSAGE, data);
-                // }
+            // Evento para enviar un mensaje en una sala. (Nota: rutaMultimedia debe ser el path a una imagen ya subida al servidor?)
+            socket.on(socketEvents.CREATE_MESSAGE, async (idsala: string, texto: string, rutamultimedia: string, callback: any) => {
+                try {
+                    console.log('Socket create message: ', texto, ' in room ', idsala);
+                    const senderID = userId.toString();
+                    socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, senderID, texto, rutamultimedia);
+                    callback("Mensaje enviado en la sala " + idsala);
+
+                    // Guardamos el mensaje en la BD
+                    await createMensaje(senderID, idsala, texto, rutamultimedia);
+                } catch (error) {
+                    console.error('Error al enviar mensaje en la sala ' + idsala + ': ' + error);
+                    // Llamamos al callback con un mensaje de error
+                    callback("Error al enviar mensaje en la sala " + idsala);
+                }
             });
-            
-            // Completar: añadir evento para cambiar video, desactivar sincronización y ¿borrar sala?
+
+            // Evento para cambiar el video de una sala
+            socket.on(socketEvents.CHANGE_VIDEO, async (idSala: string, idVideo: string, callback: (message: string) => void) => {
+                try {
+                    console.log('Cambio de video en sala ', idSala, ' a video ', idVideo);
+                    socket.to(idSala).emit(socketEvents.CHANGE_VIDEO, idVideo);
+                    if (callback) {
+                        callback("Video cambiado en la sala " + idSala + " a video " + idVideo);
+                    }
+                    // Actualizamos la tabla sala de la BD con el nuevo video
+                    await changeVideoSala(idSala, idVideo);
+                } catch (error) {
+                    console.error('Error al cambiar el video en la sala ' + idSala + ' a video ' + idVideo + ': ' + error);
+                    // Llamamos al callback con un mensaje de error
+                    if (callback) {
+                        callback("Error al cambiar el video en la sala " + idSala + " a video " + idVideo);
+                    }
+                }
+            });
+
+            // Evento para desactivar la sincronizacion de una sala
+            socket.on(socketEvents.SYNC_OFF, async (idSala: string) => {
+                try {
+                    console.log('Desactivando sincronización en sala ', idSala);
+                    socket.to(idSala).emit(socketEvents.SYNC_OFF);
+                    // Actualizamos la tabla sala de la BD apaganado la sincronizacion
+                    await setEstadoSala(idSala, 'no_sincronizada');
+                } catch (error) {
+                    console.error('Error al desactivar la sincronización en la sala ' + idSala + ': ' + error);
+                }
+            });
+
+            // Evento para activar la sincronizacion de una sala
+            socket.on(socketEvents.SYNC_ON, async (idSala: string) => {
+                try {
+                    console.log('Activando sincronización en sala ', idSala);
+                    socket.to(idSala).emit(socketEvents.SYNC_ON);
+                    // Actualizamos la tabla sala de la BD encendiendo la sincronizacion
+                    await setEstadoSala(idSala, 'sincronizada');
+                } catch (error) {
+                    console.error('Error al activar la sincronización en la sala ' + idSala + ': ' + error);
+                }
+            });
 
             socket.on('disconnect', () => {
                 // Completar: borrar entrada de videoViewer
                 console.log('User disconnected');
                 delete this.users[userId];
+                delete this.userRooms[userId]; // Completar: se podria no borrarla y al reconectar volver a hacer join a la sala
             });
+
+            // Completar: añadir evento para ¿borrar sala? cambiar nombre sala?
+
+            // Completar: Si el usuario ya estaba en una sala, lo volvemos a unir? Daria problemas (en salas unitarias)
+            // pero solucionaria otros como apagar y encender el movil y seguir estando en la sala
+            // if (this.userRooms[userId]) {
+            //     socket.join(this.userRooms[userId]);
+            //     console.log(userId, ' re-joined room ', this.userRooms[userId]);
+            // }
         });
     
     }
@@ -138,7 +195,7 @@ export default class SocketManager {
                 idSala,
                 idVideo
             );
-            console.log('Match sent by id: ', senderId, ' to id: ', receiverId);
+            console.log('Match sent by id: ', senderId, ' to id: ', receiverId, ' in room: ', idSala, ' with video: ', idVideo);
         }
     }
 }

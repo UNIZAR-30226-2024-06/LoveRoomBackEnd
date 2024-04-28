@@ -59,29 +59,6 @@ router.get('/admin/stats/users/age', autenticacionController.checkAuthUser, aute
 
 router.get('/admin/stats/users/localidad', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, adminController.getUsersLocalidadStats);
 
-// Ruta para obtener la lista de usuarios viendo un video
-// router.get('/video/:url/users', async (req, res) => {
-//   try {
-//     const { url } = req.params;
-
-//     // Consulta a la base de datos para obtener la lista de usuarios viendo el video
-//     const users = await prisma.videoyoutube.findMany({
-//       where: {
-//         urlvideo: url
-//       },
-//       select: {
-//         idusuario: true // Solo se selecciona el id del usuario
-//       }
-//     });
-
-//     // Se envía la lista de usuarios en formato JSON
-//     res.json(users);
-//   } catch (error) {
-//     console.error('Error retrieving users:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
 //------------------------------------------------Rutas de videos------------------------------------------------
 
 router.get('/videos/interest', autenticacionController.checkAuthUser, VideoController.videosInteres);

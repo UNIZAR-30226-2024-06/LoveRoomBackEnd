@@ -10,6 +10,15 @@ export const setEstadoSala = async (idSala: string, estado: string): Promise<any
     });
 }
 
+//Dado un id de sala y un id de video cambia el video de la sala
+export const changeVideoSala = async (idSala: string, idVideo: string): Promise<any> => {
+  const idSala_int = parseInt(idSala);
+  await prisma.sala.update({
+      where: { id: idSala_int },
+      data: { idvideo: idVideo },
+  });
+}
+
 //Devuelve el numero de salas que no estan sincronizadas
 export const getSalasNoSincronizadas = async (): Promise<any> => {
     return await prisma.sala.count({
