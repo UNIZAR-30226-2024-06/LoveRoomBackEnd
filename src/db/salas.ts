@@ -43,10 +43,15 @@ export const getTotalSalas = async (): Promise<any> => {
 //Dado un id de sala devuelve una lista con los participantes de dicha sala
 export const getParticipantesSala = async (idSala: string): Promise<any> => {
     const participantes = await prisma.participa.findMany({
+        select: { idusuario: true },
         where: { idsala: parseInt(idSala) },
     });
+    console.log(participantes);
     if(participantes.length == 2){
         return participantes;
+    }
+    else {
+        return null;
     }
 }
 
@@ -101,11 +106,12 @@ export const getInfoSalasUsuario = async (idUsuario: string): Promise<any> => {
       },
       select: {
         id: true,
+        nombre: true,
         idvideo: true,
+        estado: true,
         participa: {
           select: {
-            idusuario: true,
-            estado: true
+            idusuario: true
           },
           where: {
             NOT: {
@@ -117,11 +123,12 @@ export const getInfoSalasUsuario = async (idUsuario: string): Promise<any> => {
     });
 
     // Formatear el resultado
-    const result = infosalas.map((sala: { id: number, idvideo: string, participa: { idusuario: number, estado: string }[] }) => {
+    const result = infosalas.map((sala: { id: number, nombre: string, idvideo: string, estado: string, participa: { idusuario: number }[] }) => {
       return {
         idsala: sala.id,
-        estado: sala.participa[0].estado, // asumimos que solo hay un participante adicional
+        nombre: sala.nombre,
         idvideo: sala.idvideo,
+        estado: sala.estado, // asumimos que solo hay un participante adicional
         idusuariomatch: sala.participa[0].idusuario // asumimos que solo hay un participante adicional
       };
     });

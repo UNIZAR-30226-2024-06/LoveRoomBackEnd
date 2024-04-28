@@ -101,18 +101,11 @@ const SalaController = {
     try {
       const { idSala } = req.params;
       const usuarios = await getParticipantesSala(idSala);
-      const formattedResponse = usuarios.map((usuario: any) => {
-          return {
-            id: usuario.idusuario,
-            estado: usuario.estado,
-          };
-        });
-      return res.json(formattedResponse);
+      return res.json(usuarios);
     } catch(error){
       console.error("Error al obtener participantes de la sala:", error);
       return res.status(500).json({ error: "Error al obtener participantes de la sala" });
     }
-
   },
 
   // Devuelve para cada sala de un usuario: idsala, estado, idvideo, idusuariomatch
