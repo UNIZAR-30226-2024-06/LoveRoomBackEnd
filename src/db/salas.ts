@@ -133,14 +133,28 @@ export const sobrepasaLimiteSalas = async (idUsuario: string): Promise<any> => {
     }
 
     // Si el usuario es normal, comprobamos si tiene 3 o mas salas
-    const salasUsuario = await getAllSalasUsuario(idUsuario);
-    return salasUsuario.length >= 3; // Devuelve true si tiene 3 o mas salas, false en caso contrario
+    const salasUsuario = await getNumSalasUsuario(idUsuario);
+    return salasUsuario >= 3; // Devuelve true si tiene 3 o mas salas, false en caso contrario
 
   } catch (error) {
     console.error('Error al comprobar limite de salas:', error);
     throw error; // Re-lanzar error para manejo en el nivel superior
   }
 }
+
+export const getNumSalasUsuario = async (idUsuario: string): Promise<any> => {
+  try {
+    const idUsuario_int = parseInt(idUsuario);
+    const salasUsuario = await prisma.participa.count({
+      where: { idusuario: idUsuario_int }
+    });
+    return salasUsuario;
+  } catch (error) {
+    console.error('Error al obtener numero de salas de usuario:', error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
+}
+
 
 //Dados dos ids de usuario crea una sala, devuelviendo su id 
 export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo: string): Promise<any> => {

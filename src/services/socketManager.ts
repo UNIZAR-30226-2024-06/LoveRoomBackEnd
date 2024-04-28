@@ -96,8 +96,11 @@ export default class SocketManager {
                     socket.to(this.users[senderId]).emit(socketEvents.SEND_MESSAGE, data);
                 }
             });
+            
+            // Completar: añadir evento para cambiar video, desactivar sincronización y ¿borrar sala?
 
             socket.on('disconnect', () => {
+                // Completar: borrar entrada de videoViewer
                 console.log('User disconnected');
                 delete this.users[userId];
             });
@@ -105,7 +108,7 @@ export default class SocketManager {
     
     }
 
-
+    // Completar: idsala
     public async emitMatch(senderId: string, receiverId: string, idVideo: string): Promise<void> {
         if(this.io){
             await this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
