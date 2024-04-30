@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createMensaje, getMensajesSala, reportMessage, getAllReportsDB, getReportById, resolveReport, deleteReport } from "../db/mensajes";
 import { addMultimediaToMensaje,getMultimediaMensaje } from "../db/multimedia";
 import { resolve } from "path";
+import { uploadsDirectory } from "../storage"
 
 
 const MensajeController = {
@@ -40,7 +41,7 @@ const MensajeController = {
         try {
             const idSala = req.params.idSala;
             const { idUsuario, texto} = req.body;
-            const multimedia = req.body.multimedia;
+            const multimedia = uploadsDirectory + req.body.multimedia;
             if(!texto.trim()){
                 console.error("El mensaje no puede estar vacío");
                 return res.status(400).send("El mensaje no puede estar vacío" );
