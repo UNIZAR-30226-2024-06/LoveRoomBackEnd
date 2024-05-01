@@ -23,7 +23,8 @@ const MultimediaController = {
     const fileName = req.file.filename;
     const ruta = uploadsDirectory + fileName;
     const nombreArchivo = await createMultimedia(ruta, multimediaTypes.VIDEO);
-    console.log(ruta);
+    console.log("Ruta video subido " + ruta);
+    console.log("Nombre archivo " + nombreArchivo);
     return res.json({ nombreArchivo: fileName });
   },
 
@@ -31,11 +32,14 @@ const MultimediaController = {
     const { nombreArchivo } = req.params;
     const rutaMultimedia = uploadsDirectory + "/" + nombreArchivo;
     const result = await deleteMultimedia(rutaMultimedia);
+    console.log("Ruta multimedia eliminado " + rutaMultimedia);
+    console.log("Multimedia eliminado " + result);
   },
 
   getMultimedia: async (req: Request, res: Response): Promise<any> => {
     const { nombreArchivo } = req.params;
     const rutaMultimedia = uploadsDirectory + "/" + nombreArchivo;
+    console.log("Ruta multimedia obtenido " + rutaMultimedia);
     return res.sendFile(rutaMultimedia);
   },
 };
