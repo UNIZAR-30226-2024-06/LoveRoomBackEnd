@@ -46,8 +46,12 @@ const MensajeController = {
                 console.error("El mensaje no puede estar vacío");
                 return res.status(400).send("El mensaje no puede estar vacío" );
             }
-            const mensaje = await createMensaje(idUsuario, idSala, texto, multimedia);
-            await addMultimediaToMensaje(mensaje.idmensaje, multimedia);
+
+            const fechaHora = new Date();
+            // Adjust the date manually to Madrid timezone (UTC+2)
+            fechaHora.setHours(fechaHora.getHours() + 2);
+
+            const mensaje = await createMensaje(idUsuario, idSala, texto, multimedia, fechaHora);
             const formattedResponse = {
                 fechaHora: mensaje.fechahora,
                 idUsuario: mensaje.idusuario,

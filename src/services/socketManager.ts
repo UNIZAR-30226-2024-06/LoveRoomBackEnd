@@ -76,8 +76,9 @@ export default class SocketManager {
                 console.log(userId, ' left room ', idsala);
                 delete this.userRooms[userId];
             });
-    
-            socket.on(socketEvents.TIME, (senderId: string,receiverId: string,idSala: string,time: number) => {
+            
+            // NO IMPLEMENTADO TODAVIA, FALTA CORREGIR-----------------
+            socket.on(socketEvents.TIME, (senderId: string, receiverId: string, idSala: string, time: number) => {
                 console.log('Time submitted', time);
                 //Comprobamos el tiempo que ha enviado el cliente, si es mayor que el que tenemos guardado,
                 //este se convierte en el nuevo tiempo global
@@ -99,41 +100,60 @@ export default class SocketManager {
             });
             
             // Evento para pausar el video en una sala
-            socket.on(socketEvents.PAUSE, (idsala: string) => {
-                console.log('Pause event generado en sala ', idsala, ' por usuario ', userId);
-                socket.to(idsala).emit(socketEvents.PAUSE);
+            socket.on(socketEvents.PAUSE, (idsala: string, callback : (success: boolean) => void) => {
+                try {
+                    console.log('Pause event generado en sala ', idsala, ' por usuario ', userId);
+                    socket.to(idsala).emit(socketEvents.PAUSE);
+                    callback(true);
+                } catch (error) {
+                    console.error('Error al pausar el video en sala ' + idsala + ' por usuario ' + userId + ': ' + error);
+                    callback(false);
+                }
             });
     
             // Evento para reproducir el video en una sala
-            socket.on(socketEvents.PLAY, (idsala: string) => {
-                console.log('Play event generado en sala ', idsala, ' por usuario ', userId);
-                socket.to(idsala).emit(socketEvents.PLAY);
+            socket.on(socketEvents.PLAY, (idsala: string, callback : (success: boolean) => void) => {
+                try {
+                    console.log('Play event generado en sala ', idsala, ' por usuario ', userId);
+                    socket.to(idsala).emit(socketEvents.PLAY);
+                    callback(true);
+                } catch (error) {
+                    console.error('Error al reproducir el video en sala ' + idsala + ' por usuario ' + userId + ': ' + error);
+                    callback(false);
+                }
             });
             
             // Evento para enviar un mensaje en una sala. (Nota: rutaMultimedia debe ser el path a una imagen ya subida al servidor?)
-            socket.on(socketEvents.CREATE_MESSAGE, async (idsala: string, texto: string, rutamultimedia: string, callback: any) => {
+            socket.on(socketEvents.CREATE_MESSAGE, async (idsala: string, texto: string, rutamultimedia: string, 
+                callback: (sucess: boolean, timestamp: Date | null) => void) => {
                 try {
                     console.log('Socket create message: ', texto, ' in room ', idsala);
                     const senderID = userId.toString();
                     socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, senderID, texto, rutamultimedia);
-                    callback("Mensaje enviado en la sala " + idsala);
+
+                    const fechaHora = new Date();
+                    // Ajustamos manualmente a la zona horaria de España (UTC+2)
+                    fechaHora.setHours(fechaHora.getHours() + 2);
+                    
+                    // Notificamos al cliente que el mensaje ha sido enviado
+                    callback(true, fechaHora);
 
                     // Guardamos el mensaje en la BD
-                    await createMensaje(senderID, idsala, texto, rutamultimedia);
+                    await createMensaje(senderID, idsala, texto, rutamultimedia, fechaHora);
                 } catch (error) {
                     console.error('Error al enviar mensaje en la sala ' + idsala + ': ' + error);
-                    // Llamamos al callback con un mensaje de error
-                    callback("Error al enviar mensaje en la sala " + idsala);
+                    // Notificamos el error al cliente
+                    callback(false, null);
                 }
             });
 
             // Evento para cambiar el video de una sala
-            socket.on(socketEvents.CHANGE_VIDEO, async (idSala: string, idVideo: string, callback: (message: string) => void) => {
+            socket.on(socketEvents.CHANGE_VIDEO, async (idSala: string, idVideo: string, callback: (success: boolean) => void) => {
                 try {
                     console.log('Cambio de video en sala ', idSala, ' a video ', idVideo);
                     socket.to(idSala).emit(socketEvents.CHANGE_VIDEO, idVideo);
                     if (callback) {
-                        callback("Video cambiado en la sala " + idSala + " a video " + idVideo);
+                        callback(true);
                     }
                     // Actualizamos la tabla sala de la BD con el nuevo video
                     await changeVideoSala(idSala, idVideo);
@@ -141,32 +161,36 @@ export default class SocketManager {
                     console.error('Error al cambiar el video en la sala ' + idSala + ' a video ' + idVideo + ': ' + error);
                     // Llamamos al callback con un mensaje de error
                     if (callback) {
-                        callback("Error al cambiar el video en la sala " + idSala + " a video " + idVideo);
+                        callback(false);
                     }
                 }
             });
 
             // Evento para desactivar la sincronizacion de una sala
-            socket.on(socketEvents.SYNC_OFF, async (idSala: string) => {
+            socket.on(socketEvents.SYNC_OFF, async (idSala: string, callback: (success: boolean) => void) => {
                 try {
                     console.log('Desactivando sincronización en sala ', idSala);
                     socket.to(idSala).emit(socketEvents.SYNC_OFF);
+                    callback(true);
                     // Actualizamos la tabla sala de la BD apaganado la sincronizacion
                     await setEstadoSala(idSala, 'no_sincronizada');
                 } catch (error) {
                     console.error('Error al desactivar la sincronización en la sala ' + idSala + ': ' + error);
+                    callback(false);
                 }
             });
 
             // Evento para activar la sincronizacion de una sala
-            socket.on(socketEvents.SYNC_ON, async (idSala: string) => {
+            socket.on(socketEvents.SYNC_ON, async (idSala: string, callback: (success: boolean) => void) => {
                 try {
                     console.log('Activando sincronización en sala ', idSala);
                     socket.to(idSala).emit(socketEvents.SYNC_ON);
+                    callback(true);
                     // Actualizamos la tabla sala de la BD encendiendo la sincronizacion
                     await setEstadoSala(idSala, 'sincronizada');
                 } catch (error) {
                     console.error('Error al activar la sincronización en la sala ' + idSala + ': ' + error);
+                    callback(false);
                 }
             });
 
@@ -177,7 +201,7 @@ export default class SocketManager {
                 delete this.userRooms[userId]; // Completar: se podria no borrarla y al reconectar volver a hacer join a la sala
             });
 
-            // Completar: añadir evento para ¿borrar sala? cambiar nombre sala?
+            // Completar: añadir evento para ¿borrar sala (unmatch)? cambiar nombre sala?
 
             // Completar: Si el usuario ya estaba en una sala, lo volvemos a unir? Daria problemas (en salas unitarias)
             // pero solucionaria otros como apagar y encender el movil y seguir estando en la sala

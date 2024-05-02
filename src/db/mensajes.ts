@@ -10,10 +10,7 @@ export const getMensajesSala = async (idSala: string): Promise<any> => {
 
 //Dado un id de usuario, un id de sala, un texto y su archivo multimedia 
 //correspondiente ( si lo hay) crea un mensaje en la sala
-export const createMensaje = async (idUsuario: string, idSala: string, texto: string, multimedia: string): Promise<any> => {
-    const fecha = new Date();
-    // Adjust the date manually to Madrid timezone (UTC+2)
-    fecha.setHours(fecha.getHours() + 2);
+export const createMensaje = async (idUsuario: string, idSala: string, texto: string, multimedia: string, fecha: Date): Promise<any> => {
     return await prisma.mensaje.create({
         data: {
           idusuario: parseInt(idUsuario),
