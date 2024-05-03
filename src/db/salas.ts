@@ -231,6 +231,25 @@ export const deleteSala = async (idSala: string): Promise<any> => {
     });
 }
 
+// Dado el id de un usuario, borra todas sus salas
+export const deleteAllSalasUsuario = async (idUsuario: string): Promise<any> => {
+  try {
+    const idUsuario_int = parseInt(idUsuario);
+    return await prisma.sala.deleteMany({
+      where: {
+        participa: {
+          some: {
+            idusuario: idUsuario_int
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error al borrar salas de usuario:', error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
+}
+
 //Dado un usuario crea una sala unitaria (en realidad es solo una entrada en la tabla videoviewer)
 export const createSalaUnitaria = async (idUsuario: string, idVideo: string): Promise<any> => {
     return await prisma.videoviewer.create({

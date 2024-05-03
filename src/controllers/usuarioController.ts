@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import userBD from '../db/usuarios';
 import { getMatchesUsuario } from '../db/match';
 import { isForStatement } from 'typescript';
+import { deleteAllSalasUsuario } from '../db/salas';
 
 class UsuarioController {
 
@@ -305,6 +306,9 @@ class UsuarioController {
   public static async deleteUser(req: Request, res: Response): Promise<void> {
     const id = req.body.idUser
     try {
+      console.log('Borrando usuario: ', id);
+      const borradas = await deleteAllSalasUsuario(id);
+      console.log('Salas borradas: ', borradas);
       const user = await userBD.deleteUser(id);
       res.json("Usuario eliminado correctamente");
     } catch (error) {
