@@ -2,7 +2,7 @@
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
-import { changeVideoSala, setEstadoSala } from '../db/salas';
+import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic } from '../db/salas';
 import { createMensaje } from '../db/mensajes';
 
 export default class SocketManager {
@@ -58,8 +58,18 @@ export default class SocketManager {
                 this.users[userId] = socket.id;
             }
             
-            // Evento que debe ser llamado por el cliente al entrar a una sala
+            // Evento para avisar al usuario que debe emitir un JOIN_ROOM al reconectarse a una sala. Sirve para mantener la conexion
+            // a la sala cuando un usuario se desconecta y reconecta automaticamente al socket (p.ej. salir y volver a entrar a la app)
+            // Los usuarios dentro de una sala unitaria no necesitan emitir un JOIN_ROOM al recibir este evento
+            console.log('Emitiendo check room');
+            socket.emit(socketEvents.CHECK_ROOM);
+
+            // Evento que debe ser llamado por el cliente al entrar a una sala (no unitaria)
             socket.on(socketEvents.JOIN_ROOM, (idsala: string) => {
+                if (idsala === null || idsala === '') {
+                    console.error('Error: idSala is null or empty');
+                    return;
+                }
                 if (this.userRooms[userId] && this.userRooms[userId] !== idsala) {
                     // Si el usuario ya estaba en una sala, lo sacamos de ella
                     socket.leave(this.userRooms[userId]);
@@ -194,11 +204,18 @@ export default class SocketManager {
                 }
             });
 
-            socket.on('disconnect', () => {
-                // Completar: borrar entrada de videoViewer
+            socket.on('disconnect', async () => {
                 console.log('User disconnected');
-                delete this.users[userId];
-                delete this.userRooms[userId]; // Completar: se podria no borrarla y al reconectar volver a hacer join a la sala
+                delete this.users[userId];  // Borramos al usuario de la lista de usuarios conectados
+
+                // Borramos la entrada de videoViewer si el usuario estaba en una sala unitaria
+                if (!this.userRooms[userId]) {  // Si el usuario no estaba en una sala comun
+                    console.log('Borrando sala unitaria');
+                    await deleteSalaUnitariaAtomic(userId);
+                } else {    // Si estaba en una sala, marcamos que se ha desconectado de ella
+                    console.log('User ', userId, ' left room ', this.userRooms[userId]);
+                    delete this.userRooms[userId]; // Completar: se podria no borrarla y al reconectar volver a hacer join a la sala
+                }
             });
 
             // Completar: añadir evento para ¿borrar sala (unmatch)? cambiar nombre sala?
