@@ -90,23 +90,23 @@ export default class SocketManager {
             // NO IMPLEMENTADO TODAVIA, FALTA CORREGIR-----------------
             socket.on(socketEvents.TIME, (senderId: string, receiverId: string, idSala: string, time: number) => {
                 console.log('Time submitted', time);
-                //Comprobamos el tiempo que ha enviado el cliente, si es mayor que el que tenemos guardado,
-                //este se convierte en el nuevo tiempo global
-                if(!this.times[idSala]){
-                    this.times[idSala] = time;
-                }else{
-                    if(this.times[idSala] < time){
-                        console.log('Nuevo tiempo marcado por el usuario ',senderId);
-                        this.times[idSala] = time;
-                        socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
-                    }else if( 0 < (time / this.times[idSala]) && (time / this.times[idSala]) < 1.5){
-                        console.log('El tiempo es parecido por lo que no hay que hacer nada');
-                        socket.to(this.users[receiverId]).emit('do-nothing', this.times[idSala]);
-                    }else if(this.times[idSala] > time){
-                        console.log('No se ha cambiado el tiempo marcado por el usuario ',receiverId);
-                        socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
-                    }
-                }
+                // //Comprobamos el tiempo que ha enviado el cliente, si es mayor que el que tenemos guardado,
+                // //este se convierte en el nuevo tiempo global
+                // if(!this.times[idSala]){
+                //     this.times[idSala] = time;
+                // }else{
+                //     if(this.times[idSala] < time){
+                //         console.log('Nuevo tiempo marcado por el usuario ',senderId);
+                //         this.times[idSala] = time;
+                //         socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
+                //     }else if( 0 < (time / this.times[idSala]) && (time / this.times[idSala]) < 1.5){
+                //         console.log('El tiempo es parecido por lo que no hay que hacer nada');
+                //         socket.to(this.users[receiverId]).emit('do-nothing', this.times[idSala]);
+                //     }else if(this.times[idSala] > time){
+                //         console.log('No se ha cambiado el tiempo marcado por el usuario ',receiverId);
+                //         socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
+                //     }
+                // }
             });
             
             // Evento para pausar el video en una sala
