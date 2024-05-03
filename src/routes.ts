@@ -66,7 +66,7 @@ router.get('/videos/interest', autenticacionController.checkAuthUser, VideoContr
 
 router.post('/videos/watch/:idVideo', autenticacionController.checkAuthUser, SalaController.verVideo);
 
-router.delete('/videos/quit', autenticacionController.checkAuthUser, SalaController.deleteSalaUnitaria);
+//router.delete('/videos/quit', autenticacionController.checkAuthUser, SalaController.deleteSalaUnitaria);
 
 //------------------------------------------------Rutas de salas------------------------------------------------
 

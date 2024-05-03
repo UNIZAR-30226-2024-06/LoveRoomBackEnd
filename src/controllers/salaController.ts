@@ -29,14 +29,13 @@ const SalaController = {
       }
 
       // Obtenemos los usuarios de interes que estan viendo el video
-      // console.log("Obteniendo usuarios viendo video")
       const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo, idUsuario);
       console.log("Usuarios viendo video:", usuariosViendoVideo);
       
       // Si hay al menos un usuario de interes viendo ese video
       if (usuariosViendoVideo.length > 0) {
         let i = 0;
-        //Comprobamos de la lista de usuarios que no se haya hecho match con el 
+        // Intentamos hacer match con el borrando su sala unitaria
         while( ( i < usuariosViendoVideo.length ) && 
               !(await deleteSalaUnitariaAtomic(usuariosViendoVideo[i].idusuario.toString()))){
           i++;

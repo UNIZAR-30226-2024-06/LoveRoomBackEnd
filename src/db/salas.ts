@@ -1,5 +1,7 @@
 import { prisma } from "../index";
-
+import { getUsuariosViendoVideo } from '../db/video';
+import { createMatch } from '../db/match';
+import SocketManager from '../services/socketManager';
 
 //Dado un id de una sala modifica su estado a no_sincronizada o sincronizada
 export const setEstadoSala = async (idSala: string, estado: string): Promise<any> => {
@@ -278,3 +280,80 @@ export const deleteSalaUnitariaAtomic = async (idUsuario: string): Promise<any> 
   }
 }
 
+export const cambiarVideoUnitaria = async (idUsuario: string, idVideo: string): Promise<any> => {
+  try {
+    // Borramos las posibles entradas previas de videoViewer para ese usuario
+    await deleteSalaUnitariaAtomic(idUsuario);
+
+    // Comprobamos que el usuario no haya sobrepasado su limite de salas
+    if (await sobrepasaLimiteSalas(idUsuario)) {
+      throw new Error('El usuario ha sobrepasado su limite de salas');
+    }
+
+    // Obtenemos los usuarios de interes que estan viendo el video
+    const usuariosViendoVideo = await getUsuariosViendoVideo(idVideo, idUsuario);
+    console.log("Usuarios viendo video:", usuariosViendoVideo);
+    
+    // Si hay al menos un usuario de interes viendo ese video
+    if (usuariosViendoVideo.length > 0) {
+      let i = 0;
+      // Intentamos hacer match con el borrando su sala unitaria
+      while( ( i < usuariosViendoVideo.length ) && 
+            !(await deleteSalaUnitariaAtomic(usuariosViendoVideo[i].idusuario.toString()))){
+        i++;
+      }
+
+      // Si todos los match que habia disponibles ya no lo estan 
+      if ( i >= usuariosViendoVideo.length){
+          // Creamos una sala unitaria 
+          console.log("Todos los match posibles han sido agotados");
+          await createSalaUnitaria(idUsuario, idVideo);
+          
+          const formattedResponse = {
+            esSalaUnitaria: true
+          }
+          return formattedResponse;
+      } else {  // Hay match
+        const usuarioMatch = usuariosViendoVideo[i].idusuario.toString();
+        // Creamos una sala con los dos usuarios
+        const nuevaSala = await createSala(idUsuario, usuarioMatch, idVideo);
+
+        // Creamos el match entre los dos usuarios
+        await createMatch(idUsuario, usuarioMatch);
+        
+        const formattedResponse = {
+          idsala: nuevaSala.id,
+          idusuario: Number(usuarioMatch),
+          esSalaUnitaria: false,
+        }
+
+        try {
+          // Emitimos el match
+          console.log("Emitiendo match a usuario", usuarioMatch);
+          SocketManager.getInstance().emitMatch(idUsuario, usuarioMatch, nuevaSala.id.toString(), idVideo);
+
+          return formattedResponse;
+        } catch (error) {
+          console.error("Error al emitir match:", error);
+
+          // Aunque falle la emision del match, no se borra la sala creada,
+          // y el usuario al que no le ha llegado el match podra acceder a ella
+          // desde su lista de salas
+          return formattedResponse;
+        }
+      }  
+    } else {  // No hay usuarios de interes viendo el video
+      //Creamos una sala unitaria 
+      console.log("No hay nadie viendo el video, creando sala unitaria");
+      await createSalaUnitaria(idUsuario, idVideo);
+
+      const formattedResponse = {
+        esSalaUnitaria: true
+      }
+      return formattedResponse;
+    }
+  } catch (error) {
+    console.error("Error al ver video:", error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
+}

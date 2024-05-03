@@ -2,7 +2,7 @@
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
-import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic } from '../db/salas';
+import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria } from '../db/salas';
 import { createMensaje } from '../db/mensajes';
 
 export default class SocketManager {
@@ -157,7 +157,7 @@ export default class SocketManager {
                 }
             });
 
-            // Evento para cambiar el video de una sala
+            // Evento para cambiar el video de una sala (no unitaria)
             socket.on(socketEvents.CHANGE_VIDEO, async (idSala: string, idVideo: string, callback: (success: boolean) => void) => {
                 try {
                     console.log('Cambio de video en sala ', idSala, ' a video ', idVideo);
@@ -173,6 +173,22 @@ export default class SocketManager {
                     if (callback) {
                         callback(false);
                     }
+                }
+            });
+
+            // Evento para cambiar el video de una sala unitaria (equivalente a llamar a /videos/watch/:idVideo)
+            socket.on(socketEvents.CHANGE_VIDEO_UNITARIA, async (idVideo: string, callback: (success: boolean, response: any) => void) => {
+                try {
+                    console.log('Cambio de video en sala unitaria a video ', idVideo);
+                    // Cambiamos el video en la sala unitaria
+                    const formattedResponse = await cambiarVideoUnitaria(userId.toString(), idVideo);
+                    console.log('formattedResponse: \n', formattedResponse);
+                    // Llamamos al callback con la respuesta formateada (equivalente a llamar a /videos/watch/:idVideo)
+                    callback(true, formattedResponse);
+                } catch (error) {
+                    console.error('Error al cambiar el video en la sala unitaria a video ' + idVideo + ': ' + error);
+                    // Llamamos al callback con un mensaje de error
+                    callback(false, null);
                 }
             });
 
