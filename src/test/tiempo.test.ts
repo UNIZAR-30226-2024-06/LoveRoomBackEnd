@@ -19,14 +19,6 @@ const connectSocketClient = (token: string,iduser : string) => {
             console.error('Socket connection error:', error);
             reject(error);
         });
-        socket.on(socketEvents.INCREASE_SPEED,(time: number) => {
-            console.log('Evento recibido');
-            console.log('Increase speed', time);
-        });
-        socket.on(socketEvents.DECREASE_SPEED,(time: number) => {
-            console.log('Evento recibido');
-            console.log('Decrease speed', time);
-        });
         socket.on(socketEvents.PAUSE, (receiverId: string) => {
             console.log('Evento recibido',receiverId);
             console.log('Pause');
