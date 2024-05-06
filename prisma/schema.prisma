@@ -77,11 +77,12 @@ model reporte {
 }
 
 model sala {
-  id        Int         @id @default(autoincrement())
-  nombre    String      @db.VarChar(50)
-  idvideo   String      @db.VarChar(25)
-  estado    String      @db.VarChar(25)
-  participa participa[]
+  id             Int         @id @default(autoincrement())
+  nombre         String      @db.VarChar(50)
+  idvideo        String      @db.VarChar(25)
+  tiemposegundos Int
+  estado         String      @db.VarChar(25)
+  participa      participa[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

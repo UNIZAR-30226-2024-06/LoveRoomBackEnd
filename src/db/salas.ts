@@ -153,6 +153,19 @@ export const getInfoSala = async (idSala: string): Promise<any> => {
   });
 }
 
+// Actualiza la informacion de sincronizacion de una sala
+export const updateSincroSala = async (idSala: string, idVideo: string, tiempoSegundos: number, estado: string): Promise<any> => {
+  const idSala_int = parseInt(idSala);
+  return await prisma.sala.update({
+    where: { id: idSala_int },
+    data: {
+      idvideo: idVideo,
+      tiemposegundos: tiempoSegundos,
+      estado: estado
+    }
+  });
+}
+
 // Dado un id de usuario comprueba si ese usuario ha sobrepasado su limite de salas (3 para usuarios normales),
 // (infinitas para usuarios premium). Devuelve true si ha sobrepasado el limite, false en caso contrario
 export const sobrepasaLimiteSalas = async (idUsuario: string): Promise<any> => {
@@ -202,6 +215,7 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
           nombre: "Sala de " + idUsuario1 + " y " + idUsuario2,
           idvideo: idVideo,
           estado: "sincronizada",
+          tiemposegundos: 0,
         },
       });
     

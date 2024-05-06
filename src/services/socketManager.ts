@@ -2,7 +2,7 @@
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
-import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala } from '../db/salas';
+import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala, updateSincroSala } from '../db/salas';
 import { createMensaje } from '../db/mensajes';
 import { info } from 'console';
 
@@ -227,7 +227,7 @@ export default class SocketManager {
 
             // Evento para sincronizar una sala. Sirve tanto para sincronizar al activar la sincronizacion cuando
             // estaba desactivada, como para sincronizar el vídeo al entrar a una sala sincronizada.
-            socket.on(socketEvents.SYNC_ON, async (idSala: string, idVideo: string, timesegundos: Number, pausado: boolean) => {
+            socket.on(socketEvents.SYNC_ON, async (idSala: string, idVideo: string, timesegundos: number, pausado: boolean) => {
                 try {
                     if (idSala === null || idSala === '' || idVideo === null) {
                         console.error('SYNC_ON Error: idSala or idVideo is null or empty by user ', userId);
@@ -235,9 +235,10 @@ export default class SocketManager {
                     }
                     console.log('SYNC_ON event in room ', idSala, ' with video ', idVideo, ' at time ', timesegundos, ' paused: ', pausado, ' by user ', userId);
                     socket.to(idSala).emit(socketEvents.SYNC_ON, idVideo, timesegundos, pausado);
+
                     // Actualizamos la tabla sala de la BD encendiendo la sincronizacion y actualizando el video y el tiempo
-                    // COMPLETAR
-                    await setEstadoSala(idSala, 'sincronizada');
+                    const timeInt = Math.floor(timesegundos);
+                    await updateSincroSala(idSala, idVideo, timeInt, 'sincronizada');
                 } catch (error) {
                     console.error('Error en SYNC_ON en la sala ' + idSala + ': ' + error);
                 }
