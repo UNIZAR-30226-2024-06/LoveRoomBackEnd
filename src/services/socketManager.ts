@@ -2,8 +2,9 @@
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
-import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria } from '../db/salas';
+import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala } from '../db/salas';
 import { createMensaje } from '../db/mensajes';
+import { info } from 'console';
 
 export default class SocketManager {
     private static instance: SocketManager;
@@ -29,16 +30,16 @@ export default class SocketManager {
         console.log('Socket server started');
     
         this.io.use((socket: any, next) => {
-            console.log('Middleware');
+            //console.log('Middleware');
             const token = socket.handshake.auth.token;
-            console.log('Token', token);
+            //console.log('Token', token);
             if (!token) {
                 return next(new Error('Authentication error'));
             }
             try {
                 
                 const payload = jwt.verify(token.split(' ')[1], this.secret);
-                console.log('Usuario correctamente autenticado',payload.id);
+                console.log('Usuario correctamente autenticado en socket ',payload.id);
                 socket.authUser = payload.id;
                 next();
         
@@ -85,28 +86,6 @@ export default class SocketManager {
                 socket.leave(idsala);
                 console.log(userId, ' left room ', idsala);
                 delete this.userRooms[userId];
-            });
-            
-            // NO IMPLEMENTADO TODAVIA, FALTA CORREGIR-----------------
-            socket.on(socketEvents.TIME, (senderId: string, receiverId: string, idSala: string, time: number) => {
-                console.log('Time submitted', time);
-                // //Comprobamos el tiempo que ha enviado el cliente, si es mayor que el que tenemos guardado,
-                // //este se convierte en el nuevo tiempo global
-                // if(!this.times[idSala]){
-                //     this.times[idSala] = time;
-                // }else{
-                //     if(this.times[idSala] < time){
-                //         console.log('Nuevo tiempo marcado por el usuario ',senderId);
-                //         this.times[idSala] = time;
-                //         socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
-                //     }else if( 0 < (time / this.times[idSala]) && (time / this.times[idSala]) < 1.5){
-                //         console.log('El tiempo es parecido por lo que no hay que hacer nada');
-                //         socket.to(this.users[receiverId]).emit('do-nothing', this.times[idSala]);
-                //     }else if(this.times[idSala] > time){
-                //         console.log('No se ha cambiado el tiempo marcado por el usuario ',receiverId);
-                //         socket.to(this.users[receiverId]).emit(socketEvents.DECREASE_SPEED, this.times[idSala]);
-                //     }
-                // }
             });
             
             // Evento para pausar el video en una sala
@@ -192,6 +171,46 @@ export default class SocketManager {
                 }
             });
 
+            // Evento para solicitar que me manden la informacion de sincronizacion de la sala (me mandarán un SYNC_ON)
+            // Hay que llamar a este evento al entrar a una sala sincronizada
+            socket.on(socketEvents.GET_SYNC, async (idSala: string) => {
+                try {
+                    console.log('Get sync event in room ', idSala, ' by user ', userId);
+                    if (idSala === null || idSala === '') {
+                        console.error('Get Sync Error: idSala is null or empty by user ', userId);
+                        return;
+                    } else {
+                        // Comprobamos si el otro usuario de la sala esta conectado
+                        if (this.io) {
+                            const socketsInRoom = this.io.sockets.adapter.rooms.get(idSala);
+                            if (socketsInRoom && socketsInRoom.size > 1) {
+                                console.log('El otro usuario esta conectado a la sala, enviando GET_SYNC');
+                                // Soliciamos la sincronizacion al otro usuario mediante el evento GET_SYNC
+                                socket.to(idSala).emit(socketEvents.GET_SYNC);
+                            } else {
+                                console.log('El otro usuario NO esta conectado a la sala.');
+                                // Si no esta conectado, obtenemos la informacion de la sala de la BD y la enviamos al usuario
+                                const infoSala = await getInfoSala(idSala);
+                                if (infoSala) {
+                                    console.log('Mandando infoSala de la BD: ', infoSala);
+                                    if (infoSala.estado === 'sincronizada') {
+                                        socket.emit(socketEvents.SYNC_ON, infoSala.idvideo, infoSala.tiemposegundos, false); // pausado = false por defecto
+                                    } else {
+                                        console.log('La sala no esta sincronizada, enviando SYNC_OFF');
+                                        socket.emit(socketEvents.SYNC_OFF);
+                                    }
+                                } else {
+                                    console.error('Error al obtener la información de la sala de la BD en GET_SYNC');
+                                    socket.emit(socketEvents.SYNC_OFF);
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al solicitar GET_SYNC en la sala ' + idSala + ': ' + error);
+                }
+            });
+
             // Evento para desactivar la sincronizacion de una sala
             socket.on(socketEvents.SYNC_OFF, async (idSala: string, callback: (success: boolean) => void) => {
                 try {
@@ -206,17 +225,21 @@ export default class SocketManager {
                 }
             });
 
-            // Evento para activar la sincronizacion de una sala
-            socket.on(socketEvents.SYNC_ON, async (idSala: string, callback: (success: boolean) => void) => {
+            // Evento para sincronizar una sala. Sirve tanto para sincronizar al activar la sincronizacion cuando
+            // estaba desactivada, como para sincronizar el vídeo al entrar a una sala sincronizada.
+            socket.on(socketEvents.SYNC_ON, async (idSala: string, idVideo: string, timesegundos: Number, pausado: boolean) => {
                 try {
-                    console.log('Activando sincronización en sala ', idSala);
-                    socket.to(idSala).emit(socketEvents.SYNC_ON);
-                    callback(true);
-                    // Actualizamos la tabla sala de la BD encendiendo la sincronizacion
+                    if (idSala === null || idSala === '' || idVideo === null) {
+                        console.error('SYNC_ON Error: idSala or idVideo is null or empty by user ', userId);
+                        return;
+                    }
+                    console.log('SYNC_ON event in room ', idSala, ' with video ', idVideo, ' at time ', timesegundos, ' paused: ', pausado, ' by user ', userId);
+                    socket.to(idSala).emit(socketEvents.SYNC_ON, idVideo, timesegundos, pausado);
+                    // Actualizamos la tabla sala de la BD encendiendo la sincronizacion y actualizando el video y el tiempo
+                    // COMPLETAR
                     await setEstadoSala(idSala, 'sincronizada');
                 } catch (error) {
-                    console.error('Error al activar la sincronización en la sala ' + idSala + ': ' + error);
-                    callback(false);
+                    console.error('Error en SYNC_ON en la sala ' + idSala + ': ' + error);
                 }
             });
 

@@ -15,9 +15,9 @@ const autenticacionController = {
      */
     async checkAuthUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            console.log("Comprobando autenticacion");
+            //console.log("Comprobando autenticacion");
             const authorizationHeader = req.headers.authorization;
-            console.log(authorizationHeader);
+            //console.log(authorizationHeader);
             // Comprobar si hay token
             if (!authorizationHeader) { // No hay token, no tiene autorizacion
                 res.status(401).json({ error: 'No estas autenticado, introduce token' });
@@ -42,7 +42,7 @@ const autenticacionController = {
                 res.status(403).json({ error: 'El usuario está baneado' });
                 return;
             }
-            console.log(payload);
+            //console.log(payload);
             console.log("Usuario autenticado");
             req.body.idUser = payload.id;
             next();

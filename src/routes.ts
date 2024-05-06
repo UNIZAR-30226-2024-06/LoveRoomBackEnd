@@ -78,7 +78,7 @@ router.get('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUs
 
 router.put('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUser, SalaController.setEstadoSala);
 
-router.delete('/rooms/:idSala', autenticacionController.checkAuthUser,SalaController.deleteSala);
+router.delete('/rooms/:idSala', autenticacionController.checkAuthUser, SalaController.deleteSala);
 
 //------------------------------------------------Rutas de mensajes------------------------------------------------
 

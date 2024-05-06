@@ -145,6 +145,14 @@ export const getInfoSalasUsuario = async (idUsuario: string): Promise<any> => {
   }
 }
 
+// Dada una sala, devuelve toda su informacion
+export const getInfoSala = async (idSala: string): Promise<any> => {
+  const idSala_int = parseInt(idSala);
+  return await prisma.sala.findUnique({
+    where: { id: idSala_int }
+  });
+}
+
 // Dado un id de usuario comprueba si ese usuario ha sobrepasado su limite de salas (3 para usuarios normales),
 // (infinitas para usuarios premium). Devuelve true si ha sobrepasado el limite, false en caso contrario
 export const sobrepasaLimiteSalas = async (idUsuario: string): Promise<any> => {
@@ -215,20 +223,30 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
     return nuevaSala;
 }
 
-//Dado el id de una sala la borra y todas sus relaciones
-export const deleteSala = async (idSala: string): Promise<any> => {
-
-    await prisma.participa.deleteMany({
-        where: {
-          idsala: parseInt(idSala),
-        },
+//Dado el id de una sala y el id de un usuario, borra la sala si y solo si el usuario es participante
+export const deleteSala = async (idUsuario: string, idSala: string): Promise<any> => {
+  try {
+    const idSala_int = parseInt(idSala);
+    const idUsuario_int = parseInt(idUsuario);
+    return await prisma.sala.delete({
+      where: {
+        id: idSala_int,
+        participa: {
+          some: {
+            idusuario: idUsuario_int
+          }
+        }
+      }
     });
-
-    await prisma.sala.delete({
-        where: {
-          id: parseInt(idSala),
-        },
-    });
+  } catch (error: any) {
+    if (error.code && error.code === 'P2025') { // Verificar si el error es debido a que la sala no existe
+      console.error('Error: El usuario no pertenece a la sala indicada');
+      throw new Error('El usuario no pertenece a la sala indicada');
+    } else {
+      console.error('Error al borrar sala:', error);
+      throw error; // Re-lanzar error para manejo en el nivel superior
+    }
+  }
 }
 
 // Dado el id de un usuario, borra todas sus salas
