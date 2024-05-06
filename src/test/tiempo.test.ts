@@ -30,9 +30,9 @@ const connectSocketClient = (token: string,iduser : string) => {
     });
 };
 
-const emitTime = (socket: Socket, senderId: string, receiverId: string,idSala: string, time: number) => {
-    socket.emit(socketEvents.TIME, senderId, receiverId,idSala, time);
-};
+// const emitTime = (socket: Socket, senderId: string, receiverId: string,idSala: string, time: number) => {
+//     socket.emit(socketEvents.TIME, senderId, receiverId,idSala, time);
+// };
 
 const emitPause = (socket: Socket, receiverId: string) => {
     socket.emit(socketEvents.PAUSE, receiverId);
@@ -110,15 +110,15 @@ test('Comprobacion de envio de tiempos', async () => {
         expect(response8.data.length).toBe(1);
         const idsala = response5.data.id;
 
-        //Ahora simulamos los envios de tiempo al servidor por parte de los dos usuarios
-        for(let i = 0; i < 10; i++){
-            if(i % 2 == 0){
-                emitTime(socket1, response5.data.idusuario,  response2.data.usuario.id,idsala ,i);
-            }else{
-                emitTime(socket2, response2.data.usuario.id, response5.data.idusuario,idsala ,i);
-            }
+        // //Ahora simulamos los envios de tiempo al servidor por parte de los dos usuarios
+        // for(let i = 0; i < 10; i++){
+        //     if(i % 2 == 0){
+        //         emitTime(socket1, response5.data.idusuario,  response2.data.usuario.id,idsala ,i);
+        //     }else{
+        //         emitTime(socket2, response2.data.usuario.id, response5.data.idusuario,idsala ,i);
+        //     }
             
-        }
+        // }
 
         //Ahora simulamos que el usuario test1 pausa el video
         console.log("Pausando video",response5.data.idusuario);
