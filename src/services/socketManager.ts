@@ -121,12 +121,14 @@ export default class SocketManager {
                 callback: (sucess: boolean, timestamp: Date | null) => void) => {
                 try {
                     console.log('Socket create message: ', texto, ' in room ', idsala);
-                    const senderID = userId.toString();
-                    socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, senderID, texto, rutamultimedia);
 
                     const fechaHora = new Date();
                     // Ajustamos manualmente a la zona horaria de España (UTC+2)
                     fechaHora.setHours(fechaHora.getHours() + 2);
+                    
+                    // Emitimos el mensaje al otro usuario de la sala
+                    const senderID = userId.toString();
+                    socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, senderID, texto, rutamultimedia, fechaHora);
                     
                     // Notificamos al cliente que el mensaje ha sido enviado
                     callback(true, fechaHora);
