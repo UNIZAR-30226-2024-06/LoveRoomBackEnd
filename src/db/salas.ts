@@ -17,7 +17,8 @@ export const changeVideoSala = async (idSala: string, idVideo: string): Promise<
   const idSala_int = parseInt(idSala);
   await prisma.sala.update({
       where: { id: idSala_int },
-      data: { idvideo: idVideo },
+      data: { idvideo: idVideo,
+              tiemposegundos: 0 }
   });
 }
 

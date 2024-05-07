@@ -71,10 +71,14 @@ export default class SocketManager {
                     console.error('Error: idSala is null or empty');
                     return;
                 }
-                if (this.userRooms[userId] && this.userRooms[userId] !== idsala) {
-                    // Si el usuario ya estaba en una sala, lo sacamos de ella
-                    socket.leave(this.userRooms[userId]);
-                    console.log(userId, ' left room ', this.userRooms[userId]);
+                if (this.userRooms[userId]) {   // Si el usuario ya estaba en una sala
+                    if (this.userRooms[userId] !== idsala) {    // si la sala es otra, lo sacamos de la anterior
+                        socket.leave(this.userRooms[userId]);
+                        console.log(userId, ' left room ', this.userRooms[userId]);
+                    } else {    // si la sala es la misma, no hacemos nada
+                        console.log(userId, ' already in room ', idsala);
+                        return;
+                    }
                 }
                 socket.join(idsala);
                 console.log(userId, ' joined room ', idsala);
