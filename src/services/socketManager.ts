@@ -198,7 +198,8 @@ export default class SocketManager {
                                 if (infoSala) {
                                     console.log('Mandando infoSala de la BD: ', infoSala);
                                     if (infoSala.estado === 'sincronizada') {
-                                        socket.emit(socketEvents.SYNC_ON, infoSala.idvideo, infoSala.tiemposegundos, false); // pausado = false por defecto
+                                        // pausado = true porque el otro usuario no ha mandado play
+                                        socket.emit(socketEvents.SYNC_ON, infoSala.idvideo, infoSala.tiemposegundos, true);
                                     } else {
                                         console.log('La sala no esta sincronizada, enviando SYNC_OFF');
                                         socket.emit(socketEvents.SYNC_OFF);
