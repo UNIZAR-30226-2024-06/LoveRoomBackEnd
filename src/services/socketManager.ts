@@ -198,8 +198,9 @@ export default class SocketManager {
                                 if (infoSala) {
                                     console.log('Mandando infoSala de la BD: ', infoSala);
                                     if (infoSala.estado === 'sincronizada') {
-                                        // pausado = true porque el otro usuario no ha mandado play
-                                        socket.emit(socketEvents.SYNC_ON, infoSala.idvideo, infoSala.tiemposegundos, true);
+                                        // pausado = false porque al entrar a la sala se reproduce el video
+                                        // el segundo false es para indicar que el otro usuario no esta conectado
+                                        socket.emit(socketEvents.SYNC_ON, infoSala.idvideo, infoSala.tiemposegundos, false, false);
                                     } else {
                                         console.log('La sala no esta sincronizada, enviando SYNC_OFF');
                                         socket.emit(socketEvents.SYNC_OFF);
@@ -239,7 +240,8 @@ export default class SocketManager {
                         return;
                     }
                     console.log('SYNC_ON event in room ', idSala, ' with video ', idVideo, ' at time ', timesegundos, ' paused: ', pausado, ' by user ', userId);
-                    socket.to(idSala).emit(socketEvents.SYNC_ON, idVideo, timesegundos, pausado);
+                    // El true indica que el otro usuario esta conectado
+                    socket.to(idSala).emit(socketEvents.SYNC_ON, idVideo, timesegundos, pausado, true);
 
                     // Actualizamos la tabla sala de la BD encendiendo la sincronizacion y actualizando el video y el tiempo
                     const timeInt = Math.floor(timesegundos);
