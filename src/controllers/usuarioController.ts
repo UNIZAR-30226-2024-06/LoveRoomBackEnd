@@ -244,7 +244,8 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public  static async updateType(req: Request, res: Response): Promise<any> {
-    const id = req.body.idUser   
+    //const id = req.body.idUser
+    const id = req.body.id;   
     console.log(req.params.type);
     try {
       const user = await userBD.updateType(id, req.params.type);  //normal, premium, administrador
@@ -578,7 +579,7 @@ class UsuarioController {
 
   public static async userExits(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const email = req.params.email;
+      const email = req.body.email;
       const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'El usuario introducido no existe' });

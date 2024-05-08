@@ -16,7 +16,7 @@ const CorreoController = {
     async sendEmail(req: Request, res: Response){
         const info = await transporter.sendMail({
             from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
-            to: "bar@example.com, baz@example.com", // list of receivers
+            to: req.body.correo, // list of receivers
             subject: "Hello ✔", // Subject line
             text: "Hello world?", // plain text body
             html: "<b>Hello world?</b>", // html body
