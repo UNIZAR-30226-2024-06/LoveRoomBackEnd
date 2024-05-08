@@ -118,27 +118,28 @@ export default class SocketManager {
             
             // Evento para enviar un mensaje en una sala. (Nota: rutaMultimedia debe ser el path a una imagen ya subida al servidor?)
             socket.on(socketEvents.CREATE_MESSAGE, async (idsala: string, texto: string, rutamultimedia: string, 
-                callback: (sucess: boolean, timestamp: Date | null) => void) => {
+                callback: (success: boolean, idMsg: number, timestamp: Date | null) => void) => {
                 try {
                     console.log('Socket create message: ', texto, ' in room ', idsala);
 
                     const fechaHora = new Date();
                     // Ajustamos manualmente a la zona horaria de España (UTC+2)
                     fechaHora.setHours(fechaHora.getHours() + 2);
-                    
-                    // Emitimos el mensaje al otro usuario de la sala
-                    const senderID = userId.toString();
-                    socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, senderID, texto, rutamultimedia, fechaHora);
-                    
-                    // Notificamos al cliente que el mensaje ha sido enviado
-                    callback(true, fechaHora);
 
                     // Guardamos el mensaje en la BD
-                    await createMensaje(senderID, idsala, texto, rutamultimedia, fechaHora);
+                    const senderID = userId.toString();
+                    const mensaje = await createMensaje(senderID, idsala, texto, rutamultimedia, fechaHora);
+                    console.log('Mensaje creado: ', mensaje);
+                    
+                    // Emitimos el mensaje al otro usuario de la sala
+                    socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, mensaje.id, senderID, texto, rutamultimedia, fechaHora);
+                    
+                    // Notificamos al cliente que el mensaje ha sido enviado
+                    callback(true, mensaje.id, fechaHora);
                 } catch (error) {
                     console.error('Error al enviar mensaje en la sala ' + idsala + ': ' + error);
                     // Notificamos el error al cliente
-                    callback(false, null);
+                    callback(false, -1, null);
                 }
             });
 
