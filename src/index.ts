@@ -16,26 +16,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// Middleware para los headers
-app.use((req: Request, res: Response, next) => {
-  // Headers de seguridad
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+// // Middleware para los headers
+// app.use((req: Request, res: Response, next) => {
+//   // Headers de seguridad
+//   res.setHeader('X-Content-Type-Options', 'nosniff');
+//   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+//   res.setHeader('X-XSS-Protection', '1; mode=block');
 
-  // Headers CORS
-  // Cambiar el * por el dominio del cliente para restringir el acceso a solo ese dominio
-  // Cuidado, pueden seguir accediendo desde herramientas como Postman
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+//   // Headers CORS
+//   // Cambiar el * por el dominio del cliente para restringir el acceso a solo ese dominio
+//   // Cuidado, pueden seguir accediendo desde herramientas como Postman
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
 
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
-    return res.status(200).json({});
-  }
-  // Pasamos al siguiente middleware
-  next();
-});
+//   if (req.method === 'OPTIONS') {
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+//     return res.status(200).json({});
+//   }
+//   // Pasamos al siguiente middleware
+//   next();
+// });
 
 app.use('/', routes);
 
