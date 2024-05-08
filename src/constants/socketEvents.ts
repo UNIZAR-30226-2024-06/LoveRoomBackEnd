@@ -11,5 +11,6 @@ export const socketEvents = {
     SYNC_ON: 'sync-on',
     SYNC_OFF: 'sync-off',
     CHECK_ROOM: 'check-room',
-    GET_SYNC: 'get-sync'
+    GET_SYNC: 'get-sync',
+    STORE_TIME: 'store-time'
 }

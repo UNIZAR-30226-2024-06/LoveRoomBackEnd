@@ -167,6 +167,17 @@ export const updateSincroSala = async (idSala: string, idVideo: string, tiempoSe
   });
 }
 
+// Actualiza el tiempo de una sala
+export const updateTimeSala = async (idSala: string, tiempoSegundos: number): Promise<any> => {
+  const idSala_int = parseInt(idSala);
+  return await prisma.sala.update({
+    where: { id: idSala_int },
+    data: {
+      tiemposegundos: tiempoSegundos
+    }
+  });
+}
+
 // Dado un id de usuario comprueba si ese usuario ha sobrepasado su limite de salas (3 para usuarios normales),
 // (infinitas para usuarios premium). Devuelve true si ha sobrepasado el limite, false en caso contrario
 export const sobrepasaLimiteSalas = async (idUsuario: string): Promise<any> => {

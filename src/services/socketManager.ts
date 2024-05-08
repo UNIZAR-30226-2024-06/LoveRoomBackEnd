@@ -2,7 +2,7 @@
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
-import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala, updateSincroSala } from '../db/salas';
+import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala, updateSincroSala, updateTimeSala } from '../db/salas';
 import { createMensaje } from '../db/mensajes';
 import { info } from 'console';
 
@@ -11,7 +11,6 @@ export default class SocketManager {
     private io: Server | null = null;
     private users: Record<string, string> = {}; // userId -> socketId
     private userRooms: Record<string, string> = {}; // userId -> roomId
-    private times: Record<string, number> = {};
     private secret = process.env.SECRET
 
     private constructor() {
@@ -251,6 +250,18 @@ export default class SocketManager {
                     await updateSincroSala(idSala, idVideo, timeInt, 'sincronizada');
                 } catch (error) {
                     console.error('Error en SYNC_ON en la sala ' + idSala + ': ' + error);
+                }
+            });
+
+            // Evento para actualizar el tiempo de la sala en la BD
+            socket.on(socketEvents.STORE_TIME, (idSala: string, timesegundos: number) => {
+                try {
+                    console.log('Store time event in room ', idSala, ' with time ', timesegundos, ' by user ', userId);
+                    // Actualizamos la tabla sala de la BD con el nuevo tiempo
+                    const timeInt = Math.floor(timesegundos);
+                    updateTimeSala(idSala, timeInt);
+                } catch (error) {
+                    console.error('Error al actualizar el tiempo de la sala ' + idSala + ' por usuario ' + userId + ': ' + error);
                 }
             });
 
