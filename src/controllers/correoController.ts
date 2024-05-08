@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import  nodemailer  from 'nodemailer';
-import { nodeModuleNameResolver } from 'typescript';
 import { autenticacionController } from './autenticacionController';
 
 export const transporter = nodemailer.createTransport({

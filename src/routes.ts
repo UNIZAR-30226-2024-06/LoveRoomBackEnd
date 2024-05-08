@@ -172,6 +172,6 @@ router.get('/user/check/token', autenticacionController.checkToken);
 
 router.post('/user/send/email', UsuarioController.userExits, CorreoController.sendEmailForgotPass);
 router.post('/user/check/code', autenticacionController.checkCode.bind(autenticacionController));
-router.patch('/user/reset/password', autenticacionController.checkCode.bind(autenticacionController), UsuarioController.resetPassword);
+router.patch('/user/reset/password', autenticacionController.checkCodeMiddleware.bind(autenticacionController), UsuarioController.resetPassword);
 
 export default router;

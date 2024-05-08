@@ -7,12 +7,12 @@ WORKDIR /usr/src/app
 # Establecemos las variables de entorno para DATABASE_URL y SECRET
 ARG DATABASE_URL
 ARG SECRET
-ARG PASSWORD
-ARG EMAIL
+#ARG PASSWORD
+#ARG EMAIL
 ENV DATABASE_URL=$DATABASE_URL
 ENV SECRET=$SECRET
-ENV PASSWORD=$PASSWORD
-ENV EMAIL=$EMAIL
+#ENV PASSWORD=$PASSWORD
+#ENV EMAIL=$EMAIL
 
 # Copiamos el archivo package.json y package-lock.json para instalar las dependencias
 COPY package*.json ./

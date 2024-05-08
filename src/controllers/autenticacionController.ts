@@ -147,26 +147,59 @@ const autenticacionController = {
 
 
     /**
-     * Comprueba si el codigo introducido es correcto.
-     * El codigo introducido es correcto si coincide con el codigo almacenado en el vector.
-     * El codigo introducido es incorrecto si no coincide con el codigo almacenado en el vector.
-     * El codigo introducido debe ser enviado en el body de la peticion con la clave "codigo".
+     * Comprueba si el codigo introducido es valido
+     * El codigo es valido si es igual al codigo guardado en el vector con el correo.
+     * El codigo es no valido si no es igual al codigo guardado en el vector con el correo.
      */
-    async checkCode(req: Request, res: Response): Promise<void> {
-        try{
-            const codeVector = await this.VectorCode.get(req.body.correo);
-            if(codeVector == req.body.codigo){
-                res.status(200).json({ valido: true });
+    validCode(email: string, code: string): boolean {
+        try {
+            const codeVector = this.VectorCode.get(email);
+            if (codeVector == code) {
+                return true;
+            } else {
+                return false
             }
-            else{
+        } catch (error) {
+            return false
+        }
+    },
+
+    /**
+     * Compreuba si el codigo introducido es valido.
+     * Devuelve true si es valido
+     * Devuelve false si no es valido
+     */
+    async checkCode(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if (this.validCode(req.body.correo, req.body.codigo)) {
+                res.status(200).json({ valido: true });
+            } 
+            else {
+                res.status(401).json({ valido: false });
+            }
+        } catch (error) {
+            res.status(500).json({ valido: false });
+        }
+    },
+
+    /**
+     * Middleware que comprueba si el codigo introducido es valido.
+     * Si es valido continua con la siguiente funcion.
+     * Si no es valido devuelve un error 401.
+     */
+    async checkCodeMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if (this.validCode(req.body.correo, req.body.codigo)) {
+                next();
+            } 
+            else {
                 res.status(401).json({ error: "Codigo introducido no es correcto" });
             }
-        }
-        catch(error){
-            console
-            res.status(401).json({ error: "Codigo introducido no es correcto" });
+        } catch (error) {
+            res.status(500).json({ error: "Error al verificar el código" });
         }
     }
+    
       
 }
 

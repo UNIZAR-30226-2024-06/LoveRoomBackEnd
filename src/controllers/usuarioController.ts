@@ -651,10 +651,11 @@ class UsuarioController {
         res.status(404).json({ error: 'El usuario introducido no existe' });
         return;
       }
+      console.log ("Usuario encontrado al resetear contraseña")
       const user = await userBD.updatePassword(id, await bcrypt.hash(info.nuevaContrasena, 10));
       res.json("Contraseña actualizada correctamente");
     } catch (error) {
-      res.status(500).json({ error: 'Error al actualizar la contraseña' });
+      res.status(500).json({ error: 'Error al resetear la contraseña' });
     }
   }
     
