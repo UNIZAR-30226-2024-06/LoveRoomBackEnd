@@ -128,18 +128,42 @@ const autenticacionController = {
         }
     },
 
-    createRadmomNumber(correo: String): number{
-        const code = Math.floor(Math.random() * 1000000);
+    /** 
+     * Devuelve un codigo aleatorio de 6 caracteres y lo guarda en un vector con el correo.
+     * El codigo creado es el utilizado para recuperar la contraseña.
+     */
+    createRandomCode(correo: String): String{
+        //const code = Math.floor(Math.random() * 1000000);
+        const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let code = '';
+        const numberCharacters = 6;
+        for (let i = 0; i < numberCharacters; i++) {
+            const indice = Math.floor(Math.random() * caracteres.length);
+            code += caracteres.charAt(indice);
+        }
         this.VectorCode.set(correo, code);
-        return code
+        return code.toString();
     },
 
-    async checkNumber(req: Request, res: Response): Promise<void> {
-        const codeVector = this.VectorCode.get(req.body.correo);
-        if(codeVector == req.body.codigo){
-            res.status(200).json({ valido: true });
+
+    /**
+     * Comprueba si el codigo introducido es correcto.
+     * El codigo introducido es correcto si coincide con el codigo almacenado en el vector.
+     * El codigo introducido es incorrecto si no coincide con el codigo almacenado en el vector.
+     * El codigo introducido debe ser enviado en el body de la peticion con la clave "codigo".
+     */
+    async checkCode(req: Request, res: Response): Promise<void> {
+        try{
+            const codeVector = await this.VectorCode.get(req.body.correo);
+            if(codeVector == req.body.codigo){
+                res.status(200).json({ valido: true });
+            }
+            else{
+                res.status(401).json({ error: "Codigo introducido no es correcto" });
+            }
         }
-        else{
+        catch(error){
+            console
             res.status(401).json({ error: "Codigo introducido no es correcto" });
         }
     }

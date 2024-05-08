@@ -170,6 +170,7 @@ router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacion
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);
 
-router.post('/user/forgot/password', /*UsuarioController.userExits,*/ CorreoController.sendEmail);
+router.post('/user/send/email', UsuarioController.userExits, CorreoController.sendEmail);
+router.post('/user/check/code', autenticacionController.checkCode.bind(autenticacionController));
 
 export default router;

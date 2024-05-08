@@ -585,7 +585,7 @@ class UsuarioController {
         res.status(404).json({ error: 'El usuario introducido no existe' });
         return;
       }
-      res.status(200).json({ message: 'Usuario encontrado' });
+      console.log ("Usuario encontrado al cambiar contraseña")
       next();
     } catch (error) {
       res.status(500).json({ error: 'Error al buscar el usuario' });

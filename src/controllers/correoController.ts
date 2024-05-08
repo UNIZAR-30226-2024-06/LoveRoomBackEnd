@@ -16,7 +16,8 @@ export const transporter = nodemailer.createTransport({
 const CorreoController = {
     async sendEmail(req: Request, res: Response){
       try {
-        const code = autenticacionController.createRadmomNumber(req.body.correo);
+        const code = autenticacionController.createRandomCode(req.body.correo);
+        console.log("Codigo generado: " + code);
         //console.log(process.env.EMAIL);
         //console.log(process.env.PASSWORD);
         const info = await transporter.sendMail({
