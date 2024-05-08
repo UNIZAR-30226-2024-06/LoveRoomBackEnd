@@ -642,6 +642,21 @@ class UsuarioController {
       res.status(500).json({ error: 'Error al obtener el perfil' });
     }
   }
+
+  public static async resetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const info = req.body;
+      const id = await userBD.getUserByEmail(info.correo).then((user) => user?.id);
+      if (id == null) {
+        res.status(404).json({ error: 'El usuario introducido no existe' });
+        return;
+      }
+      const user = await userBD.updatePassword(id, await bcrypt.hash(info.nuevaContrasena, 10));
+      res.json("Contraseña actualizada correctamente");
+    } catch (error) {
+      res.status(500).json({ error: 'Error al actualizar la contraseña' });
+    }
+  }
     
 }
 
