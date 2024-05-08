@@ -6,6 +6,8 @@ import { getUserById } from '../db/usuarios';
 const secret = process.env.SECRET
 
 const autenticacionController = {
+    
+    VectorCode: new Map(),
 
     /**
      * Comprueba si el usuario esta autenticado.
@@ -123,6 +125,22 @@ const autenticacionController = {
         }
         catch (error) {
             res.status(401).json({ error: 'No estas autenticado' });
+        }
+    },
+
+    createRadmomNumber(correo: String): number{
+        const code = Math.floor(Math.random() * 1000000);
+        this.VectorCode.set(correo, code);
+        return code
+    },
+
+    async checkNumber(req: Request, res: Response): Promise<void> {
+        const codeVector = this.VectorCode.get(req.body.correo);
+        if(codeVector == req.body.codigo){
+            res.status(200).json({ valido: true });
+        }
+        else{
+            res.status(401).json({ error: "Codigo introducido no es correcto" });
         }
     }
       
