@@ -1,11 +1,33 @@
 import { prisma } from "../index";
 import { getAllSalasUsuario } from "./salas";
 
-//Dado un id de sala devuelve todos los mensajes de dicha sala
-export const getMensajesSala = async (idSala: string): Promise<any> => {
-    return await prisma.mensaje.findMany({
-        where: { idsala: parseInt(idSala) },
-    });
+//Dado un id de sala devuelve todos los mensajes de dicha sala solo si el usuario pertenece a la sala
+export const getMensajesSala = async (idUsuario: string, idSala: string): Promise<any> => {
+  try {
+    const idSala_Int = parseInt(idSala);
+    // Comprobamos que el usuario pertenezca a la sala
+    const idsSalasUsuario = await getAllSalasUsuario(idUsuario);
+    let salaEncontrada = false;
+    for (let i = 0; i < idsSalasUsuario.length; i++) {
+      if (idsSalasUsuario[i].idsala === idSala_Int) {
+        salaEncontrada = true;
+        break;
+      }
+    }
+    if (!salaEncontrada) {  // Si el usuario no pertenece a la sala, lanzamos un error
+      console.error('El usuario no pertenece a la sala indicada');
+      throw new Error('El usuario no pertenece a la sala indicada');
+    } else {  // Si el usuario pertenece a la sala, devolvemos los mensajes
+      return await prisma.mensaje.findMany({
+        where: {
+          idsala: idSala_Int,
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error al obtener los mensajes de la sala:', error);
+    throw error;
+  }
 }
 
 //Dado un id de usuario, un id de sala, un texto y su archivo multimedia 

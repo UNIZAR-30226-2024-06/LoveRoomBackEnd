@@ -9,20 +9,17 @@ const MensajeController = {
 
     getMensajesSala: async (req: Request, res: Response): Promise<any> => {
         try {
+            const idUsuario = req.body.idUser;  // Cogemos el id del checkAuthUser
             const { idSala } = req.params;
-            const mensajes = await getMensajesSala(idSala);
-            const formattedResponse = mensajes.map((mensaje: any) => {
-                return {
-                    fechaHora: mensaje.fechahora,
-                    idUsuario: mensaje.idusuario,
-                    texto: mensaje.texto,
-                    multimedia: mensaje.rutamultimedia,
-                };
-            });
-            return res.json(formattedResponse);
-        } catch (error) {
-            console.error("Error al obtener mensajes de sala:", error);
-            return res.status(500).json({ error: "Error al obtener mensajes de sala" });
+            const mensajes = await getMensajesSala(idUsuario, idSala);
+            return res.json(mensajes);
+        } catch (error: any) {
+            if (error.message && error.message === 'El usuario no pertenece a la sala indicada') {
+                return res.status(403).json({ error: "El usuario no pertenece a la sala indicada" });
+            } else {
+                console.error("Error al obtener mensajes de sala:", error);
+                return res.status(500).json({ error: "Error al obtener mensajes de sala" });
+            }
         }
     },
 

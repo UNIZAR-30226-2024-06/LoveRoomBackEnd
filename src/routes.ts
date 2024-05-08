@@ -82,9 +82,9 @@ router.delete('/rooms/:idSala', autenticacionController.checkAuthUser, SalaContr
 
 //------------------------------------------------Rutas de mensajes------------------------------------------------
 
-router.post('/:idSala/mensaje', MensajeController.createMensaje);
+router.post('/:idSala/mensaje', autenticacionController.checkAuthUser, MensajeController.createMensaje);
 
-router.get('/:idSala/chat', MensajeController.getMensajesSala);
+router.get('/:idSala/chat', autenticacionController.checkAuthUser, MensajeController.getMensajesSala);
 
 //router.delete('/:idSala/mensaje/:idMensaje', MensajeController.deleteMensaje); // FALTA IMPLEMENTAR
 
