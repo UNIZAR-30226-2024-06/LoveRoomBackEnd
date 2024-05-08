@@ -7,7 +7,7 @@ import { autenticacionController } from "./controllers/autenticacionController";
 import  adminController  from "./controllers/adminController";
 import MensajeController from './controllers/mensajeController';
 import MultimediaController from './controllers/multimediaController';
-import { correoController } from './controllers/correoController';
+import { CorreoController } from './controllers/correoController';
 import { upload } from './storage';
 
 const router = express.Router();
@@ -170,6 +170,6 @@ router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacion
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);
 
-router.post('/user/forgot/password', UsuarioController.userExits, correoController.sendEmail);
+router.post('/user/forgot/password', UsuarioController.userExits, CorreoController.sendEmail);
 
 export default router;
