@@ -5,8 +5,8 @@ import { autenticacionController } from './autenticacionController';
 
 export const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Use `true` for port 465, `false` for all other ports
+    port: 465,
+    secure: true, // Use `true` for port 465, `false` for all other ports
     auth: {
       user: process.env.EMAIL,
       pass: process.env.PASSWORD,
@@ -14,7 +14,7 @@ export const transporter = nodemailer.createTransport({
   });
 
 const CorreoController = {
-    async sendEmail(req: Request, res: Response){
+    async sendEmailForgotPass(req: Request, res: Response){
       try {
         const code = autenticacionController.createRandomCode(req.body.correo);
         console.log("Codigo generado: " + code);
@@ -27,11 +27,13 @@ const CorreoController = {
           text: "El código que debes introducir para recuperar la contraseña es el siguiente: " + code.toString(), // plain text body          
           //html: "<b>Hello world?</b>", // html body
         });
-        return res.send({ mensaje: "Correo enviado con exito"});
+        console.log("Correo para resetear contraseña enviado con exito");
+        return res.send({ mensaje: "Correo para resetear contraseña enviado con exito"});
       }
       catch (error) {
         console.log(error);
-        res.status(500).json({ error: "Error al enviar el correo" });
+        console.log("Error al enviar el correo para resetear contraseña");
+        res.status(500).json({ error: "Error al enviar el correo para resetear contraseña" });
       }
         
     }
