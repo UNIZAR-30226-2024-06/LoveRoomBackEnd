@@ -29,7 +29,7 @@ export default class SocketManager {
         console.log('Socket server started');
     
         this.io.use((socket: any, next) => {
-            //console.log('Middleware');
+            console.log('SOCKET MIDDLEWARE HAS ENTRADO');
             const token = socket.handshake.auth.token;
             //console.log('Token', token);
             if (!token) {
