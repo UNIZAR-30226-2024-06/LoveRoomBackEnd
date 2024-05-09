@@ -62,7 +62,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Build Docker image
-      run: docker build -t loveroom --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" --build-arg SECRET="${{ secrets.SECRET }}" --build-arg EMAIL="${{ secrets.EMAIL }}" --builds-arg PASSWORD="${{ secrets.PASSWORD }}" .
+      run: docker build -t loveroom --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" --build-arg SECRET="${{ secrets.SECRET }}" --build-arg EMAIL="${{ secrets.EMAIL }}" --build-arg PASSWORD="${{ secrets.PASSWORD }}" .
 
     - name: Save Docker image to file
       run: docker save loveroom > image.tar
