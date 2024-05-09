@@ -65,7 +65,7 @@ jobs:
       run: docker build -t loveroom \
         --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
         --build-arg SECRET="${{ secrets.SECRET }}" \
-        --build-arg PASSWORD="${{ secrets.PASSWORD }}" \
+        --build-arg PASSWORD='${{ secrets.PASSWORD }}'' \
         --build-arg EMAIL="${{ secrets.EMAIL }}"  . \
 
     - name: Save Docker image to file
