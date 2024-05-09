@@ -19,7 +19,7 @@ RUN npm install
 # Copiamos el resto de los archivos de la aplicación
 COPY . .
 #Creamos el directorio correspondiente a los archivos multimedia
-RUN mkdir src/uploads
+RUN mkdir dist/uploads
 
 #Compilamos el codigo
 RUN npm run build
