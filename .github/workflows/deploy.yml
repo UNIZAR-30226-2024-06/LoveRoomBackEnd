@@ -45,11 +45,6 @@ jobs:
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
 
-    - name: Wait for Backend Deployment
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '1m' # Espera durante 1 minuto
-
     - name: Run Jest Tests
       run: npm test
       env: 
