@@ -2,16 +2,16 @@ import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import userBD from '../db/usuarios';
 import { getMatchesUsuario } from '../db/match';
-import { isForStatement } from 'typescript';
 import { deleteAllSalasUsuario } from '../db/salas';
+import { constants } from 'fs/promises';
 
-class UsuarioController {
+const UsuarioController = {
 
   /**
    * Registra un usuario en la base de datos.
    * El usuario se registra con un correo, nombre y contraseña.
    */
-  public static async registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body;
     try {
       console.log(info);
@@ -25,7 +25,7 @@ class UsuarioController {
       console.log(error);
       res.status(500).send({ error: 'Error al crear el usuario' });
     }
-  }
+  },
 
   /**
    * Autentica un usuario en la base de datos.
@@ -34,7 +34,7 @@ class UsuarioController {
    * SI el usuario está baneado, se devuelve un error
    * Si se autentica correctamente, pasa al siguiente middleware.
    */
-  public static async loginUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async loginUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body; 
     try {
       console.log(info);
@@ -59,14 +59,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al buscar el usuario' });
     }
-  }
+  },
 
   /**
    * Comprueba si un correo ya está en uso.
    * Si el correo ya está en uso, devuelve un error.
    * Si el correo no está en uso, pasa al siguiente middleware.
    */
-  public static async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body;
     try {
       const user = await userBD.getUserByEmail(info.correo);
@@ -79,13 +79,13 @@ class UsuarioController {
       console.log(error);
       res.status(500).json({ error: 'Error al chequear el correo' });
     }
-  }
+  },
 
   /**
    * Actualiza un usuario al completo.
    * El usuario se identifica con el token.
    */
-  public static async updateUser(req: Request, res: Response): Promise<any> {
+  async updateUser(req: Request, res: Response): Promise<any> {
     console.log("Actualizando usuario");
     const info = req.body;
     const id = req.body.idUser;
@@ -98,13 +98,13 @@ class UsuarioController {
       console.log(error);
       res.status(500).json({ error: 'Error al actualizar el usuario' });
     }
-  }
+  },
 
   /**
    * Actualiza el correo de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updateEmail(req: Request, res: Response): Promise<any> {
+  async updateEmail(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -113,13 +113,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el correo' });
     }
-  }
+  },
 
   /**
    * Actualiza el nombre de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updateName(req: Request, res: Response): Promise<any> {
+  async updateName(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -128,13 +128,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el nombre' });
     }
-  }
+  },
 
   /**
    * Actualiza la edad de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updateAge(req: Request, res: Response): Promise<any> {
+  async updateAge(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -143,13 +143,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la edad' });
     }
-  }
+  },
 
   /**
    * Actualiza el sexo de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updateSex(req: Request, res: Response): Promise<any> {
+  async updateSex(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -158,13 +158,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el sexo' });
     }
-  }
+  },
 
   /**
    * Actualiza la descripción de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updateDescription(req: Request, res: Response): Promise<any> {
+  async updateDescription(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -173,13 +173,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la descripción' });
     }
-  }
+  },
 
   /**
    * Actualiza la foto de perfil de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updatePhoto(req: Request, res: Response): Promise<any> {
+  async updatePhoto(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -188,13 +188,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la foto de perfil' });
     }
-  }
+  },
 
   /**
    * Actualiza la localización de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updateLocation(req: Request, res: Response): Promise<any> {
+  async updateLocation(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -203,13 +203,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la localización' });
     }
-  }
+  },
 
   /**
    * Actualiza las preferencias de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updatePreferences(req: Request, res: Response): Promise<any> {
+  async updatePreferences(req: Request, res: Response): Promise<any> {
     const info = req.body;
     const id = req.body.idUser
     try {
@@ -218,13 +218,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar las preferencias' });
     }
-  }
+  },
 
   /**
    * Actualiza la contraseña de un usuario.
    * El usuario se identifica con el token.
    */
-  public static async updatePassword(req: Request, res: Response): Promise<any> {
+  async updatePassword(req: Request, res: Response): Promise<any> {
     try {
       const info = req.body;
       const id = req.body.idUser
@@ -239,15 +239,16 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar la contraseña' });
     }
-  }
+  },
 
   /**
    * Actualiza el tipo de un usuario a premiun.
    * Se actualiza segun el tipo introducido en la ulr (normal, premium)
    * El usuario se identifica con el token.
    */
-  public  static async updateType(req: Request, res: Response): Promise<any> {
-    const id = req.body.idUser   
+  async updateType(req: Request, res: Response): Promise<any> {
+    //const id = req.body.idUser
+    const id = req.body.id;   
     console.log(req.params.type);
     try {
       const user = await userBD.updateType(id, req.params.type);  //normal, premium, administrador
@@ -255,14 +256,14 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el tipo a premiun' });
     }
-  }
+  },
 
   /**
    * Actualiza el tipo de un usuario a administrador.
    * Solo un administrador puede actualizar el tipo de un usuario a administrador.
    * El usuario a actualizar se identifica con el id y se pasa en el body.
    */
-  public static async updateAdmin(req: Request, res: Response): Promise<any> {
+  async updateAdmin(req: Request, res: Response): Promise<any> {
     const id = req.body.id;
     try {
       const user = await userBD.updateType(id, "administrador");  //normal, premium, administrador
@@ -270,14 +271,14 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el tipo a administrador' });
     }
-  }
+  },
 
   /**
    * Banea a un usuario
    * El usuario a baenar se identifica con el id y se pasa en el body
    * Solo un administrador puede banear a un usuario
    */
-  public static async banUser(req: Request, res: Response): Promise<any> {
+  async banUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
     try {
       const user = await userBD.banUser(info.id);
@@ -285,14 +286,14 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al banear el usuario' });
     }
-  }
+  },
 
   /**
    * Desbanea a un usuario
    * El usuario a desbanear se identifica con el id y se pasa en el body
    * Solo un administrador puede desbanear a un usuario
    */
-  public static async unbanUser(req: Request, res: Response): Promise<any> {
+  async unbanUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
     try {
       const user = await userBD.unbanUser(info.id);
@@ -300,13 +301,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al desbanear el usuario' });
     }
-  }
+  },
 
   /**
    * Comprueba si un usuario está baneado.
    * El usuario se identifica con el token.
    */
-  public static async deleteUser(req: Request, res: Response): Promise<void> {
+  async deleteUser(req: Request, res: Response): Promise<void> {
     const id = req.body.idUser
     try {
       console.log('Borrando usuario: ', id);
@@ -317,13 +318,13 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al eliminar el usuario' });
     }
-  }
+  },
 
   /**
    * Obtiene un usuario por su correo
    * El usuario se identifica con el token.
    */
-  public static async getUser(req: Request, res: Response): Promise<void> {
+  async getUser(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -337,14 +338,14 @@ class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener el usuario' });
     }
-  }
+  },
 
   /**
    * Devuelve el id de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getId(req: Request, res: Response): Promise<void> {
+  async getId(req: Request, res: Response): Promise<void> {
     try{
       //const id = parseInt(req.params.id);
       //const user = await userBD.getUserById(id);
@@ -359,14 +360,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener el id' });
     }
-  }
+  },
 
   /**
    * Devuelve el correo de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getEmail(req: Request, res: Response): Promise<void> {
+  async getEmail(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -379,14 +380,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener el correo' });
     }
-  }
+  },
 
   /**
    * Devuelve el nombre de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getName(req: Request, res: Response): Promise<void> {
+  async getName(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -401,14 +402,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener el nombre' });
     }
-  }
+  },
 
   /**
    * Devuelve la contraseña de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getPassword(req: Request, res: Response): Promise<void> {
+  async getPassword(req: Request, res: Response): Promise<void> {
     try{
       const id = req.body.userId
       const user = await userBD.getPasswordById(id);
@@ -421,14 +422,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la contraseña' });
     }
-  }
+  },
 
   /**
    * Devuelve la edad de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getAge(req: Request, res: Response): Promise<void> {
+  async getAge(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -443,14 +444,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la edad' });
     }
-  }
+  },
 
   /**
    * Devuelve la descripción de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getDescription(req: Request, res: Response): Promise<void> {
+  async getDescription(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -465,14 +466,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la descripción' });
     }
-  }
+  },
 
   /**
    * Devuelve el sexo de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getSex(req: Request, res: Response): Promise<void> {
+  async getSex(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -487,14 +488,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener el sexo' });
     }
-  }
+  },
 
   /**
    * Devuelve la foto de perfil de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getPhoto(req: Request, res: Response): Promise<void> {
+  async getPhoto(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -509,14 +510,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la foto' });
     }
-  }
+  },
 
   /**
    * Devuelve la id de la localidad de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getLocation(req: Request, res: Response): Promise<void> {
+  async getLocation(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -531,14 +532,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener la localidad' });
     }
-  }
+  },
 
   /**
    * Devuelve las preferencias de un usuario.
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getPreferences(req: Request, res: Response): Promise<void> {
+  async getPreferences(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -555,14 +556,14 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener las preferencias' });
     }
-  }
+  },
 
   /**
    * Devuelve el tipo de usuario (administrados, normal, premium).
    * El usuario se pasa como parametro en la url
    * Necesita autenticación.
    */
-  public static async getType(req: Request, res: Response): Promise<void> {
+  async getType(req: Request, res: Response): Promise<void> {
     try{
       const id = parseInt(req.params.id);
       const user = await userBD.getUserById(id);
@@ -577,24 +578,24 @@ class UsuarioController {
     catch (error) {
       res.status(500).json({ error: 'Error al obtener el tipo' });
     }
-  }
+  },
 
-  public static async userExits(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async userExits(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const email = req.params.email;
+      const email = req.body.correo;
       const user = await userBD.getUserByEmail(email);
       if (user == null) {
         res.status(404).json({ error: 'El usuario introducido no existe' });
         return;
       }
-      res.status(200).json({ message: 'Usuario encontrado' });
+      console.log ("Usuario encontrado al cambiar contraseña")
       next();
     } catch (error) {
       res.status(500).json({ error: 'Error al buscar el usuario' });
     }
-  }
+  },
 
-  public static async getUsers(req: Request, res: Response): Promise<void> {
+  async getUsers(req: Request, res: Response): Promise<void> {
     try{
       const users = await userBD.getUsers();
       console.log(users);
@@ -604,9 +605,9 @@ class UsuarioController {
       console.error(error);
       res.status(500).json({ error: 'Error al obtener los usuarios' });
     }
-  }
+  },
 
-  public static async checkMatchUser(req: Request, res: Response, next: NextFunction) : Promise<any> {
+  async checkMatchUser(req: Request, res: Response, next: NextFunction) : Promise<any> {
     const idOtherUser = req.params.id;
     const idUserToken = req.body.idUser;
     try {
@@ -625,9 +626,9 @@ class UsuarioController {
     catch(error){
       res.status(500).json({ error: 'Error al comprobar si hay match con el usuario' });
     }
-  }
+  },
 
-  public static async getProfile(req: Request, res: Response): Promise<void> {
+  async getProfile(req: Request, res: Response): Promise<void> {
     try{
       console.log(req.body);
       const id = parseInt(req.body.idUser);
@@ -642,6 +643,24 @@ class UsuarioController {
     catch(error){
       console.error(error);
       res.status(500).json({ error: 'Error al obtener el perfil' });
+    }
+  },
+
+  async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const info = req.body;
+      const id = await userBD.getUserByEmail(info.correo).then((user) => user?.id);
+      if (id == null) {
+        res.status(404).json({ error: 'El usuario introducido no existe' });
+        return;
+      }
+      req.body.id = id;
+      console.log ("Usuario encontrado al resetear contraseña")
+      const user = await userBD.updatePassword(id, await bcrypt.hash(info.nuevaContrasena, 10));
+      console.log("Contraseña actualizada correctamente");
+      next();
+    } catch (error) {
+      res.status(500).json({ error: 'Error al resetear la contraseña' });
     }
   }
     

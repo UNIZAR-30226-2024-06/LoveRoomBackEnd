@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import  nodemailer  from 'nodemailer';
-import { nodeModuleNameResolver } from 'typescript';
+import { autenticacionController } from './autenticacionController';
 
 export const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Use `true` for port 465, `false` for all other ports
+    port: 465,
+    secure: true, // Use `true` for port 465, `false` for all other ports
     auth: {
       user: process.env.EMAIL,
       pass: process.env.PASSWORD,
@@ -13,14 +13,28 @@ export const transporter = nodemailer.createTransport({
   });
 
 const CorreoController = {
-    async sendEmail(req: Request, res: Response){
+    async sendEmailForgotPass(req: Request, res: Response){
+      try {
+        const code = autenticacionController.createRandomCode(req.body.correo);
+        console.log("Codigo generado: " + code);
+        //console.log(process.env.EMAIL);
+        //console.log(process.env.PASSWORD);
         const info = await transporter.sendMail({
-            from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
-            to: "bar@example.com, baz@example.com", // list of receivers
-            subject: "Hello ✔", // Subject line
-            text: "Hello world?", // plain text body
-            html: "<b>Hello world?</b>", // html body
+          from: 'Asistencia LoveRoom prueba@gmail.com', // sender address
+          to: req.body.correo, // list of receivers
+          subject: "Restablecimiento de contraseña", // Subject line
+          text: "El código que debes introducir para recuperar la contraseña es el siguiente: " + code.toString(), // plain text body          
+          //html: "<b>Hello world?</b>", // html body
         });
+        console.log("Correo para resetear contraseña enviado con exito");
+        return res.send({ mensaje: "Correo para resetear contraseña enviado con exito"});
+      }
+      catch (error) {
+        console.log(error);
+        console.log("Error al enviar el correo para resetear contraseña");
+        res.status(500).json({ error: "Error al enviar el correo para resetear contraseña" });
+      }
+        
     }
 }
 

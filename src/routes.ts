@@ -163,7 +163,7 @@ router.patch('/user/update/preferences', autenticacionController.checkAuthUser, 
 // Actualizar el tipo de usuario a admin, solo puede ser realizado por un admin
 router.patch('/user/update/type/admin', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateAdmin);
 // Actualizar el tipo de usuario a premium o normal: normal, premium
-router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, UsuarioController.updateType);
+router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateType);
 
 // Banear a un usuario, solo puede ser realizado por un admin
 router.patch('/user/ban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.banUser);
@@ -172,6 +172,8 @@ router.patch('/user/unban', autenticacionController.checkAuthUser, autenticacion
 // Comprobar token
 router.get('/user/check/token', autenticacionController.checkToken);
 
-router.post('/user/forgot/password', UsuarioController.userExits, CorreoController.sendEmail);
+router.post('/user/send/email', UsuarioController.userExits, CorreoController.sendEmailForgotPass);
+router.post('/user/check/code', UsuarioController.userExits, autenticacionController.checkCode.bind(autenticacionController));
+router.patch('/user/reset/password', autenticacionController.checkCodeMiddleware.bind(autenticacionController), UsuarioController.resetPassword, autenticacionController.crearToken);
 
 export default router;

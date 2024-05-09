@@ -6,6 +6,8 @@ import { getUserById } from '../db/usuarios';
 const secret = process.env.SECRET
 
 const autenticacionController = {
+    
+    VectorCode: new Map(),
 
     /**
      * Comprueba si el usuario esta autenticado.
@@ -124,7 +126,80 @@ const autenticacionController = {
         catch (error) {
             res.status(401).json({ error: 'No estas autenticado' });
         }
+    },
+
+    /** 
+     * Devuelve un codigo aleatorio de 6 caracteres y lo guarda en un vector con el correo.
+     * El codigo creado es el utilizado para recuperar la contraseña.
+     */
+    createRandomCode(correo: String): String{
+        //const code = Math.floor(Math.random() * 1000000);
+        const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let code = '';
+        const numberCharacters = 6;
+        for (let i = 0; i < numberCharacters; i++) {
+            const indice = Math.floor(Math.random() * caracteres.length);
+            code += caracteres.charAt(indice);
+        }
+        this.VectorCode.set(correo, code);
+        return code.toString();
+    },
+
+
+    /**
+     * Comprueba si el codigo introducido es valido
+     * El codigo es valido si es igual al codigo guardado en el vector con el correo.
+     * El codigo es no valido si no es igual al codigo guardado en el vector con el correo.
+     */
+    validCode(email: string, code: string): boolean {
+        try {
+            const codeVector = this.VectorCode.get(email);
+            if (codeVector == code) {
+                return true;
+            } else {
+                return false
+            }
+        } catch (error) {
+            return false
+        }
+    },
+
+    /**
+     * Compreuba si el codigo introducido es valido.
+     * Devuelve true si es valido
+     * Devuelve false si no es valido
+     */
+    async checkCode(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if (this.validCode(req.body.correo, req.body.codigo)) {
+                res.status(200).json({ valido: true });
+            } 
+            else {
+                res.status(401).json({ valido: false });
+            }
+        } catch (error) {
+            res.status(500).json({ valido: false });
+        }
+    },
+
+    /**
+     * Middleware que comprueba si el codigo introducido es valido.
+     * Si es valido continua con la siguiente funcion.
+     * Si no es valido devuelve un error 401.
+     */
+    async checkCodeMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if (this.validCode(req.body.correo, req.body.codigo)) {
+                next();
+            } 
+            else {
+                res.status(401).json({ error: "Codigo introducido no es correcto" });
+            }
+        } catch (error) {
+            res.status(500).json({ error: "Error al verificar el código" });
+        }
     }
+    
       
 }
 
