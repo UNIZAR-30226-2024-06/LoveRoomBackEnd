@@ -167,6 +167,22 @@ export const updateSincroSala = async (idSala: string, idVideo: string, tiempoSe
   });
 }
 
+// Actualiza el tiempo de una sala
+export const updateTimeSala = async (idSala: string, tiempoSegundos: number): Promise<any> => {
+  try {
+    const idSala_int = parseInt(idSala);
+    return await prisma.sala.update({
+      where: { id: idSala_int },
+      data: {
+        tiemposegundos: tiempoSegundos
+      }
+    });
+  } catch (error) {
+    console.error('Error al actualizar tiempo de sala:', error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
+}
+
 // Dado un id de usuario comprueba si ese usuario ha sobrepasado su limite de salas (3 para usuarios normales),
 // (infinitas para usuarios premium). Devuelve true si ha sobrepasado el limite, false en caso contrario
 export const sobrepasaLimiteSalas = async (idUsuario: string): Promise<any> => {
@@ -211,9 +227,27 @@ export const getNumSalasUsuario = async (idUsuario: string): Promise<any> => {
 
 //Dados dos ids de usuario crea una sala, devuelviendo su id 
 export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo: string): Promise<any> => {
+    // Obtenemos los nombres de los usuarios para el nombre de sala
+    const nombresUsers = await prisma.usuario.findMany({
+        where: {
+          OR: [
+            { id: parseInt(idUsuario1) },
+            { id: parseInt(idUsuario2) },
+          ],
+        },
+        select: {
+          nombre: true,
+        },
+    });
+
+    // Cogemos solo el nombre y no el apellido
+   const nombres = nombresUsers.map((user: { nombre: string }) => user.nombre.split(' ')[0]); // Asumiendo que estan separados por un espacio
+
+    const nombreSala = "Sala de " + nombres[0] + " y " + nombres[1];
+
     const nuevaSala = await prisma.sala.create({
         data: {
-          nombre: "Sala de " + idUsuario1 + " y " + idUsuario2,
+          nombre: nombreSala,
           idvideo: idVideo,
           estado: "sincronizada",
           tiemposegundos: 0,
@@ -236,6 +270,27 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
     });
 
     return nuevaSala;
+}
+
+//Dado un id de usuario, un id de sala y un nombre de sala, cambia el nombre de la sala si y solo si el usuario es participante
+export const changeNombreSala = async (idUsuario: string, idSala: string, nombre: string): Promise<any> => {
+  try {
+    const idSala_int = parseInt(idSala);
+    const idUsuario_int = parseInt(idUsuario);
+    await prisma.sala.update({
+        where: { id: idSala_int,
+                 participa: { some: { idusuario: idUsuario_int } } },
+        data: { nombre: nombre }
+    });
+  } catch (error: any) {
+    if (error.code && error.code === 'P2025') { // Verificar si el error es debido a que la sala no existe
+      console.error('Error: El usuario no pertenece a la sala indicada');
+      throw new Error('El usuario no pertenece a la sala indicada');
+    } else {
+      console.error('Error al cambiar nombre de sala:', error);
+      throw error; // Re-lanzar error para manejo en el nivel superior
+    }
+  }
 }
 
 //Dado el id de una sala y el id de un usuario, borra la sala si y solo si el usuario es participante

@@ -128,8 +128,6 @@ export const createUser = async (name: string, email: string, pass: string) =>{
             idlocalidad: 0,
         },
     });
-    console.log(nuevoUSuario);
-    console.log("Creado con exito");
     return nuevoUSuario;
 }
 
@@ -152,6 +150,9 @@ export const updateUser = async (id: number, info: string) => {
           idlocalidad: user.idlocalidad,
         },
     });
+  console.log(user);
+  console.log(usuario);
+  return usuario;
 }
 
 export const updateEmail = async (id: number, email: string) => {

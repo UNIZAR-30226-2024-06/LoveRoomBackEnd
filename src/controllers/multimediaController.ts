@@ -9,9 +9,8 @@ const MultimediaController = {
       return res.status(400).json({ error: "No file provided" });
     }
     const fileName = req.file.filename;
-    const ruta = uploadsDirectory + fileName;
-    const nombreArchivo = await createMultimedia(ruta, multimediaTypes.IMAGE);
-    console.log("Ruta foto " + ruta);
+    const nombreArchivo = await createMultimedia(fileName, multimediaTypes.IMAGE);
+    console.log("Ruta foto " + uploadsDirectory + "/" + fileName);
     return res.json({ nombreArchivo: fileName });
   },
 
@@ -20,17 +19,15 @@ const MultimediaController = {
       return res.status(400).json({ error: "No file provided" });
     }
     const fileName = req.file.filename;
-    const ruta = uploadsDirectory + fileName;
-    const nombreArchivo = await createMultimedia(ruta, multimediaTypes.VIDEO);
-    console.log("Ruta video " + ruta);
+    const nombreArchivo = await createMultimedia(fileName, multimediaTypes.VIDEO);
+    console.log("Ruta video " + uploadsDirectory + "/" + fileName);
     return res.json({ nombreArchivo: fileName });
   },
 
   deleteMultimedia: async (req: Request, res: Response): Promise<any> => {
     const { nombreArchivo } = req.params;
-    const rutaMultimedia = uploadsDirectory + "/" + nombreArchivo;
-    const result = await deleteMultimedia(rutaMultimedia);
-    console.log("Ruta multimedia eliminado: " + rutaMultimedia);
+    const result = await deleteMultimedia(nombreArchivo);
+    console.log("Ruta multimedia eliminado: " + uploadsDirectory + "/" + nombreArchivo);
   },
 
   getMultimedia: async (req: Request, res: Response): Promise<any> => {

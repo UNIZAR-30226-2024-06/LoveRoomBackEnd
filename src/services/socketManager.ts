@@ -2,16 +2,14 @@
 import { Server } from 'socket.io';
 import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
-import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala, updateSincroSala } from '../db/salas';
+import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala, updateSincroSala, updateTimeSala } from '../db/salas';
 import { createMensaje } from '../db/mensajes';
-import { info } from 'console';
 
 export default class SocketManager {
     private static instance: SocketManager;
     private io: Server | null = null;
     private users: Record<string, string> = {}; // userId -> socketId
     private userRooms: Record<string, string> = {}; // userId -> roomId
-    private times: Record<string, number> = {};
     private secret = process.env.SECRET
 
     private constructor() {
@@ -26,11 +24,16 @@ export default class SocketManager {
     }
 
     public async initSocketServer(httpServer : any) : Promise<void>  {
-        this.io = new Server(httpServer);
+        this.io = new Server(httpServer, {
+            cors: {
+                origin: "*", // Or specify your client's domain here
+                methods: ["GET", "POST"]
+            }
+        });
         console.log('Socket server started');
     
         this.io.use((socket: any, next) => {
-            //console.log('Middleware');
+            console.log('SOCKET MIDDLEWARE HAS ENTRADO');
             const token = socket.handshake.auth.token;
             //console.log('Token', token);
             if (!token) {
@@ -118,27 +121,28 @@ export default class SocketManager {
             
             // Evento para enviar un mensaje en una sala. (Nota: rutaMultimedia debe ser el path a una imagen ya subida al servidor?)
             socket.on(socketEvents.CREATE_MESSAGE, async (idsala: string, texto: string, rutamultimedia: string, 
-                callback: (sucess: boolean, timestamp: Date | null) => void) => {
+                callback: (success: boolean, idMsg: number, timestamp: Date | null) => void) => {
                 try {
                     console.log('Socket create message: ', texto, ' in room ', idsala);
 
                     const fechaHora = new Date();
                     // Ajustamos manualmente a la zona horaria de España (UTC+2)
                     fechaHora.setHours(fechaHora.getHours() + 2);
-                    
-                    // Emitimos el mensaje al otro usuario de la sala
-                    const senderID = userId.toString();
-                    socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, senderID, texto, rutamultimedia, fechaHora);
-                    
-                    // Notificamos al cliente que el mensaje ha sido enviado
-                    callback(true, fechaHora);
 
                     // Guardamos el mensaje en la BD
-                    await createMensaje(senderID, idsala, texto, rutamultimedia, fechaHora);
+                    const senderID = userId.toString();
+                    const mensaje = await createMensaje(senderID, idsala, texto, rutamultimedia, fechaHora);
+                    console.log('Mensaje creado: ', mensaje);
+                    
+                    // Emitimos el mensaje al otro usuario de la sala
+                    socket.to(idsala).emit(socketEvents.RECEIVE_MESSAGE, mensaje.id, senderID, texto, rutamultimedia, fechaHora);
+                    
+                    // Notificamos al cliente que el mensaje ha sido enviado
+                    callback(true, mensaje.id, fechaHora);
                 } catch (error) {
                     console.error('Error al enviar mensaje en la sala ' + idsala + ': ' + error);
                     // Notificamos el error al cliente
-                    callback(false, null);
+                    callback(false, -1, null);
                 }
             });
 
@@ -253,6 +257,18 @@ export default class SocketManager {
                 }
             });
 
+            // Evento para actualizar el tiempo de la sala en la BD
+            socket.on(socketEvents.STORE_TIME, (idSala: string, timesegundos: number) => {
+                try {
+                    console.log('Store time event in room ', idSala, ' with time ', timesegundos, ' by user ', userId);
+                    // Actualizamos la tabla sala de la BD con el nuevo tiempo
+                    const timeInt = Math.floor(timesegundos);
+                    updateTimeSala(idSala, timeInt);
+                } catch (error) {
+                    console.error('Error al actualizar el tiempo de la sala ' + idSala + ' por usuario ' + userId + ': ' + error);
+                }
+            });
+
             socket.on('disconnect', async () => {
                 console.log('User disconnected');
                 delete this.users[userId];  // Borramos al usuario de la lista de usuarios conectados
@@ -280,7 +296,7 @@ export default class SocketManager {
     }
 
     public emitMatch(senderId: string, receiverId: string, idSala: string, idVideo: string) {
-        if(this.io){
+        if(this.io && this.users[receiverId]){
             this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
                 senderId,
                 receiverId,
@@ -288,6 +304,15 @@ export default class SocketManager {
                 idVideo
             );
             console.log('Match sent by id: ', senderId, ' to id: ', receiverId, ' in room: ', idSala, ' with video: ', idVideo);
+        }
+    }
+
+    public emitUnmatch(idUsuario: string, idSala: string) {
+        if (this.io && this.users[idUsuario]) {
+            this.io.to(this.users[idUsuario]).emit(socketEvents.UNMATCH, idSala);
+            console.log('Unmatch sent in room:', idSala);
+        } else {
+            console.log('Socket is not initialized.');
         }
     }
 }

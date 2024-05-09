@@ -5,6 +5,7 @@ import {createSalaUnitaria,
         getInfoSalasUsuario,
         getEstadoSala,
         setEstadoSala,
+        changeNombreSala,
         deleteSalaUnitariaAtomic,
         sobrepasaLimiteSalas } from '../db/salas';
 import { createMatch } from '../db/match';
@@ -135,6 +136,23 @@ const SalaController = {
 
   },
 
+  setNombreSala: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const idUsuario = req.body.idUser;
+      const { idSala } = req.params;
+      const { nombreSala } = req.body;
+      await changeNombreSala(idUsuario, idSala, nombreSala);
+      return res.status(200).json({ message: "Nombre de sala actualizado" });
+    } catch (error: any) {
+      if (error.message && error.message === 'El usuario no pertenece a la sala indicada') {
+        return res.status(403).json({ error: "El usuario no pertenece a la sala indicada" });
+      } else {
+        console.error("Error al cambiar nombre de sala:", error);
+        return res.status(500).json({ error: "Error al cambiar nombre de sala" });
+      }
+    }
+  },
+
   getSalaSincronizada: async (req: Request, res: Response): Promise<any> => {
     try {
       const { idSala } = req.params;
@@ -151,8 +169,18 @@ const SalaController = {
     try {
       const idUsuario = req.body.idUser;
       const { idSala } = req.params;
+      // Obtenemos los participantes de la sala
+      const participantes = await getParticipantesSala(idSala);
+      // Borramos la sala si el usuario pertenece a ella
       const borrada = await deleteSala(idUsuario, idSala);
       console.log("Sala eliminada: ", borrada);
+      // Emitimos un evento UNMATCH a los participantes de la sala para que si estaban dentro se salgan
+      participantes.forEach(async (participante: any) => {
+        if (participante.idusuario.toString() !== idUsuario) {
+          console.log("Emitiendo unmatch a usuario", participante.idusuario.toString());
+          SocketManager.getInstance().emitUnmatch(participante.idusuario.toString(), idSala);
+        }
+      });
       return res.status(200).json({ message: "Sala eliminada correctamente" });
     } catch (error: any) {
       if (error.message && error.message === 'El usuario no pertenece a la sala indicada') {

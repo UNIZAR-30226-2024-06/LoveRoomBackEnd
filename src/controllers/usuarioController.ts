@@ -86,10 +86,13 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public static async updateUser(req: Request, res: Response): Promise<any> {
+    console.log("Actualizando usuario");
     const info = req.body;
-    const id = req.body.idUser
+    const id = req.body.idUser;
+    console.log(info);
     try {
       const user = await userBD.updateUser(id, JSON.stringify(info));
+      console.log(user);
       res.json("Usuario actualizado correctamente");
     } catch (error) {
       console.log(error);
