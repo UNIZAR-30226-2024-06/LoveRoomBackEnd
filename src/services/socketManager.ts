@@ -4,7 +4,6 @@ import { socketEvents } from '../constants/socketEvents';
 import { jwt } from '../index';
 import { changeVideoSala, setEstadoSala, deleteSalaUnitariaAtomic, cambiarVideoUnitaria, getInfoSala, updateSincroSala, updateTimeSala } from '../db/salas';
 import { createMensaje } from '../db/mensajes';
-import { info } from 'console';
 
 export default class SocketManager {
     private static instance: SocketManager;
@@ -25,7 +24,12 @@ export default class SocketManager {
     }
 
     public async initSocketServer(httpServer : any) : Promise<void>  {
-        this.io = new Server(httpServer);
+        this.io = new Server(httpServer, {
+            cors: {
+                origin: "*", // Or specify your client's domain here
+                methods: ["GET", "POST"]
+            }
+        });
         console.log('Socket server started');
     
         this.io.use((socket: any, next) => {
