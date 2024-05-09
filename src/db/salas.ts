@@ -241,7 +241,7 @@ export const createSala = async (idUsuario1: string, idUsuario2: string, idVideo
     });
 
     // Cogemos solo el nombre y no el apellido
-    const nombres = nombresUsers.map(user => user.nombre.split(' ')[0]); // Asumiendo que estan separados por un espacio
+   const nombres = nombresUsers.map((user: { nombre: string }) => user.nombre.split(' ')[0]); // Asumiendo que estan separados por un espacio
 
     const nombreSala = "Sala de " + nombres[0] + " y " + nombres[1];
 
