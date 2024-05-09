@@ -296,7 +296,7 @@ export default class SocketManager {
     }
 
     public emitMatch(senderId: string, receiverId: string, idSala: string, idVideo: string) {
-        if(this.io){
+        if(this.io && this.users[receiverId]){
             this.io.to(this.users[receiverId]).emit(socketEvents.MATCH, 
                 senderId,
                 receiverId,
@@ -304,6 +304,15 @@ export default class SocketManager {
                 idVideo
             );
             console.log('Match sent by id: ', senderId, ' to id: ', receiverId, ' in room: ', idSala, ' with video: ', idVideo);
+        }
+    }
+
+    public emitUnmatch(idUsuario: string, idSala: string) {
+        if (this.io && this.users[idUsuario]) {
+            this.io.to(this.users[idUsuario]).emit(socketEvents.UNMATCH, idSala);
+            console.log('Unmatch sent in room:', idSala);
+        } else {
+            console.log('Socket is not initialized.');
         }
     }
 }

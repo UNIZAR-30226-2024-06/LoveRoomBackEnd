@@ -169,13 +169,18 @@ export const updateSincroSala = async (idSala: string, idVideo: string, tiempoSe
 
 // Actualiza el tiempo de una sala
 export const updateTimeSala = async (idSala: string, tiempoSegundos: number): Promise<any> => {
-  const idSala_int = parseInt(idSala);
-  return await prisma.sala.update({
-    where: { id: idSala_int },
-    data: {
-      tiemposegundos: tiempoSegundos
-    }
-  });
+  try {
+    const idSala_int = parseInt(idSala);
+    return await prisma.sala.update({
+      where: { id: idSala_int },
+      data: {
+        tiemposegundos: tiempoSegundos
+      }
+    });
+  } catch (error) {
+    console.error('Error al actualizar tiempo de sala:', error);
+    throw error; // Re-lanzar error para manejo en el nivel superior
+  }
 }
 
 // Dado un id de usuario comprueba si ese usuario ha sobrepasado su limite de salas (3 para usuarios normales),
