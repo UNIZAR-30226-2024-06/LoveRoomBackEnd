@@ -72,11 +72,13 @@ router.post('/videos/watch/:idVideo', autenticacionController.checkAuthUser, Sal
 
 router.get('/rooms', autenticacionController.checkAuthUser, SalaController.getInfoSalasUsuario);
 
-router.get('/rooms/:idSala/members',autenticacionController.checkAuthUser, SalaController.getParticipantesSala);
+router.get('/rooms/:idSala/members', autenticacionController.checkAuthUser, SalaController.getParticipantesSala);
 
-router.get('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUser,SalaController.getSalaSincronizada);
+router.get('/rooms/:idSala/state/:idUsuario', autenticacionController.checkAuthUser,SalaController.getSalaSincronizada);
 
-router.put('/rooms/:idSala/state/:idUsuario',autenticacionController.checkAuthUser, SalaController.setEstadoSala);
+router.put('/rooms/:idSala/rename', autenticacionController.checkAuthUser, SalaController.setNombreSala);
+
+router.put('/rooms/:idSala/state/:idUsuario', autenticacionController.checkAuthUser, SalaController.setEstadoSala);
 
 router.delete('/rooms/:idSala', autenticacionController.checkAuthUser, SalaController.deleteSala);
 

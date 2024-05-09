@@ -5,6 +5,7 @@ import {createSalaUnitaria,
         getInfoSalasUsuario,
         getEstadoSala,
         setEstadoSala,
+        changeNombreSala,
         deleteSalaUnitariaAtomic,
         sobrepasaLimiteSalas } from '../db/salas';
 import { createMatch } from '../db/match';
@@ -133,6 +134,23 @@ const SalaController = {
       return res.status(500).json({ error: "Error al actualizar estado de sala" });
     }
 
+  },
+
+  setNombreSala: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const idUsuario = req.body.idUser;
+      const { idSala } = req.params;
+      const { nombreSala } = req.body;
+      await changeNombreSala(idUsuario, idSala, nombreSala);
+      return res.status(200).json({ message: "Nombre de sala actualizado" });
+    } catch (error: any) {
+      if (error.message && error.message === 'El usuario no pertenece a la sala indicada') {
+        return res.status(403).json({ error: "El usuario no pertenece a la sala indicada" });
+      } else {
+        console.error("Error al cambiar nombre de sala:", error);
+        return res.status(500).json({ error: "Error al cambiar nombre de sala" });
+      }
+    }
   },
 
   getSalaSincronizada: async (req: Request, res: Response): Promise<any> => {
