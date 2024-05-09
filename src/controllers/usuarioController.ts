@@ -643,7 +643,7 @@ class UsuarioController {
     }
   }
 
-  public static async resetPassword(req: Request, res: Response): Promise<void> {
+  public static async resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const info = req.body;
       const id = await userBD.getUserByEmail(info.correo).then((user) => user?.id);
@@ -651,9 +651,11 @@ class UsuarioController {
         res.status(404).json({ error: 'El usuario introducido no existe' });
         return;
       }
+      req.body.id = id;
       console.log ("Usuario encontrado al resetear contraseña")
       const user = await userBD.updatePassword(id, await bcrypt.hash(info.nuevaContrasena, 10));
-      res.json("Contraseña actualizada correctamente");
+      console.log("Contraseña actualizada correctamente");
+      next();
     } catch (error) {
       res.status(500).json({ error: 'Error al resetear la contraseña' });
     }
