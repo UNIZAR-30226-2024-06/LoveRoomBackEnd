@@ -23,7 +23,7 @@ jobs:
     - name: DB pull
       run: npx prisma db pull
       env: 
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
@@ -31,15 +31,16 @@ jobs:
     - name: Generate prisma client
       run: npx prisma generate 
       env: 
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
+      
 
     - name: Deploy Backend
       run: npm run dev &
       env: 
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
@@ -47,7 +48,7 @@ jobs:
     - name: Run Jest Tests
       run: npm test
       env: 
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
