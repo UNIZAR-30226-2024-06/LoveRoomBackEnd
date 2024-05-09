@@ -102,9 +102,9 @@ router.delete('/reports/:idReport', autenticacionController.checkAuthUser, auten
 
 //------------------------------------------------Rutas de multimedia------------------------------------------------
 
-router.post('/multimedia/upload/foto', upload.single('file'), MultimediaController.uploadFoto);
+router.post('/multimedia/upload/foto/:idUsuario', [upload.single('file'),autenticacionController.checkAuthUser], MultimediaController.uploadFoto);
 
-router.post('/multimedia/upload/video/:idUsuario', upload.single('file'),MultimediaController.uploadVideo);
+router.post('/multimedia/upload/video/:idUsuario', [upload.single('file'),autenticacionController.checkAuthUser],MultimediaController.uploadVideo);
 
 router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMultimedia);
 
