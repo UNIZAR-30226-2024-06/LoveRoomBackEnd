@@ -87,7 +87,8 @@ class UsuarioController {
    */
   public static async updateUser(req: Request, res: Response): Promise<any> {
     const info = req.body;
-    const id = req.body.idUser
+    const id = req.body.idUser;
+    console.log(info);
     try {
       const user = await userBD.updateUser(id, JSON.stringify(info));
       console.log(user);
