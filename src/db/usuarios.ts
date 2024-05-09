@@ -152,6 +152,8 @@ export const updateUser = async (id: number, info: string) => {
           idlocalidad: user.idlocalidad,
         },
     });
+  console.log(user);
+  console.log(usuario);
 }
 
 export const updateEmail = async (id: number, email: string) => {
