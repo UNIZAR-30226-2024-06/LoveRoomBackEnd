@@ -89,7 +89,6 @@ class UsuarioController {
     console.log("Actualizando usuario");
     const info = req.body;
     const id = req.body.idUser;
-    console.log(JSON.stringify(info));
     console.log(info);
     try {
       const user = await userBD.updateUser(id, JSON.stringify(info));
