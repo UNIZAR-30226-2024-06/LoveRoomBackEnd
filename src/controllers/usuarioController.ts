@@ -86,6 +86,7 @@ class UsuarioController {
    * El usuario se identifica con el token.
    */
   public static async updateUser(req: Request, res: Response): Promise<any> {
+    console.log("Actualizando usuario");
     const info = req.body;
     const id = req.body.idUser;
     console.log(info);
