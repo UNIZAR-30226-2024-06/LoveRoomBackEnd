@@ -24,13 +24,17 @@ jobs:
       run: npx prisma db pull
       env: 
         DATABASE_URL:   ${{ secrets.DATABASE_URL }}
-        SECRET: $${{ secrets.SECRET }}
+        SECRET: ${{ secrets.SECRET }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        EMAIL: ${{ secrets.EMAIL }}
         
     - name: Generate prisma client
       run: npx prisma generate 
       env: 
         DATABASE_URL:   ${{ secrets.DATABASE_URL }}
         SECRET: ${{ secrets.SECRET }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        EMAIL: ${{ secrets.EMAIL }}
       
 
     - name: Deploy Backend
@@ -38,6 +42,8 @@ jobs:
       env: 
         DATABASE_URL:   ${{ secrets.DATABASE_URL }}
         SECRET: ${{ secrets.SECRET }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        EMAIL: ${{ secrets.EMAIL }}
 
     - name: Wait for Backend Deployment
       uses: jakejarvis/wait-action@master
@@ -48,5 +54,7 @@ jobs:
       run: npm test
       env: 
         DATABASE_URL:   ${{ secrets.DATABASE_URL }}
-        SECRET: $${{ secrets.SECRET }}
+        SECRET: ${{ secrets.SECRET }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+        EMAIL: ${{ secrets.EMAIL }}
                     
