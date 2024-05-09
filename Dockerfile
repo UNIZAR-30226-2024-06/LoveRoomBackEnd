@@ -18,8 +18,6 @@ RUN npm install
 
 # Copiamos el resto de los archivos de la aplicación
 COPY . .
-#Creamos el directorio correspondiente a los archivos multimedia
-RUN mkdir dist/uploads
 
 #Compilamos el codigo
 RUN npm run build
@@ -29,6 +27,9 @@ RUN npx prisma db pull
 
 #Generamos el cliente de prisma
 RUN npx prisma generate
+
+#Creamos el directorio correspondiente a los archivos multimedia
+RUN mkdir dist/uploads
 
 # Exponemos el puerto en el que corre la aplicación Node.js
 EXPOSE 5000
