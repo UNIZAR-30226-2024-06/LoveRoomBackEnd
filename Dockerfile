@@ -35,6 +35,9 @@ RUN npx prisma generate
 #Creamos el directorio correspondiente a los archivos multimedia
 RUN mkdir dist/uploads
 
+# Cambia el user a root
+USER root
+
 # Añadimos el dns de google
 RUN echo "nameserver 8.8.8.8" >> /etc/resolv.conf 
 
