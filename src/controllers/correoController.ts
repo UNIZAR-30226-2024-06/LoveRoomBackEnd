@@ -4,8 +4,8 @@ import { autenticacionController } from './autenticacionController';
 
 export const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Use `true` for port 465, `false` for all other port
+    port: 465,
+    secure: true, // Use `true` for port 465, `false` for all other port
     auth: {
       user: process.env.EMAIL,
       pass: process.env.PASSWORD,
