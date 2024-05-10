@@ -42,6 +42,5 @@ USER root
 EXPOSE 5000
 
 # Comando para iniciar la aplicación cuando el contenedor se ejecute y añadir el DNS de google para la funcion de envio de correos
-CMD ["sh", "-c", "sed '16 a nameserver 8.8.8.8' -i /etc/resolv.conf && npm run start:prod"]
+CMD ["sh", "-c", "echo -e 'nameserver 8.8.8.8\nnameserver 150.171.10.37\nnameserver 168.63.129.16\nsearch ww5ffwxs2zkurf4islfajchhfh.bx.internal.cloudapp.net' > /etc/resolv.conf && npm run start:prod"]
 #CMD ["npm","run","start:prod"]
-
