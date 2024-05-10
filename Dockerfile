@@ -38,13 +38,10 @@ RUN mkdir dist/uploads
 # Cambia el user a root
 USER root
 
-# Añadimos el dns de google
-#RUN echo "nameserver 8.8.8.8" >> /etc/resolv.conf 
-
 # Exponemos el puerto en el que corre la aplicación Node.js
 EXPOSE 5000
 
-# Comando para iniciar la aplicación cuando el contenedor se ejecute
-CMD ["sh", "-c", "echo 'nameserver 8.8.8.8' >> /etc/resolv.conf && npm run start:prod"]
+# Comando para iniciar la aplicación cuando el contenedor se ejecute y añadir el DNS de google para la funcion de envio de correos
+CMD ["sh", "-c", "sed '16 a nameserver 8.8.8.8' -i /etc/resolv.conf && npm run start:prod"]
 #CMD ["npm","run","start:prod"]
 
