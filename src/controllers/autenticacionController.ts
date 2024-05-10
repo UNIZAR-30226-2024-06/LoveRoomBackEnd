@@ -175,10 +175,10 @@ const autenticacionController = {
                 res.status(200).json({ valido: true });
             } 
             else {
-                res.status(401).json({ valido: false });
+                res.status(401).json({ error: "El codigo introducido no es correcto", valido: false });
             }
         } catch (error) {
-            res.status(500).json({ valido: false });
+            res.status(500).json({ error: "Error al verificar el codigo", valido: false });
         }
     },
 
