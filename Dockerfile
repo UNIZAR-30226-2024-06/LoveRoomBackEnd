@@ -45,6 +45,6 @@ USER root
 EXPOSE 5000
 
 # Comando para iniciar la aplicación cuando el contenedor se ejecute
-CMD ["sh", "-c", "echo 'nameserver $DNS' >> /etc/resolv.conf && npm run start:prod"]
+CMD ["sh", "-c", "echo 'nameserver 8.8.8.8' >> /etc/resolv.conf && npm run start:prod"]
 #CMD ["npm","run","start:prod"]
 
