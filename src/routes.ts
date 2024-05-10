@@ -175,6 +175,7 @@ router.get('/user/check/token', autenticacionController.checkToken);
 // Rutas recuperar contraseña por correo
 router.post('/user/send/email', UsuarioController.userExits, CorreoController.sendEmailForgotPass);
 router.post('/user/check/code', UsuarioController.userExits, autenticacionController.checkCode.bind(autenticacionController));
-router.patch('/user/reset/password', autenticacionController.checkCodeMiddleware.bind(autenticacionController), UsuarioController.resetPassword, autenticacionController.crearToken);
+router.patch('/user/reset/password', UsuarioController.userExits, autenticacionController.checkCodeMiddleware.bind(autenticacionController), 
+  UsuarioController.resetPassword, autenticacionController.crearToken);
 
 export default router;
