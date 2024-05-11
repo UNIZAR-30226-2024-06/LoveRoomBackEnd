@@ -42,7 +42,10 @@ const UsuarioController = {
       const userPass = await userBD.getPasswordByEmail(info.correo);
       const isCorrect = userPass?.contrasena ? await bcrypt.compare(info.contrasena, userPass?.contrasena) : false;
       console.log(userPass?.contrasena);
-      if (user == null) {
+      if ( info.correo == "" ){
+        res.status(400).json({ error: 'Es necesario introducir un correo' });
+      }
+      else if ( user == null ) {
         res.status(401).json({ error: 'El usuario introducido no existe' });
       } 
       else if (!isCorrect) {

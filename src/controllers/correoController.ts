@@ -17,9 +17,9 @@ const CorreoController = {
       try {
         const code = autenticacionController.createRandomCode(req.body.correo);
         console.log("Codigo generado: " + code);
-        console.log(process.env.EMAIL);
-        console.log(process.env.PASSWORD);
-        const info = await transporter.sendMail({
+        //console.log(process.env.EMAIL);
+        //console.log(process.env.PASSWORD);
+        const info = transporter.sendMail({
           from: 'Asistencia LoveRoom prueba@gmail.com', // sender address
           to: req.body.correo, // list of receivers
           subject: "Restablecimiento de contraseña", // Subject line
