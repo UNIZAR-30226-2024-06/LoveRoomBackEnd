@@ -12,8 +12,20 @@ const UsuarioController = {
    * El usuario se registra con un correo, nombre y contraseña.
    */
   async registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const info = req.body;
     try {
+      const info = req.body;
+      if (info.nombre == "") {
+        res.status(400).json({ error: 'Es necesario introducir un nombre' });
+        return
+      }
+      else if (info.correo == "") {
+        res.status(400).json({ error: 'Es necesario introducir un correo' });
+        return
+      }
+      else if (info.contrasena == "") {
+        res.status(400).json({ error: 'Es necesario introducir una contraseña' });
+        return
+      }
       console.log(info);
       const encryptedPass = await bcrypt.hash(info.contrasena, 10);
       const newUser = await userBD.createUser(info.nombre, info.correo, encryptedPass);
@@ -48,7 +60,10 @@ const UsuarioController = {
       else if ( user == null ) {
         res.status(401).json({ error: 'El usuario introducido no existe' });
       } 
-      else if (!isCorrect) {
+      else if ( info.contrasena == "" ){
+        res.status(400).json({ error: 'Es necesario introducir una contraseña' });
+      }
+      else if (!isCorrect ) {
         res.status(401).json({ error: 'Contraseña incorrecta' });
       }
       else if (user.baneado) {
@@ -71,6 +86,10 @@ const UsuarioController = {
    */
   async mailAlreadyUse(req: Request, res: Response, next: NextFunction): Promise<void> {
     const info = req.body;
+    if (info.correo == "") {
+      res.status(400).json({ error: 'Es necesario introducir un correo' });
+      return
+    }
     try {
       const user = await userBD.getUserByEmail(info.correo);
       if (user != null && user.id != req.body.idUser) {
