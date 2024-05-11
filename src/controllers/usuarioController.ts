@@ -587,7 +587,11 @@ const UsuarioController = {
     try {
       const email = req.body.correo;
       const user = await userBD.getUserByEmail(email);
-      if (user == null) {
+      if (req.body.correo == "") {
+        res.status(400).json({ error: 'Es necesario introducir un correo' });
+        return
+      }
+      else if (user == null) {
         res.status(404).json({ error: 'El usuario introducido no existe' });
         return;
       }
