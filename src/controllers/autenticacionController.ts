@@ -171,7 +171,7 @@ const autenticacionController = {
      */
     async checkCode(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            if (this.validCode(req.body.correo, req.body.codigo)) {
+            if (this.validCode(req.body.correo, req.body.codigo) && req.body.codigo != "") {
                 res.status(200).json({ valido: true });
             } 
             else {

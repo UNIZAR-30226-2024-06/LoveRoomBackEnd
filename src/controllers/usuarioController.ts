@@ -661,6 +661,10 @@ const UsuarioController = {
         res.status(404).json({ error: 'El usuario introducido no existe' });
         return;
       }
+      if ( info.nuevaContrasena == "" ){
+        res.status(400).json({ error: 'Es necesario introducir una contraseña' });
+        return
+      }
       req.body.id = id;
       console.log ("Usuario encontrado al resetear contraseña")
       const user = await userBD.updatePassword(id, await bcrypt.hash(info.nuevaContrasena, 10));
