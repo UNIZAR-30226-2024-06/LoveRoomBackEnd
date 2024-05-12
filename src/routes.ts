@@ -115,7 +115,7 @@ router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMu
 
 router.get('/payment/client_token/', autenticacionController.checkAuthUser, PagosController.generarEnlacePago);
 
-router.post('/payment/transaction/', autenticacionController.checkAuthUser, PagosController.crearPago);
+router.post('/payment/transaction/', autenticacionController.checkAuthUser, PagosController.crearPago, UsuarioController.updateTypeToPremiun);
 
 //------------------------------------------------Rutas de usuarios------------------------------------------------
 
@@ -165,10 +165,9 @@ router.patch('/user/update/photo', autenticacionController.checkAuthUser, Usuari
 router.patch('/user/update/location', autenticacionController.checkAuthUser, UsuarioController.updateLocation);
 router.patch('/user/update/preferences', autenticacionController.checkAuthUser, UsuarioController.updatePreferences);
 
-// Actualizar el tipo de usuario a admin, solo puede ser realizado por un admin
-router.patch('/user/update/type/admin', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateAdmin);
-// Actualizar el tipo de usuario a premium o normal: normal, premium
-router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateType);
+// Actualizar el tipo de desde el perfil de administrador.
+router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateTypeFromAdmin);
+// TIpos: normal, premium, administrador
 
 // Banear a un usuario, solo puede ser realizado por un admin
 router.patch('/user/ban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.banUser);

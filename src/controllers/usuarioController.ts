@@ -268,15 +268,15 @@ const UsuarioController = {
    * Se actualiza segun el tipo introducido en la ulr (normal, premium)
    * El usuario se identifica con el token.
    */
-  async updateType(req: Request, res: Response): Promise<any> {
-    //const id = req.body.idUser
-    const id = req.body.id;   
+  async updateTypeToPremiun(req: Request, res: Response): Promise<any> {
+    const id = req.body.idUser
+    //const id = req.body.id;   
     console.log(req.params.type);
     try {
-      const user = await userBD.updateType(id, req.params.type);  //normal, premium, administrador
+      const user = await userBD.updateType(id, "premium");  //normal, premium, administrador
       res.json("Tipo actualizado correctamente");
     } catch (error) {
-      res.status(500).json({ error: 'Error al actualizar el tipo a premiun' });
+      res.status(500).json({ error: 'Error al actualizar el tipo a premium' });
     }
   },
 
@@ -285,10 +285,14 @@ const UsuarioController = {
    * Solo un administrador puede actualizar el tipo de un usuario a administrador.
    * El usuario a actualizar se identifica con el id y se pasa en el body.
    */
-  async updateAdmin(req: Request, res: Response): Promise<any> {
+  async updateTypeFromAdmin(req: Request, res: Response): Promise<any> {
     const id = req.body.id;
+    let role = req.params.type;
+    if (req.params.type == "admin") {
+      role = "administrador";
+    }
     try {
-      const user = await userBD.updateType(id, "administrador");  //normal, premium, administrador
+      const user = await userBD.updateType(id, role);  //normal, premium, administrador
       res.json("Tipo actualizado correctamente");
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el tipo a administrador' });
