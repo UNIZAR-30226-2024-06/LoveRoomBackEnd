@@ -165,9 +165,9 @@ router.patch('/user/update/photo', autenticacionController.checkAuthUser, Usuari
 router.patch('/user/update/location', autenticacionController.checkAuthUser, UsuarioController.updateLocation);
 router.patch('/user/update/preferences', autenticacionController.checkAuthUser, UsuarioController.updatePreferences);
 
-// Actualizar el tipo de desde el perfil de administrador.
+// Actualizar el tipo de desde el perfil de administrador; Tipos: normal, premium, administrador.
 router.patch('/user/update/type/:type', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.updateTypeFromAdmin);
-// TIpos: normal, premium, administrador
+// Tipos: normal, premium, administrador
 
 // Banear a un usuario, solo puede ser realizado por un admin
 router.patch('/user/ban', autenticacionController.checkAuthUser, autenticacionController.checkAdmin, UsuarioController.banUser);

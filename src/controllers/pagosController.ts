@@ -33,7 +33,7 @@ const PagosController = {
           }
     },
 
-    crearPago: async(req: Request, res: Response): Promise<any> => {
+    crearPago: async(req: Request, res: Response, next: NextFunction): Promise<any> => {
         const idUser = req.body.idUser;
         const amount = req.body.amount;
         const paymentMethodNonce = req.body.paymentMethodNonce;
@@ -48,7 +48,8 @@ const PagosController = {
                 success: true,
                 transactionId: result.transaction.id
               };
-              return res.json(response);
+              res.send(response);
+              next();
             } else {
               // El pago falló
               const response = {
