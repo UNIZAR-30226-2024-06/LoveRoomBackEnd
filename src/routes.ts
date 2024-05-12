@@ -115,7 +115,7 @@ router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMu
 
 router.get('/payment/client_token/', autenticacionController.checkAuthUser, PagosController.generarEnlacePago);
 
-router.post('/payment/transaction/', autenticacionController.checkAuthUser, PagosController.crearPago, UsuarioController.updateTypeToPremiun);
+router.post('/payment/transaction/', autenticacionController.checkAuthUser, PagosController.crearPago);
 
 //------------------------------------------------Rutas de usuarios------------------------------------------------
 

@@ -33,23 +33,23 @@ const PagosController = {
           }
     },
 
-    crearPago: async(req: Request, res: Response, next: NextFunction): Promise<any> => {
+    crearPago: async(req: Request, res: Response): Promise<any> => {
         const idUser = req.body.idUser;
         const amount = req.body.amount;
         const paymentMethodNonce = req.body.paymentMethodNonce;
         try {
             // Realizar el pago utilizando el nonce del método de pago
             const result = {success: true, transaction: {id: "123456"},message: "Error al procesar el pago"};
-      
+            console.log('Id de usuario:', idUser);
             if (result.success) {
               // El pago se realizó con éxito
-              const user = await updateType(idUser, 'premium');  
+              console.log('Pago realizado con éxito');
+              const user = await updateType(idUser, "premium");
               const response = {
                 success: true,
                 transactionId: result.transaction.id
               };
-              res.send(response);
-              next();
+              return res.json(response);
             } else {
               // El pago falló
               const response = {
