@@ -108,8 +108,10 @@ const UsuarioController = {
    */
   async updateUser(req: Request, res: Response): Promise<any> {
     console.log("Actualizando usuario");
-    const id = req.body.idUser;
-    delete req.body.idUser;
+    if(req.body.idUser){
+      const id = req.body.idUser;
+      delete req.body.idUser;
+    }
     const info = req.body;
     console.log(info);
     try {

@@ -77,4 +77,3 @@ const PagosController = {
 }
 
 export default PagosController;
-
