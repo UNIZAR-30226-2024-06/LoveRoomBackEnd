@@ -54,11 +54,6 @@ jobs:
         BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
         BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
 
-    - name: Wait for Backend Deployment
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '1m' # Espera durante 1 minuto
-
     - name: Run Jest Tests
       run: npm test
       env: 
