@@ -43,6 +43,7 @@ const PagosController = {
       
             if (result.success) {
               // El pago se realizó con éxito
+              const user = await updateType(idUser, 'premium');  
               const response = {
                 success: true,
                 transactionId: result.transaction.id
