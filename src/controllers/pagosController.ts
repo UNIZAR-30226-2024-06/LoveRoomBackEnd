@@ -15,13 +15,11 @@ const PagosController = {
         try {
             const idUser = req.body.idUser;
             // Generar un token de cliente
-            const clientToken = await gateway.clientToken.generate({
-              customerId: idUser
-            });
+            const clientToken = "56";
       
             const response = {
               success: true,
-              clientToken: clientToken.clientToken
+              clientToken: clientToken
             };
             return res.json(response);
 
@@ -41,13 +39,7 @@ const PagosController = {
         const paymentMethodNonce = req.body.paymentMethodNonce;
         try {
             // Realizar el pago utilizando el nonce del método de pago
-            const result = await gateway.transaction.sale({
-              amount: amount,
-              paymentMethodNonce: paymentMethodNonce,
-              options: {
-                submitForSettlement: true
-              }
-            });
+            const result = {success: true, transaction: {id: "123456"},message: "Error al procesar el pago"};
       
             if (result.success) {
               // El pago se realizó con éxito
@@ -76,4 +68,4 @@ const PagosController = {
     }
 }
 
-export default PagosController;
+export default PagosController
