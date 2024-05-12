@@ -123,7 +123,7 @@ jobs:
         run: ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} 'docker run -v loveroom_multimedia_files:/usr/src/app/dist -d --name loveroom_container -p 5000:5000 -e DATABASE_URL="${{ secrets.DATABASE_URL }}" -e SECRET="${{ secrets.SECRET }}" loveroom'
 
       - name: Change Nginx Configuration
-        run: ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} 'head -n 19 /etc/nginx/nginx.conf > /tmp/nginx_temp.txt; echo "client_max_body_size 100M;" >> /tmp/nginx_temp.txt; tail -n +20 /etc/nginx/nginx.conf >> /tmp/nginx_temp.txt; sudo mv /tmp/nginx_temp.txt /etc/nginx/nginx.conf'
+        run: ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "sudo sed '13 a client_max_body_size 100M;' -i /etc/nginx/nginx.conf"
 
       - name: Restart Nginx on Azure VM
         run: |
