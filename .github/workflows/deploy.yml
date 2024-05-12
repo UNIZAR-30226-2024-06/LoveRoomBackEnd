@@ -3,7 +3,7 @@ name: Docker Deployment
 on:
   push:
     branches:
-      - main  
+      - main
 
 jobs:
   test_backend_locally:
@@ -11,118 +11,120 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install backend dependencies
-      run: npm install
-      
-    - name: Install debug and axios
-      run: npm install debug axios
+      - name: Install backend dependencies
+        run: npm install
 
-    - name: DB pull
-      run: npx prisma db pull
-      env: 
-        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
-        SECRET: ${{ secrets.SECRET }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        EMAIL: ${{ secrets.EMAIL }}
-        
-    - name: Generate prisma client
-      run: npx prisma generate 
-      env: 
-        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
-        SECRET: ${{ secrets.SECRET }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        EMAIL: ${{ secrets.EMAIL }}
-        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
-        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
-        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
-      
+      - name: Install debug and axios
+        run: npm install debug axios
 
-    - name: Deploy Backend
-      run: npm run dev &
-      env: 
-        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
-        SECRET: ${{ secrets.SECRET }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        EMAIL: ${{ secrets.EMAIL }}
-        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
-        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
-        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
+      - name: DB pull
+        run: npx prisma db pull
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET: ${{ secrets.SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          EMAIL: ${{ secrets.EMAIL }}
 
-    - name: Run Jest Tests
-      run: npm test
-      env: 
-        DATABASE_URL:   ${{ secrets.DATABASE_URL }}
-        SECRET: ${{ secrets.SECRET }}
-        PASSWORD: ${{ secrets.PASSWORD }}
-        EMAIL: ${{ secrets.EMAIL }}
-        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
-        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
-        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
-        
+      - name: Generate prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET: ${{ secrets.SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          EMAIL: ${{ secrets.EMAIL }}
+          BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+          BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+          BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
+
+      - name: Deploy Backend
+        run: npm run dev &
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET: ${{ secrets.SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          EMAIL: ${{ secrets.EMAIL }}
+          BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+          BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+          BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
+
+      - name: Run Jest Tests
+        run: npm test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET: ${{ secrets.SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          EMAIL: ${{ secrets.EMAIL }}
+          BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+          BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+          BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
+
   deploy:
     runs-on: ubuntu-latest
     needs: test_backend_locally
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Build Docker image
-      run: |    
-        docker build -t loveroom \
-        --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
-        --build-arg SECRET="${{ secrets.SECRET }}" \
-        --build-arg PASSWORD='${{ secrets.PASSWORD }}' \
-        --build-arg EMAIL="${{ secrets.EMAIL }}" \
-        --build-arg BRAINTREE_MERCHANT_ID="${{ secrets.BRAINTREE_MERCHANT_ID }}" \
-        --build-arg BRAINTREE_PUBLIC_KEY="${{ secrets.BRAINTREE_PUBLIC_KEY }}" \
-        --build-arg BRAINTREE_PRIVATE_KEY="${{ secrets.BRAINTREE_PRIVATE_KEY }}" \
-        .
+      - name: Build Docker image
+        run: |
+          docker build -t loveroom \
+          --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+          --build-arg SECRET="${{ secrets.SECRET }}" \
+          --build-arg PASSWORD='${{ secrets.PASSWORD }}' \
+          --build-arg EMAIL="${{ secrets.EMAIL }}" \
+          --build-arg BRAINTREE_MERCHANT_ID="${{ secrets.BRAINTREE_MERCHANT_ID }}" \
+          --build-arg BRAINTREE_PUBLIC_KEY="${{ secrets.BRAINTREE_PUBLIC_KEY }}" \
+          --build-arg BRAINTREE_PRIVATE_KEY="${{ secrets.BRAINTREE_PRIVATE_KEY }}" \
+          .
 
-    - name: Save Docker image to file
-      run: docker save loveroom > image.tar
+      - name: Save Docker image to file
+        run: docker save loveroom > image.tar
 
-    - name: Setup SSH
-      run: |
-        echo "${{ secrets.AZURE_SSH_KEY }}" > ssh_key.pem
-        chmod 600 ssh_key.pem
-        
-    - name: Set timestamp as environment variable
-      run: |
-        echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
-        
-    - name: Debug - Print TIMESTAMP
-      run: |
-        echo "TIMESTAMP: ${{ env.TIMESTAMP }}"
+      - name: Setup SSH
+        run: |
+          echo "${{ secrets.AZURE_SSH_KEY }}" > ssh_key.pem
+          chmod 600 ssh_key.pem
 
-    - name: Add timestamp to image name
-      run: |
-        mv image.tar "image_${{ env.TIMESTAMP }}.tar"
-    
-    - name: Copy image to Azure VM
-      run: | 
-        scp -i ssh_key.pem -o StrictHostKeyChecking=no "image_${{ env.TIMESTAMP }}.tar" ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/${{ secrets.AZURE_USERNAME }}/loveroom_images/
-    
-    - name: Stop and remove existing Docker container on Azure VM if running
-      run: |
-        is_running=$(ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker ps -q -f name=loveroom_container")
-        if [ -n "$is_running" ]; then
-          echo "Container is running."
-          ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker stop loveroom_container && docker rm loveroom_container"
-        else
-          echo "Container is not running."
-        fi
-        
-    - name: Load Docker image on Azure VM
-      run: | 
-        ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker load -i /home/${{ secrets.AZURE_USERNAME }}/loveroom_images/image_${{ env.TIMESTAMP }}.tar"
+      - name: Set timestamp as environment variable
+        run: |
+          echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
-    - name: Run Docker container on Azure VM
-      run: ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} 'docker run -v loveroom_multimedia_files:/usr/src/app/dist -d --name loveroom_container -p 5000:5000 -e DATABASE_URL="${{ secrets.DATABASE_URL }}" -e SECRET="${{ secrets.SECRET }}" loveroom'
+      - name: Debug - Print TIMESTAMP
+        run: |
+          echo "TIMESTAMP: ${{ env.TIMESTAMP }}"
 
-    - name: Restart Nginx on Azure VM
-      run: | 
-       ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "sudo systemctl restart nginx"   
+      - name: Add timestamp to image name
+        run: |
+          mv image.tar "image_${{ env.TIMESTAMP }}.tar"
+
+      - name: Copy image to Azure VM
+        run: |
+          scp -i ssh_key.pem -o StrictHostKeyChecking=no "image_${{ env.TIMESTAMP }}.tar" ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/${{ secrets.AZURE_USERNAME }}/loveroom_images/
+
+      - name: Stop and remove existing Docker container on Azure VM if running
+        run: |
+          is_running=$(ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker ps -q -f name=loveroom_container")
+          if [ -n "$is_running" ]; then
+            echo "Container is running."
+            ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker stop loveroom_container && docker rm loveroom_container"
+          else
+            echo "Container is not running."
+          fi
+
+      - name: Load Docker image on Azure VM
+        run: |
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker load -i /home/${{ secrets.AZURE_USERNAME }}/loveroom_images/image_${{ env.TIMESTAMP }}.tar"
+
+      - name: Run Docker container on Azure VM
+        run: ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} 'docker run -v loveroom_multimedia_files:/usr/src/app/dist -d --name loveroom_container -p 5000:5000 -e DATABASE_URL="${{ secrets.DATABASE_URL }}" -e SECRET="${{ secrets.SECRET }}" loveroom'
+
+      - name: Change Nginx Configuration
+        run: ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} 'head -n 19 /etc/nginx/nginx.conf > /tmp/nginx_temp.txt; echo "client_max_body_size 100M;" >> /tmp/nginx_temp.txt; tail -n +20 /etc/nginx/nginx.conf >> /tmp/nginx_temp.txt; sudo mv /tmp/nginx_temp.txt /etc/nginx/nginx.conf'
+
+      - name: Restart Nginx on Azure VM
+        run: |
+          ssh -i ssh_key.pem -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "sudo systemctl restart nginx"

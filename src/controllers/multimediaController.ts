@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { uploadsDirectory } from "../storage";
 import { multimediaTypes } from "../constants/multimediaTypes";
 import { createMultimedia, deleteMultimedia } from "../db/multimedia";
+// import mime from "mime";
 
 const MultimediaController = {
   uploadFoto: async (req: Request, res: Response): Promise<any> => {
@@ -9,7 +10,10 @@ const MultimediaController = {
       return res.status(400).json({ error: "No file provided" });
     }
     const fileName = req.file.filename;
-    const nombreArchivo = await createMultimedia(fileName, multimediaTypes.IMAGE);
+    const nombreArchivo = await createMultimedia(
+      fileName,
+      multimediaTypes.IMAGE
+    );
     console.log("Ruta foto " + uploadsDirectory + "/" + fileName);
     return res.json({ nombreArchivo: fileName });
   },
@@ -19,7 +23,10 @@ const MultimediaController = {
       return res.status(400).json({ error: "No file provided" });
     }
     const fileName = req.file.filename;
-    const nombreArchivo = await createMultimedia(fileName, multimediaTypes.VIDEO);
+    const nombreArchivo = await createMultimedia(
+      fileName,
+      multimediaTypes.VIDEO
+    );
     console.log("Ruta video " + uploadsDirectory + "/" + fileName);
     return res.json({ nombreArchivo: fileName });
   },
@@ -27,13 +34,20 @@ const MultimediaController = {
   deleteMultimedia: async (req: Request, res: Response): Promise<any> => {
     const { nombreArchivo } = req.params;
     const result = await deleteMultimedia(nombreArchivo);
-    console.log("Ruta multimedia eliminado: " + uploadsDirectory + "/" + nombreArchivo);
+    console.log(
+      "Ruta multimedia eliminado: " + uploadsDirectory + "/" + nombreArchivo
+    );
   },
 
   getMultimedia: async (req: Request, res: Response): Promise<any> => {
     const { nombreArchivo } = req.params;
     const rutaMultimedia = uploadsDirectory + "/" + nombreArchivo;
     console.log("Ruta multimedia solicitado: " + rutaMultimedia);
+
+    // const mimeType = mime.lookup(rutaMultimedia);
+    // if (mimeType) {
+    //   res.setHeader("Content-Type", mimeType);
+    // }
     return res.sendFile(rutaMultimedia);
   },
 };
