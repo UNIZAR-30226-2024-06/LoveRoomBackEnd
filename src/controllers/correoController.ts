@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import  nodemailer  from 'nodemailer';
 import { autenticacionController } from './autenticacionController';
 
+/**
+ * Configuracion del transporte del correo
+ */
 export const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -13,9 +16,13 @@ export const transporter = nodemailer.createTransport({
   });
 
 const CorreoController = {
+
+    /**
+     * Funcion que envia un correo con el codigo para resetear la contraseña
+     */
     async sendEmailForgotPass(req: Request, res: Response){
       try {
-        const code = autenticacionController.createRandomCode(req.body.correo);
+        const code = autenticacionController.createRandomCode(req.body.correo).toString();
         console.log("Codigo generado: " + code);
         //console.log(process.env.EMAIL);
         //console.log(process.env.PASSWORD);
@@ -23,8 +30,83 @@ const CorreoController = {
           from: 'Asistencia LoveRoom prueba@gmail.com', // sender address
           to: req.body.correo, // list of receivers
           subject: "Restablecimiento de contraseña", // Subject line
-          text: "El código que debes introducir para recuperar la contraseña es el siguiente: " + code.toString(), // plain text body          
-          //html: "<b>Hello world?</b>", // html body
+          attachments: [
+            {
+              filename: 'logo_letras.jpeg',
+              path: __dirname + '/../../resources/logo_letras.jpeg',
+              cid: 'logo_letras'
+            }
+          ],
+          //text: "El código que debes introducir para recuperar la contraseña es el siguiente: " + code.toString(), // plain text body          
+          html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          
+              <style>
+                  p, a, h1, h2, h3, h4, h5, h6 {font-family: 'Roboto', sans-serif !important;}
+                  h1{ font-size: 25px !important;
+                      color: black;
+                  }
+                  p, a{ font-size: 15px !important;
+                        color: black;
+                  }
+          
+                  .imag{
+                      width: 20px;
+                      height: 20px;
+                  }
+
+                  .codigo {
+                    justify-content: center;
+                    align-items: center;
+                    width: 100px;
+                    height: 20px;
+                    background-color: #F89F9F; 
+                    color:white; 
+                    border:none; 
+                    border-radius: 5px;
+                    cursor: pointer;
+                    text-align: center;
+                  }
+
+                  .container {
+                    width: 100%; 
+                    background-color: #FFFFFF;
+                    max-width: 400px;
+                    padding: 20px;
+                    border: 1px solid white;
+                    border-radius: 10px;
+                    box-sizing: border-box;
+                    margin: auto;
+                    margin-top: 5%;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class=container>
+                  <div style="padding: 20px 10px 20px 10px background-color: #FFFFFF;">
+                      <div style="background-color: #FFFFFF; padding: 10px 0px 10px 0px; width: 100%; text-align: center;">
+                          <img src="cid:logo_letras" alt="" style="width: 200px; height: 60px;">
+                      </div>
+          
+                      <div style="background-color: #FFFFFF; padding: 20px 0px 5px 0px; width: 100%; text-align: center;">
+                          <h1>Recuperacion de contraseña</h1>
+                          <p>
+                            Introduce el siguiente código para recuperar tu contraseña:
+                          </p>
+                          <div class="codigo">
+                            <div class="texto">${code}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </body>
+          </html>
+        `
         });
         console.log("Correo para resetear contraseña enviado con exito");
         return res.send({ mensaje: "Correo para resetear contraseña enviado con exito"});

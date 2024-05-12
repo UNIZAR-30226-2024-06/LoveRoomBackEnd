@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import userBD from '../db/usuarios';
 import { getMatchesUsuario } from '../db/match';
 import { deleteAllSalasUsuario } from '../db/salas';
-import { constants } from 'fs/promises';
 
 const UsuarioController = {
 
