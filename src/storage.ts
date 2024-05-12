@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     const userId = req.params.idUsuario;
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(7); // Genera una cadena aleatoria
-    cb(null, userId + "-" + timestamp + "-" + randomString + ".jpg");
+    cb(null, userId + "-" + timestamp + "-" + randomString);
   },
 });
 
