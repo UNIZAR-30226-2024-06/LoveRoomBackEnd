@@ -35,6 +35,11 @@ const CorreoController = {
               filename: 'logo_letras.jpeg',
               path: __dirname + '/../../resources/logo_letras.jpeg',
               cid: 'logo_letras'
+            },
+            {
+              filename: 'logo_dibujo.jpeg',
+              path: __dirname + '/../../resources/logo_dibujo.jpeg',
+              cid: 'logo_dibujo'
             }
           ],
           //text: "El código que debes introducir para recuperar la contraseña es el siguiente: " + code.toString(), // plain text body          
