@@ -8,6 +8,7 @@ import  adminController  from "./controllers/adminController";
 import MensajeController from './controllers/mensajeController';
 import MultimediaController from './controllers/multimediaController';
 import { CorreoController } from './controllers/correoController';
+import PagosController  from './controllers/pagosController';
 import { upload } from './storage';
 
 const router = express.Router();
@@ -110,7 +111,11 @@ router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMult
 
 router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMultimedia);
 
+//------------------------------------------------Rutas de pagos------------------------------------------------
 
+router.get('/payment/client_token/', autenticacionController.checkAuthUser, PagosController.generarEnlacePago);
+
+router.post('/payment/transaction/', autenticacionController.checkAuthUser, PagosController.crearPago);
 
 //------------------------------------------------Rutas de usuarios------------------------------------------------
 
