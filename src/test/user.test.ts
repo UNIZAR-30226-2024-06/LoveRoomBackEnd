@@ -165,7 +165,7 @@ test ('Comprobar token no valido', async () => {
 let idBan = 0;
 
 test ('Comprobar banear usuario', async () => {
-  const responseAdmin = await axios.post('http://localhost:5000/user/login', { correo: "admin@loveroom.com", contrasena: "hola1234"});
+  const responseAdmin = await axios.post('http://localhost:5000/user/login', { correo: "admin@loveroom.com", contrasena: "Hola1234"});
   const tokenAdmin = responseAdmin.data.token;
   const responseUser = await axios.post('http://localhost:5000/user/login', { correo: "test@gmail.com", contrasena: "test"});
   const idUser = responseUser.data.usuario.id;
@@ -210,7 +210,7 @@ test ('Comprobar desbanear usuario', async () => {
     expect(error.response?.status).toBe(403);
   })
 
-  const responseAdmin = await axios.post('http://localhost:5000/user/login', { correo: "admin@loveroom.com", contrasena: "hola1234"});
+  const responseAdmin = await axios.post('http://localhost:5000/user/login', { correo: "admin@loveroom.com", contrasena: "Hola1234"});
   const tokenAdmin = responseAdmin.data.token;
   const headers = {
     headers: {'Authorization': 'Bearer ' + tokenAdmin }
