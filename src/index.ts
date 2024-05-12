@@ -12,8 +12,8 @@ const prisma = new PrismaClient();
 const port = process.env.PORT || 5000;
 
 // Para parsear el body de las peticiones a JSON
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "100mb" }));
+app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
 // Middleware para los headers
 app.use((req: Request, res: Response, next) => {
