@@ -17,7 +17,8 @@ const storage = multer.diskStorage({
 });
 
 const limits = {
-  fileSize: 1024 * 1024 * 50, // limit to 50MB
+  fileSize: 1024 * 1024 * 100, // limit to 100MB
+  fieldSize: 1024 * 1024 * 100,
 };
 
 // Filtrar los archivos para aceptar solo imágenes y videos
