@@ -108,8 +108,9 @@ const UsuarioController = {
    */
   async updateUser(req: Request, res: Response): Promise<any> {
     console.log("Actualizando usuario");
-    const info = req.body.user;
+    const info = req.body;
     const id = req.body.idUser;
+    delete info.idUser;
     console.log(info);
     try {
       const user = await userBD.updateUser(id,JSON.stringify(info));
