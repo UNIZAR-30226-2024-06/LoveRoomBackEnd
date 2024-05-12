@@ -76,8 +76,5 @@ const PagosController = {
     }
 }
 
-<<<<<<< HEAD
 export default PagosController;
-=======
-export default PagosController;
->>>>>>> 184fb4505ce7357a39b7dda6a81dd5c09fd870f6
+
