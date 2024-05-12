@@ -337,6 +337,7 @@ test ('Actualizar usuario', async () => {
     "descripcion": "esto es una prueba",
     "fotoperfil": "null.jpg",
     "idlocalidad": 0,
+    headers: {'Authorization': 'Bearer ' + token }
   };
   const headers = {
     headers: {'Authorization': 'Bearer ' + token }
