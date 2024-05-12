@@ -29,18 +29,20 @@ const CorreoController = {
         const info = transporter.sendMail({
           from: 'Asistencia LoveRoom prueba@gmail.com', // sender address
           to: req.body.correo, // list of receivers
-          subject: "Restablecimiento de contraseña", // Subject line
+          subject: "Restablecer contraseña", // Subject line
           attachments: [
             {
               filename: 'logo_letras.jpeg',
               path: __dirname + '/../../resources/logo_letras.jpeg',
               cid: 'logo_letras'
             },
+            /*
             {
               filename: 'logo_dibujo.jpeg',
               path: __dirname + '/../../resources/logo_dibujo.jpeg',
               cid: 'logo_dibujo'
             }
+            */
           ],
           //text: "El código que debes introducir para recuperar la contraseña es el siguiente: " + code.toString(), // plain text body          
           html: `
@@ -50,62 +52,56 @@ const CorreoController = {
               <meta charset="UTF-8">
               <meta http-equiv="X-UA-Compatible" content="IE=edge">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          
+
               <style>
                   p, a, h1, h2, h3, h4, h5, h6 {font-family: 'Roboto', sans-serif !important;}
-                  h1{ font-size: 25px !important;
-                      color: black;
-                  }
-                  p, a{ font-size: 15px !important;
-                        color: black;
-                  }
-          
-                  .imag{
-                      width: 20px;
-                      height: 20px;
-                  }
+                  h1 { font-size: 25px !important; color: black; }
+                  p, a { font-size: 15px !important; color: black; }
 
                   .codigo {
-                    justify-content: center;
-                    align-items: center;
-                    width: 100px;
-                    height: 20px;
-                    background-color: #F89F9F; 
-                    color:white; 
-                    border:none; 
-                    border-radius: 5px;
-                    cursor: pointer;
-                    text-align: center;
+                      width: 200px;
+                      height: 40px;
+                      background-color: #F89F9F; 
+                      color: white; 
+                      border: none; 
+                      border-radius: 5px;
+                      cursor: pointer;
+                      text-align: center; 
+                      margin: auto; 
                   }
 
                   .container {
-                    width: 100%; 
-                    background-color: #FFFFFF;
-                    max-width: 400px;
-                    padding: 20px;
-                    border: 1px solid white;
-                    border-radius: 10px;
-                    box-sizing: border-box;
-                    margin: auto;
-                    margin-top: 5%;
+                      width: 100%; 
+                      background-color: #FFFFFF;
+                      max-width: 400px;
+                      padding: 20px;
+                      border: 1px solid white;
+                      border-radius: 10px;
+                      box-sizing: border-box;
+                      margin: auto;
+                      margin-top: 5%;
+                      text-align: center;
+                      display: flex; 
+                      flex-direction: column; 
+                      align-items: center; 
+                      justify-content: center; 
                   }
+
+                  .texto { font-size: 25px; }
               </style>
           </head>
           <body>
-              <div class=container>
-                  <div style="padding: 20px 10px 20px 10px background-color: #FFFFFF;">
+              <div class="container">
+                  <div style="padding: 20px 10px 20px 10px; background-color: #FFFFFF;">
                       <div style="background-color: #FFFFFF; padding: 10px 0px 10px 0px; width: 100%; text-align: center;">
                           <img src="cid:logo_letras" alt="" style="width: 200px; height: 60px;">
                       </div>
-          
-                      <div style="background-color: #FFFFFF; padding: 20px 0px 5px 0px; width: 100%; text-align: center;">
-                          <h1>Recuperacion de contraseña</h1>
-                          <p>
-                            Introduce el siguiente código para recuperar tu contraseña:
-                          </p>
+                      <h1>Recuperacion de contraseña</h1>
+                      <p>Introduce el siguiente código para recuperar tu contraseña:</p>
+                      <div class="marco">
                           <div class="codigo">
-                            <div class="texto">${code}
-                          </div>
+                              <div class="texto">${code}</div>
+                          </div>  
                       </div>
                   </div>
               </div>
