@@ -53,7 +53,7 @@ jobs:
         BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
         BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
         BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
-        
+
     - name: Run Jest Tests
       run: npm test
       env: 

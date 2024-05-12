@@ -35,6 +35,9 @@ jobs:
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
+        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
       
 
     - name: Deploy Backend
@@ -44,6 +47,9 @@ jobs:
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
+        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
 
     - name: Run Jest Tests
       run: npm test
@@ -52,6 +58,9 @@ jobs:
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
+        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
         
   deploy:
     runs-on: ubuntu-latest
@@ -62,7 +71,16 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Build Docker image
-      run: docker build -t loveroom --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" --build-arg SECRET="${{ secrets.SECRET }}" --build-arg PASSWORD='${{ secrets.PASSWORD }}' --build-arg EMAIL="${{ secrets.EMAIL }}"  .
+      run: |    
+        docker build -t loveroom \
+        --build-arg DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+        --build-arg SECRET="${{ secrets.SECRET }}" \
+        --build-arg PASSWORD='${{ secrets.PASSWORD }}' \
+        --build-arg EMAIL="${{ secrets.EMAIL }}" \
+        --build-arg BRAINTREE_MERCHANT_ID="${{ secrets.BRAINTREE_MERCHANT_ID }}" \
+        --build-arg BRAINTREE_PUBLIC_KEY="${{ secrets.BRAINTREE_PUBLIC_KEY }}" \
+        --build-arg BRAINTREE_PRIVATE_KEY="${{ secrets.BRAINTREE_PRIVATE_KEY }}" \
+        .
 
     - name: Save Docker image to file
       run: docker save loveroom > image.tar

@@ -37,8 +37,9 @@ const MensajeController = {
     createMensaje: async (req: Request, res: Response): Promise<any> => {
         try {
             const idSala = req.params.idSala;
-            const { idUsuario, texto} = req.body;
-            const multimedia = uploadsDirectory + req.body.multimedia;
+            const idUsuario = req.body.idUsuario;
+            const multimedia = req.body.multimedia;
+            const texto = req.body.texto;
             if(!texto.trim()){
                 console.error("El mensaje no puede estar vacío");
                 return res.status(400).send("El mensaje no puede estar vacío" );

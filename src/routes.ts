@@ -8,6 +8,7 @@ import  adminController  from "./controllers/adminController";
 import MensajeController from './controllers/mensajeController';
 import MultimediaController from './controllers/multimediaController';
 import { CorreoController } from './controllers/correoController';
+import PagosController  from './controllers/pagosController';
 import { upload } from './storage';
 import PagosController  from './controllers/pagosController';
 const router = express.Router();

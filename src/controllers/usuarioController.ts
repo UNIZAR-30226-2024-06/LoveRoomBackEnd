@@ -113,7 +113,7 @@ const UsuarioController = {
     const info = req.body;
     console.log(info);
     try {
-      const user = await userBD.updateUser(id, JSON.stringify(info));
+      const user = await userBD.updateUser(id,JSON.stringify(info));
       console.log(user);
       res.json("Usuario actualizado correctamente");
     } catch (error) {
