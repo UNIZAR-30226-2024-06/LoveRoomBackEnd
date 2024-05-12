@@ -27,6 +27,9 @@ jobs:
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
+        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
         
     - name: Generate prisma client
       run: npx prisma generate 
@@ -35,6 +38,9 @@ jobs:
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
+        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
       
 
     - name: Deploy Backend
@@ -44,12 +50,10 @@ jobs:
         SECRET: ${{ secrets.SECRET }}
         PASSWORD: ${{ secrets.PASSWORD }}
         EMAIL: ${{ secrets.EMAIL }}
-
-    - name: Wait for Backend Deployment
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '1m' # Espera durante 1 minuto
-
+        BRAINTREE_MERCHANT_ID: ${{ secrets.BRAINTREE_MERCHANT_ID }}
+        BRAINTREE_PUBLIC_KEY: ${{ secrets.BRAINTREE_PUBLIC_KEY }}
+        BRAINTREE_PRIVATE_KEY: ${{ secrets.BRAINTREE_PRIVATE_KEY }}
+        
     - name: Run Jest Tests
       run: npm test
       env: 
