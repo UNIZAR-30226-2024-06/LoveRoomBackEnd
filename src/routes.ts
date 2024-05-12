@@ -9,7 +9,7 @@ import MensajeController from './controllers/mensajeController';
 import MultimediaController from './controllers/multimediaController';
 import { CorreoController } from './controllers/correoController';
 import { upload } from './storage';
-
+import PagosController  from './controllers/pagosController';
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -110,7 +110,11 @@ router.get('/multimedia/:nombreArchivo/:idUsuario', MultimediaController.getMult
 
 router.delete('/multimedia/delete/:nombreArchivo', MultimediaController.deleteMultimedia);
 
+//------------------------------------------------Rutas de pagos------------------------------------------------
 
+router.get('/payment/client_token/', autenticacionController.checkAuthUser, PagosController.generarEnlacePago);
+
+router.post('/payment/transaction/', autenticacionController.checkAuthUser, PagosController.crearPago);
 
 //------------------------------------------------Rutas de usuarios------------------------------------------------
 
