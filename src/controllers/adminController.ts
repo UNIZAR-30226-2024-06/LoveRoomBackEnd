@@ -42,6 +42,8 @@ const adminController = {
             BannedUsers: bannedUsers,
             TotalUsers: totalUsers
         }
+
+        res.json(formattedResponse);
     },
 
     getUsersAgeStats: async (req: Request, res: Response): Promise<void> => {
