@@ -205,7 +205,7 @@ router.post(
 );
 
 router.get(
-  "/multimedia/get/:nombreArchivo",
+  "/multimedia/:nombreArchivo",
   MultimediaController.getMultimedia
 );
 
