@@ -83,7 +83,7 @@ export const deleteMultimedia = async (ruta: string): Promise<any> => {
 //Dada una ruta de un archivo multimedia devuelve el tipo de archivo
 export const getTipoMultimedia = async (ruta: string): Promise<any> => {
   try {
-    const multimedia = await prisma.multimedia.findFirst({
+    const multimedia = await prisma.multimedia.findUnique({
       where: { ruta: ruta },
     });
     return multimedia?.tipomultimedia;
