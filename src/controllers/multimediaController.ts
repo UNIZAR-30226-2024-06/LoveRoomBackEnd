@@ -43,7 +43,7 @@ const MultimediaController = {
   },
 
   getMultimedia: async (req: Request, res: Response): Promise<any> => {
-    const { nombreArchivo }  = req.body.nombreArchivo;
+    const { nombreArchivo }  = req.params;
     const rutaMultimedia = uploadsDirectory + "/" + nombreArchivo;
     console.log("Ruta multimedia solicitado: " + rutaMultimedia);
 
