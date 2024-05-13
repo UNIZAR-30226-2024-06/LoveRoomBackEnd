@@ -35,7 +35,7 @@ const MultimediaController = {
   },
 
   deleteMultimedia: async (req: Request, res: Response): Promise<any> => {
-    const { nombreArchivo } = req.params;
+    const { nombreArchivo } = req.params.nombreArchivo;
     const result = await deleteMultimedia(nombreArchivo);
     console.log(
       "Ruta multimedia eliminado: " + uploadsDirectory + "/" + nombreArchivo
@@ -43,7 +43,7 @@ const MultimediaController = {
   },
 
   getMultimedia: async (req: Request, res: Response): Promise<any> => {
-    const { nombreArchivo } = req.params;
+    const { nombreArchivo } = req.params.nombreArchivo;
     const rutaMultimedia = uploadsDirectory + "/" + nombreArchivo;
     console.log("Ruta multimedia solicitado: " + rutaMultimedia);
 
