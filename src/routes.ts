@@ -205,7 +205,7 @@ router.post(
 );
 
 router.get(
-  "/multimedia/:nombreArchivo",
+  "/multimedia/send/:nombreArchivo",
   autenticacionController.checkAuthUser,
   MultimediaController.getMultimedia
 );
