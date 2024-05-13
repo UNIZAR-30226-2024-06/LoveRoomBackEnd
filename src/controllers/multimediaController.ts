@@ -48,11 +48,12 @@ const MultimediaController = {
     console.log("Ruta multimedia solicitado: " + rutaMultimedia);
 
     const tipoMultimedia = await getTipoMultimedia(nombreArchivo);
-    var resOptions = { headers: { TipoMultimedia: "U" } }; // Undefined
+    console.log("Tipo de multimedia: " + tipoMultimedia);
+    var resOptions = { headers: { "Tipo-Multimedia": "U" } }; // Undefined
     if (tipoMultimedia) {
       console.log("Tipo de multimedia: " + tipoMultimedia);
       // res.setHeader("TipoMultimedia", tipoMultimedia);
-      resOptions = { headers: { TipoMultimedia: tipoMultimedia } };
+      resOptions = { headers: { "Tipo-Multimedia": tipoMultimedia } };
     }
     console.log("resOptions: ", resOptions);
     return res.sendFile(rutaMultimedia, resOptions);
