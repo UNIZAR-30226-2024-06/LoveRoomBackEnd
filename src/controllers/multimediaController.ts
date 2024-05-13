@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { uploadsDirectory } from "../storage";
 import { multimediaTypes } from "../constants/multimediaTypes";
 import { createMultimedia, deleteMultimedia } from "../db/multimedia";
-// import mime from "mime";
+import mime from "mime";
 
 const MultimediaController = {
   uploadFoto: async (req: Request, res: Response): Promise<any> => {
@@ -44,10 +44,10 @@ const MultimediaController = {
     const rutaMultimedia = uploadsDirectory + "/" + nombreArchivo;
     console.log("Ruta multimedia solicitado: " + rutaMultimedia);
 
-    // const mimeType = mime.lookup(rutaMultimedia);
-    // if (mimeType) {
-    //   res.setHeader("Content-Type", mimeType);
-    // }
+    const mimeType = mime.lookup(rutaMultimedia);
+    if (mimeType) {
+      res.setHeader("Tipo", mimeType);
+    }
     return res.sendFile(rutaMultimedia);
   },
 };
