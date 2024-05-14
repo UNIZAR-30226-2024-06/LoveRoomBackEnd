@@ -209,6 +209,11 @@ router.get(
   MultimediaController.getMultimedia
 );
 
+router.get(
+  "/multimedia/:nombreArchivo/tipo",
+  MultimediaController.getMultimediaType
+);
+
 router.delete(
   "/multimedia/delete/:nombreArchivo",
   autenticacionController.checkAuthUser,
