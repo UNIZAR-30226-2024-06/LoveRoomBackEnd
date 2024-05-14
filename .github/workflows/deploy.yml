@@ -86,9 +86,9 @@ jobs:
 
       - name: Setup SSH
         run: |
-          echo "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/ssh_key
+          echo "${{ secrets.AZURE_SSH_KEY }}" > ssh_key
           chmod 600 ~/.ssh/ssh_key
-          echo "${{ secrets.AZURE_SSH_KEY_PUB }}" > ~/.ssh/ssh_key.pub
+          echo "${{ secrets.AZURE_SSH_KEY_PUB }}" > ssh_key.pub
           chmod 600 ~/.ssh/ssh_key.pub
 
       - name: Set timestamp as environment variable
@@ -105,11 +105,11 @@ jobs:
 
       - name: Copy image to Azure VM
         run: |
-          scp -o StrictHostKeyChecking=no "image_${{ env.TIMESTAMP }}.tar" ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/${{ secrets.AZURE_USERNAME }}/loveroom_images/
+          scp -i ssh_key -o StrictHostKeyChecking=no "image_${{ env.TIMESTAMP }}.tar" ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/${{ secrets.AZURE_USERNAME }}/loveroom_images/
 
       - name: Stop and remove existing Docker container on Azure VM if running
         run: |
-          is_running=$(ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker ps -q -f name=loveroom_container")
+          is_running=$(ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker ps -q -f name=loveroom_container")
           if [ -n "$is_running" ]; then
             echo "Container is running."
             ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker stop loveroom_container && docker rm loveroom_container"
@@ -119,14 +119,14 @@ jobs:
 
       - name: Load Docker image on Azure VM
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker load -i /home/${{ secrets.AZURE_USERNAME }}/loveroom_images/image_${{ env.TIMESTAMP }}.tar"
+          ssh -i ssh_key  -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker load -i /home/${{ secrets.AZURE_USERNAME }}/loveroom_images/image_${{ env.TIMESTAMP }}.tar"
 
       - name: Run Docker container on Azure VM
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} 'docker run -v loveroom_multimedia_files:/usr/src/app/dist -d --name loveroom_container -p 5000:5000 -e DATABASE_URL="${{ secrets.DATABASE_URL }}" -e SECRET="${{ secrets.SECRET }}" loveroom'
+        run: ssh -i ssh_key  -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} 'docker run -v loveroom_multimedia_files:/usr/src/app/dist -d --name loveroom_container -p 5000:5000 -e DATABASE_URL="${{ secrets.DATABASE_URL }}" -e SECRET="${{ secrets.SECRET }}" loveroom'
 
       #- name: Change Nginx Configuration on Azure VM
       #  run: ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "sudo sed '13 a client_max_body_size 100M;' -i /etc/nginx/nginx.conf"
 
       - name: Restart Nginx on Azure VM
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "sudo systemctl restart nginx"
+          ssh -i ssh_key  -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "sudo systemctl restart nginx"
