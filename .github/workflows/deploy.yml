@@ -112,7 +112,7 @@ jobs:
           is_running=$(ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker ps -q -f name=loveroom_container")
           if [ -n "$is_running" ]; then
             echo "Container is running."
-            ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker stop loveroom_container && docker rm loveroom_container"
+            ssh -i ssh_key -o StrictHostKeyChecking=no ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }} "docker stop loveroom_container && docker rm loveroom_container"
           else
             echo "Container is not running."
           fi
