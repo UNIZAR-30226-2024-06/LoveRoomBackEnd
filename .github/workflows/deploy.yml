@@ -105,7 +105,7 @@ jobs:
 
       - name: Copy image to Azure VM
         run: |
-          scp -i ssh_key -o StrictHostKeyChecking=no "image_${{ env.TIMESTAMP }}.tar" ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/${{ secrets.AZURE_USERNAME }}/loveroom_images/
+          scp -i ssh_key -o StrictHostKeyChecking=no "image_${{ env.TIMESTAMP }}.tar ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_HOST }}:/home/${{ secrets.AZURE_USERNAME }}/loveroom_images/"
 
       - name: Stop and remove existing Docker container on Azure VM if running
         run: |
