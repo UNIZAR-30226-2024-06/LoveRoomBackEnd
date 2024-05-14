@@ -210,7 +210,7 @@ router.get(
 );
 
 router.get(
-  "/multimedia/get/type",
+  "/multimedia/:nombreArchivo/tipo",
   MultimediaController.getMultimediaType
 );
 

@@ -60,11 +60,11 @@ const MultimediaController = {
   },
 
   getMultimediaType: async (req: Request, res: Response): Promise<any> => {
-    const { nombreArchivo }  = req.body;
+    const { nombreArchivo }  = req.params;
     const tipoMultimedia = await getTipoMultimedia(nombreArchivo);
     console.log("Tipo de multimedia: " + tipoMultimedia);
     return res.json({ tipo: tipoMultimedia });
-  },
+  }
 };
 
 export default MultimediaController;

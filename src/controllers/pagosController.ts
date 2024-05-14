@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { updateType } from '../db/usuarios';
-import braintree  from 'braintree';
+// import braintree  from 'braintree';
 
-// Configuración de la pasarela Braintree
-const gateway = new braintree.BraintreeGateway({
-    environment: braintree.Environment.Sandbox,
-    merchantId: process.env.BRAINTREE_MERCHANT_ID ?? '',
-    publicKey: process.env.BRAINTREE_PUBLIC_KEY ?? '',
-    privateKey: process.env.BRAINTREE_PRIVATE_KEY ?? ''
-});
+// // Configuración de la pasarela Braintree
+// const gateway = new braintree.BraintreeGateway({
+//     environment: braintree.Environment.Sandbox,
+//     merchantId: process.env.BRAINTREE_MERCHANT_ID ?? '',
+//     publicKey: process.env.BRAINTREE_PUBLIC_KEY ?? '',
+//     privateKey: process.env.BRAINTREE_PRIVATE_KEY ?? ''
+// });
 
 const PagosController = {
     generarEnlacePago: async(req: Request, res: Response): Promise<any> => {
