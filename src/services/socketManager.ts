@@ -283,14 +283,6 @@ export default class SocketManager {
                 }
             });
 
-            // Completar: añadir evento para ¿borrar sala (unmatch)? cambiar nombre sala?
-
-            // Completar: Si el usuario ya estaba en una sala, lo volvemos a unir? Daria problemas (en salas unitarias)
-            // pero solucionaria otros como apagar y encender el movil y seguir estando en la sala
-            // if (this.userRooms[userId]) {
-            //     socket.join(this.userRooms[userId]);
-            //     console.log(userId, ' re-joined room ', this.userRooms[userId]);
-            // }
         });
     
     }
@@ -304,6 +296,8 @@ export default class SocketManager {
                 idVideo
             );
             console.log('Match sent by id: ', senderId, ' to id: ', receiverId, ' in room: ', idSala, ' with video: ', idVideo);
+        } else {
+            console.log('Error al emitir match. this.io: ', this.io, ' this.users[receiverId]: ', this.users[receiverId]);
         }
     }
 

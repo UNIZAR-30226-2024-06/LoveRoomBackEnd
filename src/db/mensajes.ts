@@ -92,10 +92,19 @@ export const reportMessage = async (idMensaje: string, motivo_: string, idUsuari
 }
 
 // Devuelve todos los reportes de mensajes
-export const getAllReportsDB = async (): Promise<any> => {
+export const getAllReportsDB = async (showResolved: boolean): Promise<any> => {
   try {
-    const reports = await prisma.reporte.findMany();
-    return reports;
+    if (showResolved) {
+      const reports = await prisma.reporte.findMany();
+      return reports;
+    } else {
+      const reports = await prisma.reporte.findMany({
+        where: {
+          resuelto: false
+        }
+      });
+      return reports;
+    }
   } catch (error) {
     console.error('Error al obtener los reportes:', error);
     throw error;
@@ -118,14 +127,21 @@ export const getReportById = async (idReport: string): Promise<any> => {
   }
 }
 
-export const resolveReport = async (idReport: string): Promise<any> => {
+export const resolveReport = async (idReport: string, banUser: boolean): Promise<any> => {
   const idReport_Int = parseInt(idReport);
   try {
     // Buscamos el reporte por su ID y actualizamos el campo 'resuelto' a true
-    await prisma.reporte.update({
+    const reporte = await prisma.reporte.update({
       where: { id: idReport_Int },
       data: { resuelto: true }
     });
+    // Si se ha marcado banUser como true, baneamos al usuario que ha creado el mensaje reportado
+    if (banUser && reporte.idusuario) {
+      await prisma.usuario.update({
+        where: { id: reporte.idusuario },
+        data: { baneado: true }
+      });
+    }
   } catch (error) {
     console.error('Error al resolver el reporte:', error);
     throw error;

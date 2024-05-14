@@ -77,8 +77,12 @@ const MensajeController = {
 
     getAllReports: async (req: Request, res: Response): Promise<any> => {
         try {
-            const mensajes = await getAllReportsDB();
-            return res.json(mensajes);
+            let { showResolved } = req.body;
+            if (showResolved === undefined) {
+                showResolved = false;
+            }
+            const reportes = await getAllReportsDB(showResolved);
+            return res.json(reportes);
         } catch (error) {
             return res.status(500).json({ error: "Error al obtener reportes" });
         }
@@ -97,7 +101,11 @@ const MensajeController = {
     resolveReport: async (req: Request, res: Response): Promise<any> => {
         try {
             const { idReport } = req.params;
-            await resolveReport(idReport);
+            let { banUser } = req.body;
+            if (banUser === undefined) {
+                banUser = false;
+            }
+            await resolveReport(idReport, banUser);
             return res.json({ message: "Reporte resuelto correctamente" });
         } catch (error) {
             return res.status(500).json({ error: "Error al resolver reporte" });
